@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#22c55e">
+<title>JUNIOR JSK</title>
+<link rel="manifest" href="manifest.json">
+<style>
+body{background:#111;color:#fff;font-family:Arial;padding:20px;text-align:center}
+h1{color:#22c55e;margin:10px 0 5px}
+textarea{width:100%;height:140px;font-size:18px;padding:12px;border-radius:12px;border:0;box-sizing:border-box}
+button{width:100%;padding:16px;margin-top:10px;font-size:18px;border-radius:12px;border:0;font-weight:bold}
+#lire{background:#22c55e;color:#000}
+#pause{background:#f59e0b;color:#000;display:none}
+#reprendre{background:#3b82f6;color:#fff;display:none}
+#effacer{background:#333;color:#fff}
+#install{background:#f59e0b;display:none}
+</style>
+</head>
+<body>
+<h1>JUNIOR JSK</h1>
+<p>Version Application PWA</p>
+<textarea id="t" placeholder="Tape ici BOSS..."></textarea>
+<button id="lire">▶️ LIRE</button>
+<button id="pause">⏸️ PAUSE</button>
+<button id="reprendre">▶️ REPRENDRE</button>
+<button id="effacer">🗑️ EFFACER</button>
+<button id="install">📲 INSTALLER L'APP</button>
+<script>
+let synth = window.speechSynthesis;
+let txt = document.getElementById('t');
+let bLire = document.getElementById('lire');
+let bPause = document.getElementById('pause');
+let bRep = document.getElementById('reprendre');
+let bEff = document.getElementById('effacer');
+bLire.onclick = function(){
+  if(!txt.value.trim()) return;
+  synth.cancel();
+  let u = new SpeechSynthesisUtterance(txt.value);
+  u.lang = 'fr-FR';
+  u.rate = 0.9;
+  let voix = synth.getVoices().find(v => v.lang.startsWith('fr'));
+  if(voix) u.voice = voix;
+  u.onstart = function(){
+    bLire.style.display='none';
+    bPause.style.display='block';
+    bRep.style.display='none';
+  };
+  u.onend = function(){
+    bLire.style.display='block';
+    bPause.style.display='none';
+    bRep.style.display='none';
+  };
+  synth.speak(u);
+};
+bPause.onclick = function(){
+  synth.pause();
+  bPause.style.display='none';
+  bRep.style.display='block';
+};
+bRep.onclick = function(){
+  synth.resume();
+  bRep.style.display='none';
+  bPause.style.display='block';
+};
+bEff.onclick = function(){
+  txt.value='';
+  synth.cancel();
+  bLire.style.display='block';
+  bPause.style.display='none';
+  bRep.style.display='none';
+};
+let p;
+window.addEventListener('beforeinstallprompt', e=>{
+  e.preventDefault();
+  p=e;
+  document.getElementById('install').style.display='block';
+});
+document.getElementById('install').onclick = async ()=>{
+  if(p){ p.prompt(); await p.userChoice; }
+};
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js');
+}
+</script>
+</body>
+  </html>
