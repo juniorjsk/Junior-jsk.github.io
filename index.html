@@ -13,11 +13,7 @@ p{color:#aaa;margin:0 0 20px}
 textarea{width:100%;max-width:500px;height:150px;border-radius:15px;padding:15px;font-size:18px;border:none;outline:none;box-sizing:border-box}
 button{border:none;border-radius:12px;padding:14px 18px;font-size:17px;font-weight:bold;cursor:pointer;margin:6px 4px}
 .lire{background:#22c55e;color:#fff;width:100%;max-width:500px}
-.pause{background:#f59e0b;color:#fff}
-.reprendre{background:#3b82f6;color:#fff}
-.stop{background:#ef4444;color:#fff}
-.row{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;max-width:500px;margin:10px auto 0}
-.row button{flex:1;min-width:110px}
+.pauseBtn{background:#f59e0b;color:#fff;width:100%;max-width:500px}
 select{width:100%;max-width:500px;padding:12px;border-radius:12px;font-size:16px;margin-top:12px}
 </style>
 </head>
@@ -26,19 +22,22 @@ select{width:100%;max-width:500px;padding:12px;border-radius:12px;font-size:16px
 <p>Ton assistant vocal</p>
 <textarea id="texte" placeholder="Écris ici ce que tu veux que je dise...">Bonjour, je suis Junior, le boss</textarea>
 <br>
-<select id="voix"></select>
+<select id="voix" onchange="changerVoix()"></select>
 <br><br>
 <button class="lire" onclick="lire()">▶️ LIRE</button>
-<div class="row">
-<button class="pause" onclick="pauseLecture()">⏸️ PAUSE</button>
-<button class="reprendre" onclick="reprendreLecture()">▶️ REPRENDRE</button>
-<button class="stop" onclick="stopLecture()">⏹️ STOP</button>
-</div>
+<br>
+<button id="btnPause" class="pauseBtn" onclick="togglePause()">⏸️ PAUSE</button>
 <script>
 let voixListe = [];
+let utteranceActuelle = null;
 function chargerVoix(){
-  voixListe = speechSynthesis.getVoices();
+  let toutes = speechSynthesis.getVoices();
+  if(!toutes.length) return;
+  let fr = toutes.filter(v => v.lang.toLowerCase().startsWith('fr'));
+  let autres = toutes.filter(v => !v.lang.toLowerCase().startsWith('fr'));
+  voixListe = [...fr, ...autres];
   let sel = document.getElementById('voix');
+  let ancienne = sel.value;
   sel.innerHTML = '';
   voixListe.forEach((v,i)=>{
     let o = document.createElement('option');
@@ -46,32 +45,52 @@ function chargerVoix(){
     o.text = v.name + ' (' + v.lang + ')';
     sel.appendChild(o);
   });
+  if(ancienne !== '' && ancienne !== null) sel.value = ancienne;
+  else sel.value = 0;
 }
 speechSynthesis.onvoiceschanged = chargerVoix;
 chargerVoix();
+setTimeout(chargerVoix, 500);
+function changerVoix(){
+  speechSynthesis.cancel();
+  resetBoutonPause();
+}
+function resetBoutonPause(){
+  let b = document.getElementById('btnPause');
+  b.innerHTML = '⏸️ PAUSE';
+  b.style.background = '#f59e0b';
+}
 function lire(){
   speechSynthesis.cancel();
   let texte = document.getElementById('texte').value;
   if(!texte) return;
   let u = new SpeechSynthesisUtterance(texte);
   let idx = document.getElementById('voix').value;
-  if(voixListe[idx]) u.voice = voixListe[idx];
+  let voixChoisie = voixListe[idx];
+  if(voixChoisie){
+    u.voice = voixChoisie;
+    u.lang = voixChoisie.lang;
+  }
   u.rate = 1;
   u.pitch = 1;
+  u.onend = resetBoutonPause;
+  u.onerror = resetBoutonPause;
+  utteranceActuelle = u;
+  resetBoutonPause();
   speechSynthesis.speak(u);
 }
-function pauseLecture(){
-  if(speechSynthesis.speaking && !speechSynthesis.paused){
-    speechSynthesis.pause();
-  }
-}
-function reprendreLecture(){
+function togglePause(){
   if(speechSynthesis.paused){
     speechSynthesis.resume();
+    let b = document.getElementById('btnPause');
+    b.innerHTML = '⏸️ PAUSE';
+    b.style.background = '#f59e0b';
+  } else if(speechSynthesis.speaking){
+    speechSynthesis.pause();
+    let b = document.getElementById('btnPause');
+    b.innerHTML = '▶️ REPRENDRE';
+    b.style.background = '#3b82f6';
   }
-}
-function stopLecture(){
-  speechSynthesis.cancel();
 }
 if('serviceWorker' in navigator){
   navigator.serviceWorker.register('sw.js');
