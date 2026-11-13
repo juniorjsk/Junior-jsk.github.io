@@ -5,12 +5,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#101827">
+<meta name="description" content="JUNIOR SAVY, ton assistant personnel.">
+<link rel="manifest" href="./manifest.json">
 <title>JUNIOR SAVY</title>
 
 <style>
-* {
-    box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
     margin: 0;
@@ -30,9 +30,7 @@ header {
     padding: 20px 10px;
 }
 
-.logo {
-    font-size: 45px;
-}
+.logo { font-size: 45px; }
 
 h1 {
     color: #22c55e;
@@ -40,9 +38,7 @@ h1 {
     font-size: 30px;
 }
 
-header p {
-    color: #9ca3af;
-}
+header p { color: #9ca3af; }
 
 .panel {
     background: #172337;
@@ -69,6 +65,11 @@ select, input, textarea {
     font-size: 15px;
 }
 
+input[type="range"] {
+    padding: 5px 0;
+    accent-color: #22c55e;
+}
+
 textarea {
     min-height: 100px;
     resize: vertical;
@@ -85,29 +86,18 @@ button {
     margin-top: 8px;
 }
 
-button:active {
-    transform: scale(.97);
+button:active { transform: scale(.97); }
+
+button:focus-visible {
+    outline: 2px solid white;
+    outline-offset: 3px;
 }
 
-.green {
-    background: #16a34a;
-}
-
-.blue {
-    background: #2563eb;
-}
-
-.orange {
-    background: #d97706;
-}
-
-.red {
-    background: #dc2626;
-}
-
-.purple {
-    background: #7c3aed;
-}
+.green { background: #16a34a; }
+.blue { background: #2563eb; }
+.orange { background: #d97706; }
+.red { background: #dc2626; }
+.purple { background: #7c3aed; }
 
 .buttons {
     display: grid;
@@ -115,13 +105,8 @@ button:active {
     gap: 8px;
 }
 
-.buttons button {
-    width: 100%;
-}
-
-.full {
-    width: 100%;
-}
+.buttons button { width: 100%; }
+.full { width: 100%; }
 
 .chat {
     height: 300px;
@@ -173,13 +158,8 @@ footer {
 }
 
 @media(max-width: 380px) {
-    h1 {
-        font-size: 25px;
-    }
-
-    button {
-        font-size: 13px;
-    }
+    h1 { font-size: 25px; }
+    button { font-size: 13px; }
 }
 </style>
 </head>
@@ -204,7 +184,6 @@ footer {
     </select>
 
     <label id="voiceLabel">Voix disponible</label>
-
     <select id="voice"></select>
 
     <label id="speedLabel">
@@ -227,12 +206,13 @@ footer {
 
     <h3 id="chatTitle">💬 Conversation</h3>
 
-    <div class="chat" id="chat"></div>
+    <div class="chat" id="chat" aria-live="polite"></div>
 
     <label id="messageLabel">Ton message</label>
 
     <input type="text" id="message"
-        placeholder="Écris ton message...">
+        placeholder="Écris ton message..."
+        autocomplete="off">
 
     <button class="green full" onclick="sendMessage()"
         id="sendButton">
@@ -321,7 +301,9 @@ date: "Nous sommes le ",
 empty: "Écris d'abord un message.",
 ready: "● Prêt",
 listening: "● Je t'écoute...",
-error: "Microphone indisponible"
+error: "Microphone indisponible",
+noVoice: "Aucune voix disponible",
+reading: "● Lecture en cours"
 },
 
 en: {
@@ -334,7 +316,9 @@ date: "Today is ",
 empty: "Please type a message first.",
 ready: "● Ready",
 listening: "● Listening...",
-error: "Microphone unavailable"
+error: "Microphone unavailable",
+noVoice: "No voice available",
+reading: "● Reading..."
 }
 
 };
@@ -355,7 +339,6 @@ function addMessage(text, type) {
     box.textContent = text;
 
     $("chat").appendChild(box);
-
     $("chat").scrollTop = $("chat").scrollHeight;
 
 }
@@ -371,7 +354,6 @@ function sendMessage() {
     }
 
     addMessage(text, "user");
-
     input.value = "";
 
     answer(text);
@@ -389,28 +371,23 @@ function answer(text) {
         q.includes("hello") ||
         q.includes("hi")
     ) {
-
         response = t("greeting");
-
     }
 
     else if (
         q.includes("heure") ||
         q.includes("time")
     ) {
-
         response = t("time") +
         new Date().toLocaleTimeString(
             language() === "fr" ? "fr-FR" : "en-US"
         );
-
     }
 
     else if (
         q.includes("date") ||
         q.includes("day")
     ) {
-
         response = t("date") +
         new Date().toLocaleDateString(
             language() === "fr" ? "fr-FR" : "en-US",
@@ -421,26 +398,20 @@ function answer(text) {
                 day: "numeric"
             }
         );
-
     }
 
     else if (
         q.includes("aide") ||
         q.includes("help")
     ) {
-
         response = t("help");
-
     }
 
     else {
-
         response = t("unknown");
-
     }
 
     lastResponse = response;
-
     addMessage(response, "assistant");
 
 }
@@ -448,7 +419,6 @@ function answer(text) {
 function showHelp() {
 
     lastResponse = t("help");
-
     addMessage(lastResponse, "assistant");
 
 }
@@ -458,7 +428,9 @@ function readLast() {
     if (!lastResponse) return;
 
     if (!("speechSynthesis" in window)) {
-        alert("La lecture vocale n'est pas disponible.");
+        alert(language() === "fr"
+            ? "La lecture vocale n'est pas disponible."
+            : "Speech playback is unavailable.");
         return;
     }
 
@@ -467,7 +439,6 @@ function readLast() {
     const speech = new SpeechSynthesisUtterance(lastResponse);
 
     const selected = $("voice").value;
-
     const voice = voices.find(v => v.name === selected);
 
     if (voice) {
@@ -475,13 +446,11 @@ function readLast() {
     }
 
     speech.lang = language() === "fr" ? "fr-FR" : "en-US";
-
     speech.rate = Number($("speed").value);
-
     speech.pitch = Number($("pitch").value);
 
     speech.onstart = () => {
-        $("status").textContent = "● Lecture en cours";
+        $("status").textContent = t("reading");
     };
 
     speech.onend = () => {
@@ -524,8 +493,14 @@ function stopSpeech() {
 
 function clearChat() {
 
-    $("chat").innerHTML = "";
+    stopSpeech();
 
+    if (recognition) {
+        recognition.abort();
+        recognition = null;
+    }
+
+    $("chat").innerHTML = "";
     lastResponse = "";
 
     addMessage(t("welcome"), "assistant");
@@ -549,9 +524,7 @@ function loadVoices() {
     filtered.forEach(v => {
 
         const option = document.createElement("option");
-
         option.value = v.name;
-
         option.textContent = v.name + " (" + v.lang + ")";
 
         $("voice").appendChild(option);
@@ -561,10 +534,8 @@ function loadVoices() {
     if (filtered.length === 0) {
 
         const option = document.createElement("option");
-
-        option.textContent = selectedLanguage === "fr"
-            ? "Aucune voix française disponible"
-            : "No English voice available";
+        option.value = "";
+        option.textContent = t("noVoice");
 
         $("voice").appendChild(option);
 
@@ -588,6 +559,10 @@ function startListening() {
 
     }
 
+    if (recognition) {
+        recognition.abort();
+    }
+
     recognition = new SpeechRecognition();
 
     recognition.lang = language() === "fr"
@@ -595,6 +570,7 @@ function startListening() {
         : "en-US";
 
     recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
 
     recognition.onstart = () => {
         $("status").textContent = t("listening");
@@ -605,7 +581,6 @@ function startListening() {
         const result = event.results[0][0].transcript;
 
         $("message").value = result;
-
         sendMessage();
 
     };
@@ -615,10 +590,15 @@ function startListening() {
     };
 
     recognition.onend = () => {
+        recognition = null;
         $("status").textContent = t("ready");
     };
 
-    recognition.start();
+    try {
+        recognition.start();
+    } catch (error) {
+        $("status").textContent = t("error");
+    }
 
 }
 
@@ -638,17 +618,13 @@ function updateLanguage() {
         ? "Available voice"
         : "Voix disponible";
 
-    $("speedLabel").textContent = en
-        ? "Speed"
-        : "Vitesse";
+    $("speedLabel").innerHTML = (en ? "Speed : " : "Vitesse : ") +
+        '<span id="speedValue">' + $("speed").value + '</span>';
 
-    $("pitchLabel").textContent = en
-        ? "Pitch"
-        : "Tonalité";
+    $("pitchLabel").innerHTML = (en ? "Pitch : " : "Tonalité : ") +
+        '<span id="pitchValue">' + $("pitch").value + '</span>';
 
-    $("chatTitle").textContent = en
-        ? "💬 Conversation"
-        : "💬 Conversation";
+    $("chatTitle").textContent = "💬 Conversation";
 
     $("messageLabel").textContent = en
         ? "Your message"
@@ -670,9 +646,7 @@ function updateLanguage() {
         ? "🔊 READ"
         : "🔊 LIRE";
 
-    $("pauseButton").textContent = en
-        ? "⏸️ PAUSE"
-        : "⏸️ PAUSE";
+    $("pauseButton").textContent = "⏸️ PAUSE";
 
     $("resumeButton").textContent = en
         ? "▶️ RESUME"
@@ -707,7 +681,6 @@ function updateLanguage() {
 $("language").addEventListener("change", () => {
 
     updateLanguage();
-
     clearChat();
 
 });
@@ -735,14 +708,29 @@ $("message").addEventListener("keydown", event => {
 if ("speechSynthesis" in window) {
 
     speechSynthesis.onvoiceschanged = loadVoices;
-
     loadVoices();
 
 }
 
 updateLanguage();
-
 addMessage(t("welcome"), "assistant");
+
+// Enregistrement du Service Worker
+if ("serviceWorker" in navigator) {
+
+    window.addEventListener("load", () => {
+
+        navigator.serviceWorker.register("./sw.js")
+            .catch(error => {
+                console.error(
+                    "Erreur Service Worker JUNIOR SAVY :",
+                    error
+                );
+            });
+
+    });
+
+}
 
 </script>
 
