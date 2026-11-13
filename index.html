@@ -4,97 +4,117 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>JUNIOR JSK</title>
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#22c55e">
 <style>
-body{font-family:Arial,sans-serif;background:#111;color:#fff;text-align:center;padding:20px;margin:0}
-h1{color:#22c55e;font-size:32px;margin:10px 0 5px}
-p{color:#aaa;margin:0 0 20px}
-textarea{width:100%;max-width:500px;height:150px;border-radius:15px;padding:15px;font-size:18px;border:none;outline:none;box-sizing:border-box}
-button{border:none;border-radius:12px;padding:14px 18px;font-size:17px;font-weight:bold;cursor:pointer;margin:6px 4px}
-.lire{background:#22c55e;color:#fff;width:100%;max-width:500px}
-.pauseBtn{background:#f59e0b;color:#fff;width:100%;max-width:500px}
-select{width:100%;max-width:500px;padding:12px;border-radius:12px;font-size:16px;margin-top:12px}
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: #111;
+        color: #fff;
+        text-align: center;
+        padding: 20px;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    h1 { color: #22c55e; font-size: 32px; margin: 10px 0 5px; }
+    p { color: #aaa; margin: 0 0 20px; }
+    textarea {
+        width: 100%;
+        max-width: 500px;
+        height: 150px;
+        border-radius: 15px;
+        padding: 15px;
+        font-size: 18px;
+        border: 2px solid #333;
+        background: #222;
+        color: #fff;
+        outline: none;
+        box-sizing: border-box;
+    }
+    button {
+        border: none;
+        border-radius: 12px;
+        padding: 14px 18px;
+        font-size: 17px;
+        font-weight: bold;
+        cursor: pointer;
+        margin: 8px 4px;
+        width: 100%;
+        max-width: 500px;
+        transition: transform 0.1s, opacity 0.2s;
+    }
+    button:active { transform: scale(0.98); }
+    .lire { background: #22c55e; color: #fff; }
+    .pauseBtn { background: #f59e0b; color: #fff; }
+    .resumeBtn { background: #3b82f6; color: #fff; }
 </style>
 </head>
 <body>
+
 <h1>JUNIOR JSK 👑</h1>
 <p>Ton assistant vocal</p>
-<textarea id="texte" placeholder="Écris ici ce que tu veux que je dise...">Bonjour, je suis Junior, le boss</textarea>
+
+<textarea id="texte" placeholder="Écris ici ce que tu veux que je dise...">Salut ! Je suis Junior JSK, ton assistant personnel. Je suis prêt à transformer tes idées en paroles. Que souhaites-tu que je raconte aujourd'hui ?</textarea>
+
 <br>
-<select id="voix" onchange="changerVoix()"></select>
-<br><br>
-<button class="lire" onclick="lire()">▶️ LIRE</button>
+<button id="btnLire" class="lire" onclick="lire()">▶️ LIRE</button>
 <br>
-<button id="btnPause" class="pauseBtn" onclick="togglePause()">⏸️ PAUSE</button>
+<button id="btnPause" class="pauseBtn" onclick="togglePause()" style="display:none;">⏸️ PAUSE</button>
+
 <script>
-let voixListe = [];
 let utteranceActuelle = null;
+let voixFr = null;
+
+// Initialisation des voix
 function chargerVoix(){
-  let toutes = speechSynthesis.getVoices();
-  if(!toutes.length) return;
-  let fr = toutes.filter(v => v.lang.toLowerCase().startsWith('fr'));
-  let autres = toutes.filter(v => !v.lang.toLowerCase().startsWith('fr'));
-  voixListe = [...fr, ...autres];
-  let sel = document.getElementById('voix');
-  let ancienne = sel.value;
-  sel.innerHTML = '';
-  voixListe.forEach((v,i)=>{
-    let o = document.createElement('option');
-    o.value = i;
-    o.text = v.name + ' (' + v.lang + ')';
-    sel.appendChild(o);
-  });
-  if(ancienne !== '' && ancienne !== null) sel.value = ancienne;
-  else sel.value = 0;
+    let toutes = speechSynthesis.getVoices();
+    // On cherche une voix française, sinon on prend la première disponible
+    voixFr = toutes.find(v => v.lang.toLowerCase().startsWith('fr')) || toutes[0];
 }
+
 speechSynthesis.onvoiceschanged = chargerVoix;
 chargerVoix();
-setTimeout(chargerVoix, 500);
-function changerVoix(){
-  speechSynthesis.cancel();
-  resetBoutonPause();
-}
-function resetBoutonPause(){
-  let b = document.getElementById('btnPause');
-  b.innerHTML = '⏸️ PAUSE';
-  b.style.background = '#f59e0b';
-}
+
 function lire(){
-  speechSynthesis.cancel();
-  let texte = document.getElementById('texte').value;
-  if(!texte) return;
-  let u = new SpeechSynthesisUtterance(texte);
-  let idx = document.getElementById('voix').value;
-  let voixChoisie = voixListe[idx];
-  if(voixChoisie){
-    u.voice = voixChoisie;
-    u.lang = voixChoisie.lang;
-  }
-  u.rate = 1;
-  u.pitch = 1;
-  u.onend = resetBoutonPause;
-  u.onerror = resetBoutonPause;
-  utteranceActuelle = u;
-  resetBoutonPause();
-  speechSynthesis.speak(u);
+    // Annuler toute lecture en cours pour repartir à zéro
+    speechSynthesis.cancel();
+    
+    let texte = document.getElementById('texte').value;
+    if(!texte) return;
+
+    utteranceActuelle = new SpeechSynthesisUtterance(texte);
+    if(voixFr) utteranceActuelle.voice = voixFr;
+    
+    utteranceActuelle.rate = 1;
+    utteranceActuelle.pitch = 1;
+
+    // Quand la lecture se termine normalement
+    utteranceActuelle.onend = () => {
+        document.getElementById('btnPause').style.display = 'none';
+        document.getElementById('btnLire').innerText = '▶️ LIRE';
+    };
+
+    speechSynthesis.speak(utteranceActuelle);
+    
+    // Afficher le bouton pause
+    document.getElementById('btnPause').style.display = 'block';
+    document.getElementById('btnPause').innerText = '⏸️ PAUSE';
+    document.getElementById('btnPause').className = 'pauseBtn';
 }
+
 function togglePause(){
-  if(speechSynthesis.paused){
-    speechSynthesis.resume();
-    let b = document.getElementById('btnPause');
-    b.innerHTML = '⏸️ PAUSE';
-    b.style.background = '#f59e0b';
-  } else if(speechSynthesis.speaking){
-    speechSynthesis.pause();
-    let b = document.getElementById('btnPause');
-    b.innerHTML = '▶️ REPRENDRE';
-    b.style.background = '#3b82f6';
-  }
-}
-if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('sw.js');
+    let btn = document.getElementById('btnPause');
+    
+    if(speechSynthesis.paused){
+        speechSynthesis.resume();
+        btn.innerText = '⏸️ PAUSE';
+        btn.className = 'pauseBtn';
+    } else {
+        speechSynthesis.pause();
+        btn.innerText = '▶️ REPRENDRE';
+        btn.className = 'resumeBtn';
+    }
 }
 </script>
 </body>
-  </html>
+</html>
