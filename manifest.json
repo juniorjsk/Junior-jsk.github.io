@@ -1,10 +1,15 @@
+
 {
-  "name": "JUNIOR JSK",
-  "short_name": "JUNIOR JSK",
-  "start_url": ".",
+  "id": "./",
+  "name": "JUNIOR SAVY",
+  "short_name": "JUNIOR SAVY",
+  "description": "Ton assistant personnel intelligent",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
-  "background_color": "#111111",
-  "theme_color": "#22c55e",
+  "background_color": "#0b1220",
+  "theme_color": "#101827",
+  "orientation": "portrait",
   "icons": [
     {
       "src": "https://cdn-icons-png.flaticon.com/512/4712/4712109.png",
