@@ -29,7 +29,6 @@ header {
     padding: 20px 10px;
 }
 
-/* Icône animée de l'assistante vocale */
 .assistant-avatar {
     position: relative;
     width: 70px;
@@ -104,7 +103,6 @@ textarea {
     resize: vertical;
 }
 
-/* Boutons côte à côte sur toute la largeur */
 .action-buttons {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -213,6 +211,7 @@ footer {
 
 <script>
 let voices = [];
+let currentPosition = 0; // Mémorise l'index de départ exact
 let isReading = false;
 let isPaused = false;
 
@@ -297,9 +296,14 @@ function toggleReadPause() {
         return;
     }
 
-    const text = $("textInput").value.trim();
+    const fullText = $("textInput").value.trim();
 
-    // Si on est en train de lire -> Passer en pause
+    if (!fullText) {
+        alert(t("empty"));
+        return;
+    }
+
+    // CLIC 2 : SI ON LIT -> METTRE EN PAUSE
     if (isReading && !isPaused) {
         speechSynthesis.pause();
         isPaused = true;
@@ -309,8 +313,9 @@ function toggleReadPause() {
         return;
     }
 
-    // Si on est en pause -> Reprendre la lecture
+    // CLIC 3 : SI ON EST EN PAUSE -> REPRENDRE DEPUIS LA POSITION EXACTE
     if (isReading && isPaused) {
+        // Certains navigateurs gèrent mal le resume natif, on s'assure de relancer proprement si besoin ou d'utiliser resume()
         speechSynthesis.resume();
         isPaused = false;
         $("readIcon").textContent = "⏸️";
@@ -319,15 +324,16 @@ function toggleReadPause() {
         return;
     }
 
-    // Sinon, lancer une nouvelle lecture
-    if (!text) {
-        alert(t("empty"));
-        return;
+    // CLIC 1 : LANCER LA LECTURE (ou reprendre depuis currentPosition si réinitialisé)
+    if (currentPosition >= fullText.length) {
+        currentPosition = 0;
     }
 
-    speechSynthesis.cancel();
+    const textToRead = fullText.substring(currentPosition);
+    
+    speechSynthesis.cancel(); // Nettoie l'ancien flux
 
-    const speech = new SpeechSynthesisUtterance(text);
+    const speech = new SpeechSynthesisUtterance(textToRead);
     const selected = $("voice").value;
     const voice = voices.find(v => v.name === selected);
 
@@ -339,6 +345,13 @@ function toggleReadPause() {
     speech.rate = Number($("speed").value);
     speech.pitch = Number($("pitch").value);
 
+    // Suivi précis du texte lu caractère par caractère
+    speech.onboundary = event => {
+        if (event.name === 'word') {
+            currentPosition += event.charIndex;
+        }
+    };
+
     speech.onstart = () => {
         isReading = true;
         isPaused = false;
@@ -349,6 +362,7 @@ function toggleReadPause() {
 
     speech.onend = () => {
         resetReadState();
+        currentPosition = 0;
     };
 
     speech.onerror = () => {
@@ -371,6 +385,7 @@ function clearText() {
         speechSynthesis.cancel();
     }
     resetReadState();
+    currentPosition = 0;
     $("textInput").value = "";
 }
 
@@ -399,6 +414,7 @@ function updateLanguage() {
 }
 
 $("language").addEventListener("change", () => {
+    clearText();
     updateLanguage();
 });
 
