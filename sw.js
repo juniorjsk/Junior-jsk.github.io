@@ -1,28 +1,31 @@
 const CACHE_NAME = "junior-savy-v2";
 
-// Chemins absolus depuis la racine du site (plus fiable que "./")
+// Chemins absolus depuis la racine du site.
+// Les noms d'icônes doivent correspondre EXACTEMENT à ceux du manifest.json.
 const FILES_TO_CACHE = [
   "./",
   "./index.html",
   "./manifest.json",
   "./icon-192.png",
   "./icon-512.png",
-  "./maskable-512.png"
+  "./icon-maskable-512.png"
 ];
 
-/* ---------- INSTALLATION ---------- */
+/* ============================================================
+   INSTALLATION
+   ============================================================ */
 self.addEventListener("install", event => {
   event.waitUntil((async () => {
     const cache = await caches.open(CACHE_NAME);
 
-    // addAll() est tout-ou-rien : on cache chaque fichier individuellement
-    // pour qu'un fichier manquant n'empêche pas l'installation.
+    // cache.addAll() est tout-ou-rien : une seule 404 et tout échoue.
+    // On cache chaque fichier individuellement pour rester robuste.
     await Promise.all(FILES_TO_CACHE.map(async (file) => {
       try {
         const res = await fetch(file, { cache: "reload" });
         if (res && res.ok) await cache.put(file, res);
       } catch (_) {
-        // fichier absent en dev : on ignore
+        // fichier absent : on continue, l'app fonctionnera quand même
       }
     }));
 
@@ -30,26 +33,35 @@ self.addEventListener("install", event => {
   })());
 });
 
-/* ---------- ACTIVATION ---------- */
+/* ============================================================
+   ACTIVATION + NETTOYAGE
+   ============================================================ */
 self.addEventListener("activate", event => {
   event.waitUntil((async () => {
     const keys = await caches.keys();
+
     await Promise.all(
       keys
         .filter(k => k.startsWith("junior-savy-") && k !== CACHE_NAME)
         .map(k => caches.delete(k))
     );
+
     await self.clients.claim();
   })());
 });
 
-/* ---------- FETCH ---------- */
+/* ============================================================
+   FETCH
+   ============================================================ */
 self.addEventListener("fetch", event => {
   const request = event.request;
 
+  // On ne gère que les GET
   if (request.method !== "GET") return;
 
   const url = new URL(request.url);
+
+  // On ignore tout ce qui n'est pas de même origine
   if (url.origin !== self.location.origin) return;
 
   const isHTML =
@@ -57,46 +69,65 @@ self.addEventListener("fetch", event => {
     url.pathname.endsWith(".html") ||
     url.pathname.endsWith("/");
 
+  /* ---- HTML : network-first ---- */
   if (isHTML) {
-    // Network-first : on récupère la dernière version, sinon fallback cache
     event.respondWith((async () => {
       try {
         const response = await fetch(request);
+
         if (response && response.ok) {
           const copy = response.clone();
           event.waitUntil(
             caches.open(CACHE_NAME).then(c => c.put(request, copy))
           );
         }
+
         return response;
       } catch (_) {
+        // Hors ligne : on sert le cache, avec plusieurs clés possibles
         const cached =
           (await caches.match(request, { ignoreSearch: true })) ||
           (await caches.match("./index.html")) ||
           (await caches.match("./"));
+
         if (cached) return cached;
+
         return new Response(
-          "<h1>Hors ligne</h1><p>Reconnecte-toi pour charger JUNIOR SAVY.</p>",
-          { headers: { "Content-Type": "text/html; charset=utf-8" }, status: 503 }
+          `<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8">
+           <meta name="viewport" content="width=device-width,initial-scale=1">
+           <title>JUNIOR SAVY — Hors ligne</title></head>
+           <body style="margin:0;padding:40px;background:#0b1220;color:#fff;
+                        font-family:Arial,sans-serif;text-align:center">
+             <h1 style="color:#22c55e">JUNIOR SAVY</h1>
+             <p>Tu es hors ligne.</p>
+             <p style="color:#9ca3af">Reconnecte-toi pour charger l'application.</p>
+           </body></html>`,
+          {
+            status: 503,
+            headers: { "Content-Type": "text/html; charset=utf-8" }
+          }
         );
       }
     })());
+
     return;
   }
 
-  // Cache-first pour le reste (CSS, JS, icônes, manifest)
+  /* ---- Autres fichiers : cache-first ---- */
   event.respondWith((async () => {
-    const cached = await caches.match(request, { ignoreSearch: false });
+    const cached = await caches.match(request);
     if (cached) return cached;
 
     try {
       const response = await fetch(request);
+
       if (response && response.ok) {
         const copy = response.clone();
         event.waitUntil(
           caches.open(CACHE_NAME).then(c => c.put(request, copy))
         );
       }
+
       return response;
     } catch (_) {
       return new Response("", { status: 504 });
