@@ -1,11 +1,10 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#101827">
-<meta name="description" content="JUNIOR SAVY, ton assistant personnel.">
+<meta name="description" content="JUNIOR SAVY, ton assistant de lecture vocale.">
 <link rel="manifest" href="./manifest.json">
 <title>JUNIOR SAVY</title>
 
@@ -30,7 +29,37 @@ header {
     padding: 20px 10px;
 }
 
-.logo { font-size: 45px; }
+/* Icône animée de l'assistante vocale */
+.assistant-avatar {
+    position: relative;
+    width: 70px;
+    height: 70px;
+    margin: 0 auto 10px;
+    background: #172337;
+    border: 2px solid #7c3aed;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    box-shadow: 0 0 15px rgba(124, 58, 237, 0.4);
+}
+
+.assistant-avatar::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 2px solid #22c55e;
+    animation: pulse 2s infinite;
+    opacity: 0;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 0.8; }
+    100% { transform: scale(1.35); opacity: 0; }
+}
 
 h1 {
     color: #22c55e;
@@ -71,19 +100,30 @@ input[type="range"] {
 }
 
 textarea {
-    min-height: 100px;
+    min-height: 150px;
     resize: vertical;
 }
 
+/* Boutons côte à côte sur toute la largeur */
+.action-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 15px;
+}
+
 button {
-    padding: 13px;
+    padding: 14px;
     border: none;
     border-radius: 10px;
     font-size: 15px;
     font-weight: bold;
     cursor: pointer;
     color: white;
-    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
 }
 
 button:active { transform: scale(.97); }
@@ -93,61 +133,14 @@ button:focus-visible {
     outline-offset: 3px;
 }
 
-.green { background: #16a34a; }
-.blue { background: #2563eb; }
-.orange { background: #d97706; }
-.red { background: #dc2626; }
 .purple { background: #7c3aed; }
-
-.buttons {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-}
-
-.buttons button { width: 100%; }
-.full { width: 100%; }
-
-.chat {
-    height: 300px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    padding: 10px;
-    background: #0b1220;
-    border-radius: 12px;
-}
-
-.message {
-    max-width: 90%;
-    padding: 12px;
-    border-radius: 12px;
-    line-height: 1.5;
-    white-space: pre-wrap;
-    overflow-wrap: anywhere;
-}
-
-.user {
-    background: #14532d;
-    align-self: flex-end;
-}
-
-.assistant {
-    background: #25364d;
-    align-self: flex-start;
-}
-
-.small {
-    color: #9ca3af;
-    font-size: 12px;
-    text-align: center;
-}
+.red { background: #dc2626; }
 
 .status {
     color: #4ade80;
     text-align: center;
     font-size: 13px;
+    margin-top: 12px;
 }
 
 footer {
@@ -159,7 +152,7 @@ footer {
 
 @media(max-width: 380px) {
     h1 { font-size: 25px; }
-    button { font-size: 13px; }
+    button { font-size: 13px; padding: 12px; }
 }
 </style>
 </head>
@@ -169,15 +162,14 @@ footer {
 <div class="container">
 
 <header>
-    <div class="logo">👑</div>
-    <h1>JUNIOR SAVY</h1>
-    <p id="subtitle">Ton assistant personnel</p>
+    <div class="assistant-avatar" title="Assistante Vocale JUNIOR SAVY">🎙️</div>
+    <h1 id="titleText">JUNIOR SAVY</h1>
+    <p id="subtitle">Ton assistant de lecture vocale</p>
 </header>
 
 <div class="panel">
 
     <label id="languageLabel">Langue</label>
-
     <select id="language">
         <option value="fr">Français</option>
         <option value="en">English</option>
@@ -186,91 +178,29 @@ footer {
     <label id="voiceLabel">Voix disponible</label>
     <select id="voice"></select>
 
-    <label id="speedLabel">
-        Vitesse : <span id="speedValue">1</span>
-    </label>
+    <label id="speedLabel">Vitesse : <span id="speedValue">1</span></label>
+    <input type="range" id="speed" min="0.5" max="2" step="0.1" value="1">
 
-    <input type="range" id="speed"
-        min="0.5" max="2" step="0.1" value="1">
-
-    <label id="pitchLabel">
-        Tonalité : <span id="pitchValue">1</span>
-    </label>
-
-    <input type="range" id="pitch"
-        min="0.5" max="2" step="0.1" value="1">
+    <label id="pitchLabel">Tonalité : <span id="pitchValue">1</span></label>
+    <input type="range" id="pitch" min="0.5" max="2" step="0.1" value="1">
 
 </div>
 
 <div class="panel">
 
-    <h3 id="chatTitle">💬 Conversation</h3>
+    <label id="textLabel" for="textInput">Écris ou colle ton texte ici :</label>
+    <textarea id="textInput" placeholder="Tape ton texte à lire à haute voix..."></textarea>
 
-    <div class="chat" id="chat" aria-live="polite"></div>
-
-    <label id="messageLabel">Ton message</label>
-
-    <input type="text" id="message"
-        placeholder="Écris ton message..."
-        autocomplete="off">
-
-    <button class="green full" onclick="sendMessage()"
-        id="sendButton">
-        ENVOYER
-    </button>
-
-    <div class="buttons">
-
-        <button class="blue" onclick="startListening()"
-            id="micButton">
-            🎙️ PARLER
+    <div class="action-buttons">
+        <button class="purple" onclick="toggleReadPause()" id="readPauseButton">
+            <span id="readIcon">🔊</span> <span id="readText">LIRE</span>
         </button>
-
-        <button class="purple" onclick="readLast()"
-            id="readButton">
-            🔊 LIRE
+        <button class="red" onclick="clearText()" id="clearButton">
+            🗑️ <span id="clearTextLabel">EFFACER</span>
         </button>
-
-        <button class="orange" onclick="pauseSpeech()"
-            id="pauseButton">
-            ⏸️ PAUSE
-        </button>
-
-        <button class="blue" onclick="resumeSpeech()"
-            id="resumeButton">
-            ▶️ REPRENDRE
-        </button>
-
-        <button class="red full"
-            onclick="stopSpeech()" id="stopButton"
-            style="grid-column: span 2">
-            ⏹️ ARRÊTER
-        </button>
-
     </div>
 
-    <p class="status" id="status">● Prêt</p>
-
-</div>
-
-<div class="panel">
-
-    <h3 id="helpTitle">❓ Que peux-tu faire ?</h3>
-
-    <p class="small" id="helpText">
-        Demande l'heure, la date, ou écris bonjour.
-        Tu peux aussi utiliser la commande aide.
-    </p>
-
-    <button class="green full" onclick="showHelp()"
-        id="helpButton">
-        AFFICHER L'AIDE
-    </button>
-
-    <button class="red full" onclick="clearChat()"
-        id="clearButton">
-        EFFACER LA CONVERSATION
-    </button>
+    <div class="status" id="status">● Prêt</div>
 
 </div>
 
@@ -282,45 +212,51 @@ footer {
 </div>
 
 <script>
-
-let lastResponse = "";
 let voices = [];
-let recognition = null;
+let isReading = false;
+let isPaused = false;
 
 const $ = id => document.getElementById(id);
 
 const translations = {
-
-fr: {
-welcome: "Bonjour ! Je suis JUNIOR SAVY, ton assistant personnel. Comment puis-je t'aider aujourd'hui ?",
-greeting: "Bonjour ! Ravi de te parler. Comment vas-tu ?",
-help: "Voici mes commandes disponibles :\n\n1. Bonjour : pour me saluer.\n2. Quelle heure est-il ?\n3. Quelle est la date ?\n4. Aide : pour voir mes commandes.\n\nJe peux également lire les textes à voix haute.",
-unknown: "Je suis JUNIOR SAVY. Je ne possède pas encore une intelligence artificielle avancée. Je peux répondre à quelques commandes simples et lire tes textes.",
-time: "Il est actuellement ",
-date: "Nous sommes le ",
-empty: "Écris d'abord un message.",
-ready: "● Prêt",
-listening: "● Je t'écoute...",
-error: "Microphone indisponible",
-noVoice: "Aucune voix disponible",
-reading: "● Lecture en cours"
-},
-
-en: {
-welcome: "Hello! I am JUNIOR SAVY, your personal assistant. How can I help you today?",
-greeting: "Hello! Nice to talk to you. How are you?",
-help: "Here are my available commands:\n\n1. Hello: greet me.\n2. What time is it?\n3. What is the date?\n4. Help: show my commands.\n\nI can also read texts aloud.",
-unknown: "I am JUNIOR SAVY. I do not have advanced artificial intelligence yet. I can answer a few simple commands and read your texts.",
-time: "The current time is ",
-date: "Today is ",
-empty: "Please type a message first.",
-ready: "● Ready",
-listening: "● Listening...",
-error: "Microphone unavailable",
-noVoice: "No voice available",
-reading: "● Reading..."
-}
-
+    fr: {
+        subtitle: "Ton assistant de lecture vocale",
+        languageLabel: "Langue",
+        voiceLabel: "Voix disponible",
+        speedLabel: "Vitesse : ",
+        pitchLabel: "Tonalité : ",
+        textLabel: "Écris ou colle ton texte ici :",
+        placeholder: "Tape ton texte à lire à haute voix...",
+        read: "LIRE",
+        pause: "PAUSE",
+        resume: "REPRENDRE",
+        clear: "EFFACER",
+        ready: "● Prêt",
+        reading: "● Lecture en cours...",
+        paused: "● En pause",
+        empty: "Veuillez entrer du texte à lire.",
+        noVoice: "Aucune voix disponible",
+        speechNotSupported: "La synthèse vocale n'est pas supportée par votre navigateur."
+    },
+    en: {
+        subtitle: "Your voice reading assistant",
+        languageLabel: "Language",
+        voiceLabel: "Available voice",
+        speedLabel: "Speed : ",
+        pitchLabel: "Pitch : ",
+        textLabel: "Type or paste your text here:",
+        placeholder: "Type text to read aloud...",
+        read: "READ",
+        pause: "PAUSE",
+        resume: "RESUME",
+        clear: "CLEAR",
+        ready: "● Ready",
+        reading: "● Reading...",
+        paused: "● Paused",
+        empty: "Please enter some text to read.",
+        noVoice: "No voice available",
+        speechNotSupported: "Speech synthesis is not supported by your browser."
+    }
 };
 
 function language() {
@@ -331,113 +267,67 @@ function t(key) {
     return translations[language()][key];
 }
 
-function addMessage(text, type) {
+function loadVoices() {
+    if (!("speechSynthesis" in window)) return;
 
-    const box = document.createElement("div");
+    voices = speechSynthesis.getVoices();
+    const selectedLanguage = language();
+    const filtered = voices.filter(v => v.lang.toLowerCase().startsWith(selectedLanguage));
 
-    box.className = "message " + type;
-    box.textContent = text;
+    $("voice").innerHTML = "";
 
-    $("chat").appendChild(box);
-    $("chat").scrollTop = $("chat").scrollHeight;
+    filtered.forEach(v => {
+        const option = document.createElement("option");
+        option.value = v.name;
+        option.textContent = v.name + " (" + v.lang + ")";
+        $("voice").appendChild(option);
+    });
 
+    if (filtered.length === 0) {
+        const option = document.createElement("option");
+        option.value = "";
+        option.textContent = t("noVoice");
+        $("voice").appendChild(option);
+    }
 }
 
-function sendMessage() {
+function toggleReadPause() {
+    if (!("speechSynthesis" in window)) {
+        alert(t("speechNotSupported"));
+        return;
+    }
 
-    const input = $("message");
-    const text = input.value.trim();
+    const text = $("textInput").value.trim();
 
+    // Si on est en train de lire -> Passer en pause
+    if (isReading && !isPaused) {
+        speechSynthesis.pause();
+        isPaused = true;
+        $("readIcon").textContent = "▶️";
+        $("readText").textContent = t("resume");
+        $("status").textContent = t("paused");
+        return;
+    }
+
+    // Si on est en pause -> Reprendre la lecture
+    if (isReading && isPaused) {
+        speechSynthesis.resume();
+        isPaused = false;
+        $("readIcon").textContent = "⏸️";
+        $("readText").textContent = t("pause");
+        $("status").textContent = t("reading");
+        return;
+    }
+
+    // Sinon, lancer une nouvelle lecture
     if (!text) {
         alert(t("empty"));
         return;
     }
 
-    addMessage(text, "user");
-    input.value = "";
-
-    answer(text);
-
-}
-
-function answer(text) {
-
-    const q = text.toLowerCase();
-    let response = "";
-
-    if (
-        q.includes("bonjour") ||
-        q.includes("salut") ||
-        q.includes("hello") ||
-        q.includes("hi")
-    ) {
-        response = t("greeting");
-    }
-
-    else if (
-        q.includes("heure") ||
-        q.includes("time")
-    ) {
-        response = t("time") +
-        new Date().toLocaleTimeString(
-            language() === "fr" ? "fr-FR" : "en-US"
-        );
-    }
-
-    else if (
-        q.includes("date") ||
-        q.includes("day")
-    ) {
-        response = t("date") +
-        new Date().toLocaleDateString(
-            language() === "fr" ? "fr-FR" : "en-US",
-            {
-                weekday: "long",
-                year: "numeric",
-                month: "long",
-                day: "numeric"
-            }
-        );
-    }
-
-    else if (
-        q.includes("aide") ||
-        q.includes("help")
-    ) {
-        response = t("help");
-    }
-
-    else {
-        response = t("unknown");
-    }
-
-    lastResponse = response;
-    addMessage(response, "assistant");
-
-}
-
-function showHelp() {
-
-    lastResponse = t("help");
-    addMessage(lastResponse, "assistant");
-
-}
-
-function readLast() {
-
-    if (!lastResponse) return;
-
-    if (!("speechSynthesis" in window)) {
-        alert(language() === "fr"
-            ? "La lecture vocale n'est pas disponible."
-            : "Speech playback is unavailable.");
-        return;
-    }
-
     speechSynthesis.cancel();
 
-    const speech = new SpeechSynthesisUtterance(lastResponse);
-
+    const speech = new SpeechSynthesisUtterance(text);
     const selected = $("voice").value;
     const voice = voices.find(v => v.name === selected);
 
@@ -450,288 +340,91 @@ function readLast() {
     speech.pitch = Number($("pitch").value);
 
     speech.onstart = () => {
+        isReading = true;
+        isPaused = false;
+        $("readIcon").textContent = "⏸️";
+        $("readText").textContent = t("pause");
         $("status").textContent = t("reading");
     };
 
     speech.onend = () => {
-        $("status").textContent = t("ready");
+        resetReadState();
     };
 
     speech.onerror = () => {
-        $("status").textContent = t("ready");
+        resetReadState();
     };
 
     speechSynthesis.speak(speech);
-
 }
 
-function pauseSpeech() {
-
-    if ("speechSynthesis" in window) {
-        speechSynthesis.pause();
-    }
-
+function resetReadState() {
+    isReading = false;
+    isPaused = false;
+    $("readIcon").textContent = "🔊";
+    $("readText").textContent = t("read");
+    $("status").textContent = t("ready");
 }
 
-function resumeSpeech() {
-
-    if ("speechSynthesis" in window) {
-        speechSynthesis.resume();
-    }
-
-}
-
-function stopSpeech() {
-
+function clearText() {
     if ("speechSynthesis" in window) {
         speechSynthesis.cancel();
     }
-
-    $("status").textContent = t("ready");
-
-}
-
-function clearChat() {
-
-    stopSpeech();
-
-    if (recognition) {
-        recognition.abort();
-        recognition = null;
-    }
-
-    $("chat").innerHTML = "";
-    lastResponse = "";
-
-    addMessage(t("welcome"), "assistant");
-
-}
-
-function loadVoices() {
-
-    if (!("speechSynthesis" in window)) return;
-
-    voices = speechSynthesis.getVoices();
-
-    const selectedLanguage = language();
-
-    const filtered = voices.filter(v =>
-        v.lang.toLowerCase().startsWith(selectedLanguage)
-    );
-
-    $("voice").innerHTML = "";
-
-    filtered.forEach(v => {
-
-        const option = document.createElement("option");
-        option.value = v.name;
-        option.textContent = v.name + " (" + v.lang + ")";
-
-        $("voice").appendChild(option);
-
-    });
-
-    if (filtered.length === 0) {
-
-        const option = document.createElement("option");
-        option.value = "";
-        option.textContent = t("noVoice");
-
-        $("voice").appendChild(option);
-
-    }
-
-}
-
-function startListening() {
-
-    const SpeechRecognition =
-        window.SpeechRecognition ||
-        window.webkitSpeechRecognition;
-
-    if (!SpeechRecognition) {
-
-        alert(language() === "fr"
-            ? "La reconnaissance vocale n'est pas disponible dans ce navigateur."
-            : "Speech recognition is not supported by this browser.");
-
-        return;
-
-    }
-
-    if (recognition) {
-        recognition.abort();
-    }
-
-    recognition = new SpeechRecognition();
-
-    recognition.lang = language() === "fr"
-        ? "fr-FR"
-        : "en-US";
-
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
-
-    recognition.onstart = () => {
-        $("status").textContent = t("listening");
-    };
-
-    recognition.onresult = event => {
-
-        const result = event.results[0][0].transcript;
-
-        $("message").value = result;
-        sendMessage();
-
-    };
-
-    recognition.onerror = () => {
-        $("status").textContent = t("error");
-    };
-
-    recognition.onend = () => {
-        recognition = null;
-        $("status").textContent = t("ready");
-    };
-
-    try {
-        recognition.start();
-    } catch (error) {
-        $("status").textContent = t("error");
-    }
-
+    resetReadState();
+    $("textInput").value = "";
 }
 
 function updateLanguage() {
-
     const en = language() === "en";
 
-    $("subtitle").textContent = en
-        ? "Your personal assistant"
-        : "Ton assistant personnel";
+    $("subtitle").textContent = t("subtitle");
+    $("languageLabel").textContent = t("languageLabel");
+    $("voiceLabel").textContent = t("voiceLabel");
+    $("speedLabel").innerHTML = t("speedLabel") + '<span id="speedValue">' + $("speed").value + '</span>';
+    $("pitchLabel").innerHTML = t("pitchLabel") + '<span id="pitchValue">' + $("pitch").value + '</span>';
+    $("textLabel").textContent = t("textLabel");
+    $("textInput").placeholder = t("placeholder");
+    $("clearTextLabel").textContent = t("clear");
 
-    $("languageLabel").textContent = en
-        ? "Language"
-        : "Langue";
-
-    $("voiceLabel").textContent = en
-        ? "Available voice"
-        : "Voix disponible";
-
-    $("speedLabel").innerHTML = (en ? "Speed : " : "Vitesse : ") +
-        '<span id="speedValue">' + $("speed").value + '</span>';
-
-    $("pitchLabel").innerHTML = (en ? "Pitch : " : "Tonalité : ") +
-        '<span id="pitchValue">' + $("pitch").value + '</span>';
-
-    $("chatTitle").textContent = "💬 Conversation";
-
-    $("messageLabel").textContent = en
-        ? "Your message"
-        : "Ton message";
-
-    $("message").placeholder = en
-        ? "Write your message..."
-        : "Écris ton message...";
-
-    $("sendButton").textContent = en
-        ? "SEND"
-        : "ENVOYER";
-
-    $("micButton").textContent = en
-        ? "🎙️ SPEAK"
-        : "🎙️ PARLER";
-
-    $("readButton").textContent = en
-        ? "🔊 READ"
-        : "🔊 LIRE";
-
-    $("pauseButton").textContent = "⏸️ PAUSE";
-
-    $("resumeButton").textContent = en
-        ? "▶️ RESUME"
-        : "▶️ REPRENDRE";
-
-    $("stopButton").textContent = en
-        ? "⏹️ STOP"
-        : "⏹️ ARRÊTER";
-
-    $("helpTitle").textContent = en
-        ? "❓ What can you do?"
-        : "❓ Que peux-tu faire ?";
-
-    $("helpButton").textContent = en
-        ? "SHOW HELP"
-        : "AFFICHER L'AIDE";
-
-    $("clearButton").textContent = en
-        ? "CLEAR CONVERSATION"
-        : "EFFACER LA CONVERSATION";
-
-    $("helpText").textContent = en
-        ? "Ask for the time, the date, or say hello. You can also use the help command."
-        : "Demande l'heure, la date, ou écris bonjour. Tu peux aussi utiliser la commande aide.";
+    if (!isReading) {
+        $("readText").textContent = t("read");
+    } else if (isPaused) {
+        $("readText").textContent = t("resume");
+    } else {
+        $("readText").textContent = t("pause");
+    }
 
     $("status").textContent = t("ready");
-
     loadVoices();
-
 }
 
 $("language").addEventListener("change", () => {
-
     updateLanguage();
-    clearChat();
-
 });
 
 $("speed").addEventListener("input", () => {
-
     $("speedValue").textContent = $("speed").value;
-
 });
 
 $("pitch").addEventListener("input", () => {
-
     $("pitchValue").textContent = $("pitch").value;
-
-});
-
-$("message").addEventListener("keydown", event => {
-
-    if (event.key === "Enter") {
-        sendMessage();
-    }
-
 });
 
 if ("speechSynthesis" in window) {
-
     speechSynthesis.onvoiceschanged = loadVoices;
     loadVoices();
-
 }
 
 updateLanguage();
-addMessage(t("welcome"), "assistant");
 
 // Enregistrement du Service Worker
 if ("serviceWorker" in navigator) {
-
     window.addEventListener("load", () => {
-
-        navigator.serviceWorker.register("./sw.js")
-            .catch(error => {
-                console.error(
-                    "Erreur Service Worker JUNIOR SAVY :",
-                    error
-                );
-            });
-
+        navigator.serviceWorker.register("./sw.js").catch(error => {
+            console.error("Erreur Service Worker JUNIOR SAVY :", error);
+        });
     });
-
 }
-
 </script>
 
 </body>
