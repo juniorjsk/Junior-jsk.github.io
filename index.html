@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#101827">
+<meta name="theme-color" content="#0b1220">
 <meta name="description" content="JUNIOR SAVY, ton assistant de lecture vocale.">
 <link rel="manifest" href="./manifest.json">
 <title>JUNIOR SAVY</title>
@@ -17,56 +17,41 @@ body {
     background: #0b1220;
     color: white;
     font-family: Arial, sans-serif;
+    color-scheme: dark;
 }
 
-.container {
-    max-width: 650px;
-    margin: auto;
-}
+.container { max-width: 650px; margin: auto; }
 
-header {
-    text-align: center;
-    padding: 20px 10px;
-}
+header { text-align: center; padding: 20px 10px; }
 
 .assistant-avatar {
     position: relative;
-    width: 70px;
-    height: 70px;
+    width: 70px; height: 70px;
     margin: 0 auto 10px;
     background: #172337;
     border: 2px solid #7c3aed;
     border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: flex; align-items: center; justify-content: center;
     font-size: 30px;
     box-shadow: 0 0 15px rgba(124, 58, 237, 0.4);
 }
-
 .assistant-avatar::after {
     content: '';
-    position: absolute;
-    width: 100%;
-    height: 100%;
+    position: absolute; inset: 0;
     border-radius: 50%;
     border: 2px solid #22c55e;
-    animation: pulse 2s infinite;
     opacity: 0;
+    animation: none;
 }
+.assistant-avatar.speaking::after { animation: pulse 2s infinite; }
 
 @keyframes pulse {
-    0% { transform: scale(1); opacity: 0.8; }
+    0%   { transform: scale(1);    opacity: .8; }
     100% { transform: scale(1.35); opacity: 0; }
 }
 
-h1 {
-    color: #22c55e;
-    margin: 8px 0;
-    font-size: 30px;
-}
-
-header p { color: #9ca3af; }
+h1 { color: #22c55e; margin: 8px 0; font-size: 30px; }
+header p { color: #9ca3af; margin: 0; }
 
 .panel {
     background: #172337;
@@ -83,7 +68,7 @@ label {
     font-size: 14px;
 }
 
-select, input, textarea {
+select, input {
     width: 100%;
     padding: 12px;
     background: #0b1220;
@@ -91,48 +76,177 @@ select, input, textarea {
     border-radius: 10px;
     color: white;
     font-size: 15px;
+    font-family: inherit;
 }
 
-input[type="range"] {
-    padding: 5px 0;
-    accent-color: #22c55e;
+input[type="range"] { padding: 5px 0; accent-color: #22c55e; }
+
+/* ---------- ZONE TEXTE + SURLIGNAGE ---------- */
+
+.textarea-wrap {
+    position: relative;
+    background: #0b1220;
+    border: 1px solid #37465e;
+    border-radius: 10px;
+    margin-top: 6px;
+    transition: border-color .15s ease, box-shadow .15s ease;
+}
+.textarea-wrap:focus-within {
+    border-color: #22c55e;
+    box-shadow: 0 0 0 3px rgba(34, 197, 94, .15);
 }
 
-textarea {
+.textarea-wrap textarea {
+    position: relative;
+    z-index: 2;
+    display: block;
+    width: 100%;
     min-height: 150px;
-    resize: vertical;
-}
-
-.action-buttons {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    margin-top: 15px;
-}
-
-button {
-    padding: 14px;
+    padding: 12px;
     border: none;
     border-radius: 10px;
+    background: transparent;
+    color: #fff;
+    font-family: inherit;
     font-size: 15px;
-    font-weight: bold;
-    cursor: pointer;
-    color: white;
+    line-height: 1.5;
+    resize: vertical;
+    outline: none;
+    /* masque la scrollbar pour un alignement parfait avec le calque */
+    scrollbar-width: none;
+}
+.textarea-wrap textarea::-webkit-scrollbar { display: none; }
+
+.highlight-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    padding: 12px;
+    /* texte invisible, seule la marque garde un fond visible */
+    color: transparent;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    word-break: break-word;
+    overflow-y: auto;
+    pointer-events: none;
+    font-family: inherit;
+    font-size: 15px;
+    line-height: 1.5;
+    scrollbar-width: none;
+}
+.highlight-layer::-webkit-scrollbar { display: none; }
+
+.highlight-layer mark {
+    background: #22c55e;
+    color: transparent;
+    padding: 0;
+    margin: 0;
+    border-radius: 3px;
+}
+
+/* ---------- LECTEUR AUDIO ---------- */
+
+.player {
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 8px;
+    gap: 12px;
+    margin-top: 15px;
+    padding: 10px 12px;
+    background: #0b1220;
+    border: 1px solid #293951;
+    border-radius: 999px;
 }
 
-button:active { transform: scale(.97); }
+.play-btn {
+    flex: 0 0 auto;
+    width: 52px; height: 52px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: linear-gradient(145deg, #7c3aed, #5b21b6);
+    color: #fff;
+    display: grid; place-items: center;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(124, 58, 237, .35);
+    transition: transform .12s ease;
+}
+.play-btn:active { transform: scale(.94); }
+.play-btn:focus-visible { outline: 2px solid #22c55e; outline-offset: 3px; }
 
-button:focus-visible {
-    outline: 2px solid white;
-    outline-offset: 3px;
+.play-btn .icon-pause { display: none; }
+.play-btn.playing .icon-play { display: none; }
+.play-btn.playing .icon-pause { display: block; }
+
+.player-main { flex: 1 1 auto; min-width: 0; }
+
+.progress {
+    position: relative;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    touch-action: none;
+    border-radius: 8px;
+}
+.progress:focus-visible { outline: 2px solid #22c55e; outline-offset: 2px; }
+
+.progress-track {
+    position: relative;
+    width: 100%;
+    height: 6px;
+    background: #293951;
+    border-radius: 999px;
+    overflow: hidden;
 }
 
-.purple { background: #7c3aed; }
-.red { background: #dc2626; }
+.progress-fill {
+    position: absolute;
+    top: 0; bottom: 0; left: 0;
+    width: 0%;
+    background: linear-gradient(90deg, #7c3aed, #22c55e);
+    border-radius: 999px;
+}
+
+.progress-knob {
+    position: absolute;
+    top: 50%; left: 0%;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(34, 197, 94, .25);
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .15s ease;
+}
+.progress:hover .progress-knob,
+.progress.dragging .progress-knob,
+.progress:focus-visible .progress-knob { opacity: 1; }
+
+.time {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: #8aa0bd;
+    font-variant-numeric: tabular-nums;
+    margin-top: 2px;
+    padding: 0 2px;
+}
+
+.clear-btn {
+    flex: 0 0 auto;
+    width: 40px; height: 40px;
+    padding: 0;
+    border: 1px solid #2f3f57;
+    border-radius: 50%;
+    background: #1e2a3d;
+    color: #cbd5e1;
+    font-size: 16px;
+    cursor: pointer;
+    display: grid; place-items: center;
+}
+.clear-btn:active { transform: scale(.94); }
+.clear-btn:focus-visible { outline: 2px solid #22c55e; outline-offset: 3px; }
 
 .status {
     color: #4ade80;
@@ -148,9 +262,11 @@ footer {
     font-size: 12px;
 }
 
-@media(max-width: 380px) {
+@media (max-width: 380px) {
     h1 { font-size: 25px; }
-    button { font-size: 13px; padding: 12px; }
+    .player { gap: 9px; padding: 8px 10px; }
+    .play-btn { width: 46px; height: 46px; }
+    .clear-btn { width: 36px; height: 36px; font-size: 14px; }
 }
 </style>
 </head>
@@ -160,26 +276,26 @@ footer {
 <div class="container">
 
 <header>
-    <div class="assistant-avatar" title="Assistante Vocale JUNIOR SAVY">🎙️</div>
-    <h1 id="titleText">JUNIOR SAVY</h1>
+    <div class="assistant-avatar" id="avatar" title="Assistante Vocale JUNIOR SAVY">🎙️</div>
+    <h1>JUNIOR SAVY</h1>
     <p id="subtitle">Ton assistant de lecture vocale</p>
 </header>
 
 <div class="panel">
 
-    <label id="languageLabel">Langue</label>
+    <label id="languageLabel" for="language">Langue</label>
     <select id="language">
         <option value="fr">Français</option>
         <option value="en">English</option>
     </select>
 
-    <label id="voiceLabel">Voix disponible</label>
+    <label id="voiceLabel" for="voice">Voix disponible</label>
     <select id="voice"></select>
 
-    <label id="speedLabel">Vitesse : <span id="speedValue">1</span></label>
+    <label for="speed"><span id="speedLabel">Vitesse : </span><span id="speedValue">1.0</span></label>
     <input type="range" id="speed" min="0.5" max="2" step="0.1" value="1">
 
-    <label id="pitchLabel">Tonalité : <span id="pitchValue">1</span></label>
+    <label for="pitch"><span id="pitchLabel">Tonalité : </span><span id="pitchValue">1.0</span></label>
     <input type="range" id="pitch" min="0.5" max="2" step="0.1" value="1">
 
 </div>
@@ -187,18 +303,45 @@ footer {
 <div class="panel">
 
     <label id="textLabel" for="textInput">Écris ou colle ton texte ici :</label>
-    <textarea id="textInput" placeholder="Tape ton texte à lire à haute voix..."></textarea>
 
-    <div class="action-buttons">
-        <button class="purple" onclick="toggleReadPause()" id="readPauseButton">
-            <span id="readIcon">🔊</span> <span id="readText">LIRE</span>
-        </button>
-        <button class="red" onclick="clearText()" id="clearButton">
-            🗑️ <span id="clearTextLabel">EFFACER</span>
-        </button>
+    <div class="textarea-wrap">
+        <div class="highlight-layer" id="highlightLayer" aria-hidden="true"></div>
+        <textarea id="textInput" maxlength="20000" placeholder="Tape ton texte à lire à haute voix..."></textarea>
     </div>
 
-    <div class="status" id="status">● Prêt</div>
+    <!-- LECTEUR AUDIO -->
+    <div class="player">
+
+        <button class="play-btn" id="playBtn" type="button" aria-label="Lire">
+            <svg class="icon-play" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false">
+                <path d="M8 5.2v13.6c0 .85.93 1.36 1.65.9l10.3-6.8a1.08 1.08 0 0 0 0-1.8L9.65 4.3A1.08 1.08 0 0 0 8 5.2z" fill="currentColor"/>
+            </svg>
+            <svg class="icon-pause" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false">
+                <rect x="6.5" y="5" width="4" height="14" rx="1.4" fill="currentColor"/>
+                <rect x="13.5" y="5" width="4" height="14" rx="1.4" fill="currentColor"/>
+            </svg>
+        </button>
+
+        <div class="player-main">
+            <div class="progress" id="progressBar" role="slider" tabindex="0"
+                 aria-label="Progression de la lecture"
+                 aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="0 %">
+                <div class="progress-track">
+                    <div class="progress-fill" id="progressFill"></div>
+                    <div class="progress-knob" id="progressKnob"></div>
+                </div>
+            </div>
+            <div class="time">
+                <span id="timeCurrent">0:00</span>
+                <span id="timeTotal">0:00</span>
+            </div>
+        </div>
+
+        <button class="clear-btn" id="clearBtn" type="button" aria-label="Effacer le texte">🗑️</button>
+
+    </div>
+
+    <div class="status" id="status" role="status" aria-live="polite">● Prêt</div>
 
 </div>
 
@@ -210,13 +353,41 @@ footer {
 </div>
 
 <script>
-let voices = [];
-let currentPosition = 0; // Mémorise l'index de départ exact
-let isReading = false;
-let isPaused = false;
+/* ============================================================
+   ÉTAT
+   ============================================================ */
+let voices        = [];
+let chunks        = [];
+let chunkStarts   = [];
+let totalChars    = 0;
+let chunkIndex    = 0;
+let chunkOffset   = 0;
+let lastBoundary  = 0;
+let session       = 0;
+let isReading     = false;
+let isPaused      = false;
+let preparedText  = "";
+let estDuration   = 0;
+let chunkStartTs  = 0;
+let rafId         = 0;
+let progress      = 0;
+let lastCurText   = "";
+let lastTotText   = "";
+
+// surlignage
+let highlightStart = -1;
+let highlightEnd   = -1;
 
 const $ = id => document.getElementById(id);
+const bar            = $("progressBar");
+const playBtn        = $("playBtn");
+const avatar         = $("avatar");
+const highlightLayer = $("highlightLayer");
+const textarea       = $("textInput");
 
+/* ============================================================
+   TRADUCTIONS
+   ============================================================ */
 const translations = {
     fr: {
         subtitle: "Ton assistant de lecture vocale",
@@ -226,10 +397,9 @@ const translations = {
         pitchLabel: "Tonalité : ",
         textLabel: "Écris ou colle ton texte ici :",
         placeholder: "Tape ton texte à lire à haute voix...",
-        read: "LIRE",
-        pause: "PAUSE",
-        resume: "REPRENDRE",
-        clear: "EFFACER",
+        play: "Lire", pause: "Pause", resume: "Reprendre",
+        clear: "Effacer le texte",
+        progress: "Progression de la lecture",
         ready: "● Prêt",
         reading: "● Lecture en cours...",
         paused: "● En pause",
@@ -245,10 +415,9 @@ const translations = {
         pitchLabel: "Pitch : ",
         textLabel: "Type or paste your text here:",
         placeholder: "Type text to read aloud...",
-        read: "READ",
-        pause: "PAUSE",
-        resume: "RESUME",
-        clear: "CLEAR",
+        play: "Read", pause: "Pause", resume: "Resume",
+        clear: "Clear text",
+        progress: "Reading progress",
         ready: "● Ready",
         reading: "● Reading...",
         paused: "● Paused",
@@ -258,182 +427,543 @@ const translations = {
     }
 };
 
-function language() {
-    return $("language").value;
-}
+const language = () => $("language").value;
+const t = key => translations[language()][key];
 
-function t(key) {
-    return translations[language()][key];
-}
-
+/* ============================================================
+   VOIX
+   ============================================================ */
 function loadVoices() {
     if (!("speechSynthesis" in window)) return;
 
+    const previous = $("voice").value;
     voices = speechSynthesis.getVoices();
-    const selectedLanguage = language();
-    const filtered = voices.filter(v => v.lang.toLowerCase().startsWith(selectedLanguage));
+
+    const lang = language();
+    const filtered = voices.filter(v => v.lang.toLowerCase().startsWith(lang));
 
     $("voice").innerHTML = "";
 
     filtered.forEach(v => {
-        const option = document.createElement("option");
-        option.value = v.name;
-        option.textContent = v.name + " (" + v.lang + ")";
-        $("voice").appendChild(option);
+        const opt = document.createElement("option");
+        opt.value = v.voiceURI;
+        opt.textContent = v.name + " (" + v.lang + ")";
+        $("voice").appendChild(opt);
     });
 
     if (filtered.length === 0) {
-        const option = document.createElement("option");
-        option.value = "";
-        option.textContent = t("noVoice");
-        $("voice").appendChild(option);
+        const opt = document.createElement("option");
+        opt.value = "";
+        opt.textContent = t("noVoice");
+        $("voice").appendChild(opt);
+    } else if (previous && filtered.some(v => v.voiceURI === previous)) {
+        $("voice").value = previous;
     }
 }
 
-function toggleReadPause() {
-    if (!("speechSynthesis" in window)) {
-        alert(t("speechNotSupported"));
+/* ============================================================
+   DÉCOUPAGE
+   ============================================================ */
+function splitIntoChunks(text) {
+    const clean = text.replace(/\s+/g, " ").trim();
+    const sentences = clean.match(/[^.!?…;:]+[.!?…;:]*\s*/g) || [clean];
+
+    const out = [];
+    let buf = "";
+    for (const s of sentences) {
+        if (buf && (buf.length + s.length) > 140) { out.push(buf); buf = s; }
+        else buf += s;
+    }
+    if (buf.trim()) out.push(buf);
+    return out.filter(c => c.trim().length > 0);
+}
+
+function estimateDuration(text, rate) {
+    const words = text.trim().split(/\s+/).filter(Boolean).length;
+    const wpm = 170;
+    return Math.max(1, (words / wpm) * 60 / Math.max(0.5, rate));
+}
+
+function prepareText() {
+    const text = textarea.value.trim();
+    if (!text) return false;
+    if (text === preparedText && chunks.length) return true;
+
+    preparedText = text;
+    chunks = splitIntoChunks(text);
+    chunkStarts = [];
+
+    let acc = 0;
+    for (const c of chunks) { chunkStarts.push(acc); acc += c.length; }
+    totalChars = acc;
+
+    chunkIndex = 0;
+    chunkOffset = 0;
+    lastBoundary = 0;
+    estDuration = estimateDuration(text, Number($("speed").value));
+    return true;
+}
+
+/* ============================================================
+   SURLIGNAGE DU MOT EN COURS
+   ============================================================ */
+function getWordBoundsAt(text, pos) {
+    pos = Math.max(0, Math.min(pos, text.length));
+
+    // si on est sur un espace, avancer jusqu'au prochain mot
+    let p = pos;
+    while (p < text.length && /\s/.test(text[p])) p++;
+
+    // si on est à la fin, reculer jusqu'au dernier mot
+    if (p >= text.length) {
+        p = text.length;
+        while (p > 0 && /\s/.test(text[p - 1])) p--;
+        if (p === 0) return { start: 0, end: 0 };
+    }
+
+    let start = p;
+    while (start > 0 && !/\s/.test(text[start - 1])) start--;
+
+    let end = p;
+    while (end < text.length && !/\s/.test(text[end])) end++;
+
+    return { start, end };
+}
+
+function renderHighlight(absPos) {
+    const text = textarea.value;
+    if (!text) { clearHighlight(); return; }
+
+    const { start, end } = getWordBoundsAt(text, absPos);
+    if (start === highlightStart && end === highlightEnd) return;
+
+    highlightStart = start;
+    highlightEnd   = end;
+
+    if (start >= end) { highlightLayer.textContent = ""; return; }
+
+    highlightLayer.textContent = "";
+    const before = document.createTextNode(text.slice(0, start));
+    const mark   = document.createElement("mark");
+    mark.textContent = text.slice(start, end);
+    const after  = document.createTextNode(text.slice(end));
+    highlightLayer.append(before, mark, after);
+
+    syncScroll();
+}
+
+function clearHighlight() {
+    if (highlightStart === -1 && highlightEnd === -1) return;
+    highlightStart = -1;
+    highlightEnd   = -1;
+    highlightLayer.textContent = "";
+}
+
+function syncScroll() {
+    highlightLayer.scrollTop  = textarea.scrollTop;
+    highlightLayer.scrollLeft = textarea.scrollLeft;
+}
+
+textarea.addEventListener("scroll", syncScroll);
+
+/* ============================================================
+   UI
+   ============================================================ */
+function formatTime(sec) {
+    if (!isFinite(sec) || sec < 0) sec = 0;
+    const total = Math.round(sec);
+    return Math.floor(total / 60) + ":" + String(total % 60).padStart(2, "0");
+}
+
+function setProgress(p) {
+    progress = Math.max(0, Math.min(1, p || 0));
+    const pct = progress * 100;
+
+    $("progressFill").style.width = pct.toFixed(2) + "%";
+    $("progressKnob").style.left  = pct.toFixed(2) + "%";
+
+    bar.setAttribute("aria-valuenow", Math.round(pct));
+    bar.setAttribute("aria-valuetext", Math.round(pct) + " %");
+
+    const curTxt = formatTime(progress * estDuration);
+    const totTxt = formatTime(estDuration);
+    if (curTxt !== lastCurText) { $("timeCurrent").textContent = curTxt; lastCurText = curTxt; }
+    if (totTxt !== lastTotText) { $("timeTotal").textContent   = totTxt; lastTotText = totTxt; }
+}
+
+function updateUI() {
+    const playing = isReading && !isPaused;
+
+    playBtn.classList.toggle("playing", playing);
+    playBtn.setAttribute("aria-label",
+        playing ? t("pause") : (isReading && isPaused ? t("resume") : t("play")));
+
+    $("status").textContent = isReading ? (isPaused ? t("paused") : t("reading")) : t("ready");
+    avatar.classList.toggle("speaking", playing);
+}
+
+/* ============================================================
+   BOUCLE DE PROGRESSION
+   ============================================================ */
+function interpolatedChar() {
+    if (!totalChars) return 0;
+    const estPerChar = estDuration / totalChars;
+    if (!estPerChar) return chunkStarts[chunkIndex] + chunkOffset;
+
+    const elapsed = (performance.now() - chunkStartTs) / 1000;
+    const len = chunks[chunkIndex] ? chunks[chunkIndex].length : 0;
+    const posInChunk = Math.min(len, chunkOffset + elapsed / estPerChar);
+    return chunkStarts[chunkIndex] + posInChunk;
+}
+
+function startProgressLoop() {
+    stopProgressLoop();
+    const tick = () => {
+        if (!isReading || isPaused) { rafId = 0; return; }
+        const abs = interpolatedChar();
+        setProgress(abs / totalChars);
+        renderHighlight(abs);
+        rafId = requestAnimationFrame(tick);
+    };
+    rafId = requestAnimationFrame(tick);
+}
+
+function stopProgressLoop() {
+    if (rafId) cancelAnimationFrame(rafId);
+    rafId = 0;
+}
+
+/* ============================================================
+   MOTEUR DE LECTURE
+   ============================================================ */
+function speakChunk(i, token) {
+    if (token !== session) return;
+    if (i >= chunks.length) { finishReading(); return; }
+
+    chunkIndex = i;
+    const piece = chunks[i].slice(chunkOffset).trim();
+
+    if (!piece) {
+        chunkOffset = 0;
+        speakChunk(i + 1, token);
         return;
     }
 
-    const fullText = $("textInput").value.trim();
+    lastBoundary = chunkOffset;
+    chunkStartTs = performance.now();
 
-    if (!fullText) {
-        alert(t("empty"));
-        return;
-    }
+    // surligne immédiatement le premier mot de la phrase
+    renderHighlight(chunkStarts[i] + chunkOffset);
 
-    // CLIC 2 : SI ON LIT -> METTRE EN PAUSE
-    if (isReading && !isPaused) {
-        speechSynthesis.pause();
-        isPaused = true;
-        $("readIcon").textContent = "▶️";
-        $("readText").textContent = t("resume");
-        $("status").textContent = t("paused");
-        return;
-    }
+    const utterance = new SpeechSynthesisUtterance(piece);
+    const voice = voices.find(v => v.voiceURI === $("voice").value);
+    if (voice) utterance.voice = voice;
 
-    // CLIC 3 : SI ON EST EN PAUSE -> REPRENDRE DEPUIS LA POSITION EXACTE
-    if (isReading && isPaused) {
-        // Certains navigateurs gèrent mal le resume natif, on s'assure de relancer proprement si besoin ou d'utiliser resume()
-        speechSynthesis.resume();
-        isPaused = false;
-        $("readIcon").textContent = "⏸️";
-        $("readText").textContent = t("pause");
-        $("status").textContent = t("reading");
-        return;
-    }
+    utterance.lang  = language() === "fr" ? "fr-FR" : "en-US";
+    utterance.rate  = Number($("speed").value);
+    utterance.pitch = Number($("pitch").value);
 
-    // CLIC 1 : LANCER LA LECTURE (ou reprendre depuis currentPosition si réinitialisé)
-    if (currentPosition >= fullText.length) {
-        currentPosition = 0;
-    }
+    const chunkLen = chunks[i].length;
 
-    const textToRead = fullText.substring(currentPosition);
-    
-    speechSynthesis.cancel(); // Nettoie l'ancien flux
+    utterance.onstart = () => {
+        if (token !== session) return;
+        chunkStartTs = performance.now();
+        startProgressLoop();
+    };
 
-    const speech = new SpeechSynthesisUtterance(textToRead);
-    const selected = $("voice").value;
-    const voice = voices.find(v => v.name === selected);
+    utterance.onboundary = (e) => {
+        if (token !== session) return;
+        const pos = Math.min(chunkOffset + (e.charIndex || 0), chunkLen);
+        if (pos <= lastBoundary) return;
 
-    if (voice) {
-        speech.voice = voice;
-    }
+        lastBoundary = pos;
+        const abs = chunkStarts[i] + pos;
 
-    speech.lang = language() === "fr" ? "fr-FR" : "en-US";
-    speech.rate = Number($("speed").value);
-    speech.pitch = Number($("pitch").value);
+        setProgress(abs / totalChars);
+        renderHighlight(abs);
 
-    // Suivi précis du texte lu caractère par caractère
-    speech.onboundary = event => {
-        if (event.name === 'word') {
-            currentPosition += event.charIndex;
+        const estPerChar = estDuration / totalChars;
+        if (estPerChar > 0) {
+            chunkStartTs = performance.now() - (pos - chunkOffset) * estPerChar * 1000;
         }
     };
 
-    speech.onstart = () => {
-        isReading = true;
-        isPaused = false;
-        $("readIcon").textContent = "⏸️";
-        $("readText").textContent = t("pause");
-        $("status").textContent = t("reading");
+    utterance.onend = () => {
+        if (token !== session) return;
+        setProgress((chunkStarts[i] + chunkLen) / totalChars);
+        chunkOffset = 0;
+        lastBoundary = 0;
+        speakChunk(i + 1, token);
     };
 
-    speech.onend = () => {
-        resetReadState();
-        currentPosition = 0;
+    utterance.onerror = (e) => {
+        if (token !== session) return;
+        if (e.error === "interrupted" || e.error === "canceled") return;
+        chunkOffset = 0;
+        speakChunk(i + 1, token);
     };
 
-    speech.onerror = () => {
-        resetReadState();
-    };
-
-    speechSynthesis.speak(speech);
+    speechSynthesis.speak(utterance);
 }
 
-function resetReadState() {
-    isReading = false;
-    isPaused = false;
-    $("readIcon").textContent = "🔊";
-    $("readText").textContent = t("read");
-    $("status").textContent = t("ready");
-}
+function startReading() {
+    if (!("speechSynthesis" in window)) { alert(t("speechNotSupported")); return; }
+    if (!prepareText()) { alert(t("empty")); return; }
 
-function clearText() {
-    if ("speechSynthesis" in window) {
+    if (chunkIndex >= chunks.length) { chunkIndex = 0; chunkOffset = 0; }
+
+    session++;
+    stopProgressLoop();
+
+    isReading    = true;
+    isPaused     = false;
+    chunkOffset  = 0;
+    lastBoundary = 0;
+    estDuration  = estimateDuration(preparedText, Number($("speed").value));
+
+    const abs = chunkStarts[chunkIndex];
+    setProgress(abs / totalChars);
+    renderHighlight(abs);
+    updateUI();
+
+    const token = session;
+    const index = chunkIndex;
+
+    if (speechSynthesis.speaking || speechSynthesis.pending) {
         speechSynthesis.cancel();
-    }
-    resetReadState();
-    currentPosition = 0;
-    $("textInput").value = "";
-}
-
-function updateLanguage() {
-    const en = language() === "en";
-
-    $("subtitle").textContent = t("subtitle");
-    $("languageLabel").textContent = t("languageLabel");
-    $("voiceLabel").textContent = t("voiceLabel");
-    $("speedLabel").innerHTML = t("speedLabel") + '<span id="speedValue">' + $("speed").value + '</span>';
-    $("pitchLabel").innerHTML = t("pitchLabel") + '<span id="pitchValue">' + $("pitch").value + '</span>';
-    $("textLabel").textContent = t("textLabel");
-    $("textInput").placeholder = t("placeholder");
-    $("clearTextLabel").textContent = t("clear");
-
-    if (!isReading) {
-        $("readText").textContent = t("read");
-    } else if (isPaused) {
-        $("readText").textContent = t("resume");
+        setTimeout(() => speakChunk(index, token), 80);
     } else {
-        $("readText").textContent = t("pause");
+        speakChunk(index, token);
     }
-
-    $("status").textContent = t("ready");
-    loadVoices();
 }
 
-$("language").addEventListener("change", () => {
-    clearText();
-    updateLanguage();
+function pauseReading() {
+    session++;
+    if ("speechSynthesis" in window) speechSynthesis.cancel();
+
+    isPaused = true;
+    stopProgressLoop();
+
+    chunkOffset = Math.min(lastBoundary, chunks[chunkIndex] ? chunks[chunkIndex].length : 0);
+    lastBoundary = chunkOffset;
+    renderHighlight(chunkStarts[chunkIndex] + chunkOffset);
+
+    updateUI();
+}
+
+function resumeReading() {
+    isPaused = false;
+    const token = ++session;
+    updateUI();
+    speakChunk(chunkIndex, token);
+}
+
+function finishReading() {
+    stopProgressLoop();
+    isReading = false;
+    isPaused  = false;
+    chunkIndex = 0;
+    chunkOffset = 0;
+    lastBoundary = 0;
+    clearHighlight();
+    setProgress(0);
+    updateUI();
+}
+
+function togglePlay() {
+    if (isReading && !isPaused) { pauseReading(); return; }
+    if (isReading && isPaused)  { resumeReading(); return; }
+    startReading();
+}
+
+/* ============================================================
+   SEEK
+   ============================================================ */
+function chunkForFraction(f) {
+    if (!chunks.length) return 0;
+    const target = Math.max(0, Math.min(1, f)) * totalChars;
+    for (let k = 0; k < chunks.length; k++) {
+        if (target < chunkStarts[k] + chunks[k].length) return k;
+    }
+    return chunks.length - 1;
+}
+
+function seekToChunk(i, resume) {
+    if (!prepareText()) return;
+    i = Math.max(0, Math.min(chunks.length - 1, i));
+
+    session++;
+    if ("speechSynthesis" in window) speechSynthesis.cancel();
+    stopProgressLoop();
+
+    chunkIndex   = i;
+    chunkOffset  = 0;
+    lastBoundary = 0;
+
+    const abs = chunkStarts[i];
+    setProgress(abs / totalChars);
+    renderHighlight(abs);
+
+    if (resume) {
+        isReading = true;
+        isPaused  = false;
+        updateUI();
+        const token = session;
+        const index = i;
+        setTimeout(() => speakChunk(index, token), 60);
+    } else {
+        updateUI();
+    }
+}
+
+function fractionFromEvent(e) {
+    const r = bar.getBoundingClientRect();
+    return Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
+}
+
+let dragging = false;
+let resumeAfterDrag = false;
+
+bar.addEventListener("pointerdown", (e) => {
+    if (!prepareText()) return;
+    dragging = true;
+    resumeAfterDrag = isReading && !isPaused;
+    bar.classList.add("dragging");
+    if (resumeAfterDrag) pauseReading();
+    try { bar.setPointerCapture(e.pointerId); } catch (_) {}
+    setProgress(fractionFromEvent(e));
 });
 
+bar.addEventListener("pointermove", (e) => {
+    if (!dragging) return;
+    setProgress(fractionFromEvent(e));
+});
+
+bar.addEventListener("pointerup", (e) => {
+    if (!dragging) return;
+    dragging = false;
+    bar.classList.remove("dragging");
+    const f = fractionFromEvent(e);
+    try { bar.releasePointerCapture(e.pointerId); } catch (_) {}
+    seekToChunk(chunkForFraction(f), resumeAfterDrag);
+});
+
+bar.addEventListener("pointercancel", () => {
+    dragging = false;
+    bar.classList.remove("dragging");
+});
+
+bar.addEventListener("keydown", (e) => {
+    if (!prepareText()) return;
+    const resume = isReading && !isPaused;
+    if (e.key === "ArrowRight" || e.key === "ArrowUp") {
+        e.preventDefault(); seekToChunk(chunkIndex + 1, resume);
+    } else if (e.key === "ArrowLeft" || e.key === "ArrowDown") {
+        e.preventDefault(); seekToChunk(chunkIndex - 1, resume);
+    } else if (e.key === "Home") {
+        e.preventDefault(); seekToChunk(0, resume);
+    } else if (e.key === "End") {
+        e.preventDefault(); seekToChunk(chunks.length - 1, resume);
+    }
+});
+
+/* ============================================================
+   EFFACER
+   ============================================================ */
+function clearText() {
+    session++;
+    if ("speechSynthesis" in window) speechSynthesis.cancel();
+    stopProgressLoop();
+
+    isReading = false;
+    isPaused  = false;
+    chunks = [];
+    chunkStarts = [];
+    totalChars = 0;
+    chunkIndex = 0;
+    chunkOffset = 0;
+    lastBoundary = 0;
+    preparedText = "";
+    estDuration = 0;
+
+    textarea.value = "";
+    clearHighlight();
+    setProgress(0);
+    updateUI();
+}
+
+/* ============================================================
+   LANGUE / RÉGLAGES
+   ============================================================ */
+function updateLanguage() {
+    document.documentElement.lang = language();
+
+    $("subtitle").textContent      = t("subtitle");
+    $("languageLabel").textContent = t("languageLabel");
+    $("voiceLabel").textContent    = t("voiceLabel");
+    $("speedLabel").textContent    = t("speedLabel");
+    $("pitchLabel").textContent    = t("pitchLabel");
+    $("textLabel").textContent     = t("textLabel");
+    textarea.placeholder           = t("placeholder");
+
+    bar.setAttribute("aria-label", t("progress"));
+    $("clearBtn").setAttribute("aria-label", t("clear"));
+
+    loadVoices();
+    updateUI();
+}
+
+/* ============================================================
+   ÉVÉNEMENTS
+   ============================================================ */
+playBtn.addEventListener("click", togglePlay);
+$("clearBtn").addEventListener("click", clearText);
+$("language").addEventListener("change", updateLanguage);
+
 $("speed").addEventListener("input", () => {
-    $("speedValue").textContent = $("speed").value;
+    $("speedValue").textContent = Number($("speed").value).toFixed(1);
+    if (!isReading && preparedText) {
+        estDuration = estimateDuration(preparedText, Number($("speed").value));
+        setProgress(progress);
+    }
 });
 
 $("pitch").addEventListener("input", () => {
-    $("pitchValue").textContent = $("pitch").value;
+    $("pitchValue").textContent = Number($("pitch").value).toFixed(1);
 });
 
+textarea.addEventListener("input", () => {
+    if (isReading) return;
+    preparedText = "";
+    chunks = [];
+    chunkStarts = [];
+    totalChars = 0;
+    chunkIndex = 0;
+    chunkOffset = 0;
+    estDuration = 0;
+    clearHighlight();
+    setProgress(0);
+    updateUI();
+});
+
+textarea.addEventListener("keydown", (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+        e.preventDefault();
+        togglePlay();
+    }
+});
+
+/* ============================================================
+   INITIALISATION
+   ============================================================ */
 if ("speechSynthesis" in window) {
     speechSynthesis.onvoiceschanged = loadVoices;
     loadVoices();
 }
 
 updateLanguage();
+setProgress(0);
 
-// Enregistrement du Service Worker
 if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => {
         navigator.serviceWorker.register("./sw.js").catch(error => {
@@ -444,4 +974,4 @@ if ("serviceWorker" in navigator) {
 </script>
 
 </body>
-</html>
+    </html>
