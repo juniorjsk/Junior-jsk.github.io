@@ -1,7 +1,7 @@
 {
   "id": "./",
-  "name": "JUNIOR SAVY",
-  "short_name": "JUNIOR SAVY",
+  "name": "ASSISTANT JUNIOR",
+  "short_name": "ASSISTANT JUNIOR",
   "description": "Ton assistant de lecture vocale",
   "start_url": "./",
   "scope": "./",
@@ -34,4 +34,4 @@
       "purpose": "maskable"
     }
   ]
-}
+    }
