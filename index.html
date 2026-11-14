@@ -6,7 +6,9 @@
 <meta name="theme-color" content="#0b1220">
 <meta name="description" content="JUNIOR SAVY, ton assistant de lecture vocale.">
 <link rel="manifest" href="./manifest.json">
-<title>JUNIOR SAVY</title>
+<link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
+<link rel="apple-touch-icon" href="./icon-512.png">
+<title>ASSISTANT JUNIOR</title>
 
 <style>
 * { box-sizing: border-box; }
@@ -112,7 +114,6 @@ input[type="range"] { padding: 5px 0; accent-color: #22c55e; }
     line-height: 1.5;
     resize: vertical;
     outline: none;
-    /* masque la scrollbar pour un alignement parfait avec le calque */
     scrollbar-width: none;
 }
 .textarea-wrap textarea::-webkit-scrollbar { display: none; }
@@ -122,7 +123,6 @@ input[type="range"] { padding: 5px 0; accent-color: #22c55e; }
     inset: 0;
     z-index: 1;
     padding: 12px;
-    /* texte invisible, seule la marque garde un fond visible */
     color: transparent;
     white-space: pre-wrap;
     word-wrap: break-word;
@@ -276,7 +276,7 @@ footer {
 <div class="container">
 
 <header>
-    <div class="assistant-avatar" id="avatar" title="Assistante Vocale JUNIOR SAVY">🎙️</div>
+    <div class="assistant-avatar" id="avatar" title="JUNIOR SAVY">🎙️</div>
     <h1>JUNIOR SAVY</h1>
     <p id="subtitle">Ton assistant de lecture vocale</p>
 </header>
@@ -346,7 +346,7 @@ footer {
 </div>
 
 <footer>
-    JUNIOR SAVY © 2026<br>
+    ASSISTANT JUNIOR © 2026<br>
     Assistant personnel
 </footer>
 
@@ -374,7 +374,6 @@ let progress      = 0;
 let lastCurText   = "";
 let lastTotText   = "";
 
-// surlignage
 let highlightStart = -1;
 let highlightEnd   = -1;
 
@@ -403,7 +402,7 @@ const translations = {
         ready: "● Prêt",
         reading: "● Lecture en cours...",
         paused: "● En pause",
-        empty: "Veuillez entrer du texte à lire.",
+        empty: "Veuillez entrer du texte à lire pour JUNIOR SAVY.",
         noVoice: "Aucune voix disponible",
         speechNotSupported: "La synthèse vocale n'est pas supportée par votre navigateur."
     },
@@ -421,7 +420,7 @@ const translations = {
         ready: "● Ready",
         reading: "● Reading...",
         paused: "● Paused",
-        empty: "Please enter some text to read.",
+        empty: "Please enter some text for JUNIOR SAVY to read.",
         noVoice: "No voice available",
         speechNotSupported: "Speech synthesis is not supported by your browser."
     }
@@ -435,15 +434,12 @@ const t = key => translations[language()][key];
    ============================================================ */
 function loadVoices() {
     if (!("speechSynthesis" in window)) return;
-
     const previous = $("voice").value;
     voices = speechSynthesis.getVoices();
-
     const lang = language();
     const filtered = voices.filter(v => v.lang.toLowerCase().startsWith(lang));
 
     $("voice").innerHTML = "";
-
     filtered.forEach(v => {
         const opt = document.createElement("option");
         opt.value = v.voiceURI;
@@ -467,7 +463,6 @@ function loadVoices() {
 function splitIntoChunks(text) {
     const clean = text.replace(/\s+/g, " ").trim();
     const sentences = clean.match(/[^.!?…;:]+[.!?…;:]*\s*/g) || [clean];
-
     const out = [];
     let buf = "";
     for (const s of sentences) {
@@ -505,41 +500,31 @@ function prepareText() {
 }
 
 /* ============================================================
-   SURLIGNAGE DU MOT EN COURS
+   SURLIGNAGE
    ============================================================ */
 function getWordBoundsAt(text, pos) {
     pos = Math.max(0, Math.min(pos, text.length));
-
-    // si on est sur un espace, avancer jusqu'au prochain mot
     let p = pos;
     while (p < text.length && /\s/.test(text[p])) p++;
-
-    // si on est à la fin, reculer jusqu'au dernier mot
     if (p >= text.length) {
         p = text.length;
         while (p > 0 && /\s/.test(text[p - 1])) p--;
         if (p === 0) return { start: 0, end: 0 };
     }
-
     let start = p;
     while (start > 0 && !/\s/.test(text[start - 1])) start--;
-
     let end = p;
     while (end < text.length && !/\s/.test(text[end])) end++;
-
     return { start, end };
 }
 
 function renderHighlight(absPos) {
     const text = textarea.value;
     if (!text) { clearHighlight(); return; }
-
     const { start, end } = getWordBoundsAt(text, absPos);
     if (start === highlightStart && end === highlightEnd) return;
-
     highlightStart = start;
     highlightEnd   = end;
-
     if (start >= end) { highlightLayer.textContent = ""; return; }
 
     highlightLayer.textContent = "";
@@ -548,7 +533,6 @@ function renderHighlight(absPos) {
     mark.textContent = text.slice(start, end);
     const after  = document.createTextNode(text.slice(end));
     highlightLayer.append(before, mark, after);
-
     syncScroll();
 }
 
@@ -578,10 +562,8 @@ function formatTime(sec) {
 function setProgress(p) {
     progress = Math.max(0, Math.min(1, p || 0));
     const pct = progress * 100;
-
     $("progressFill").style.width = pct.toFixed(2) + "%";
     $("progressKnob").style.left  = pct.toFixed(2) + "%";
-
     bar.setAttribute("aria-valuenow", Math.round(pct));
     bar.setAttribute("aria-valuetext", Math.round(pct) + " %");
 
@@ -593,11 +575,8 @@ function setProgress(p) {
 
 function updateUI() {
     const playing = isReading && !isPaused;
-
     playBtn.classList.toggle("playing", playing);
-    playBtn.setAttribute("aria-label",
-        playing ? t("pause") : (isReading && isPaused ? t("resume") : t("play")));
-
+    playBtn.setAttribute("aria-label", playing ? t("pause") : (isReading && isPaused ? t("resume") : t("play")));
     $("status").textContent = isReading ? (isPaused ? t("paused") : t("reading")) : t("ready");
     avatar.classList.toggle("speaking", playing);
 }
@@ -609,7 +588,6 @@ function interpolatedChar() {
     if (!totalChars) return 0;
     const estPerChar = estDuration / totalChars;
     if (!estPerChar) return chunkStarts[chunkIndex] + chunkOffset;
-
     const elapsed = (performance.now() - chunkStartTs) / 1000;
     const len = chunks[chunkIndex] ? chunks[chunkIndex].length : 0;
     const posInChunk = Math.min(len, chunkOffset + elapsed / estPerChar);
@@ -642,17 +620,10 @@ function speakChunk(i, token) {
 
     chunkIndex = i;
     const piece = chunks[i].slice(chunkOffset).trim();
-
-    if (!piece) {
-        chunkOffset = 0;
-        speakChunk(i + 1, token);
-        return;
-    }
+    if (!piece) { chunkOffset = 0; speakChunk(i + 1, token); return; }
 
     lastBoundary = chunkOffset;
     chunkStartTs = performance.now();
-
-    // surligne immédiatement le premier mot de la phrase
     renderHighlight(chunkStarts[i] + chunkOffset);
 
     const utterance = new SpeechSynthesisUtterance(piece);
@@ -675,10 +646,8 @@ function speakChunk(i, token) {
         if (token !== session) return;
         const pos = Math.min(chunkOffset + (e.charIndex || 0), chunkLen);
         if (pos <= lastBoundary) return;
-
         lastBoundary = pos;
         const abs = chunkStarts[i] + pos;
-
         setProgress(abs / totalChars);
         renderHighlight(abs);
 
@@ -709,12 +678,10 @@ function speakChunk(i, token) {
 function startReading() {
     if (!("speechSynthesis" in window)) { alert(t("speechNotSupported")); return; }
     if (!prepareText()) { alert(t("empty")); return; }
-
     if (chunkIndex >= chunks.length) { chunkIndex = 0; chunkOffset = 0; }
 
     session++;
     stopProgressLoop();
-
     isReading    = true;
     isPaused     = false;
     chunkOffset  = 0;
@@ -740,14 +707,11 @@ function startReading() {
 function pauseReading() {
     session++;
     if ("speechSynthesis" in window) speechSynthesis.cancel();
-
     isPaused = true;
     stopProgressLoop();
-
     chunkOffset = Math.min(lastBoundary, chunks[chunkIndex] ? chunks[chunkIndex].length : 0);
     lastBoundary = chunkOffset;
     renderHighlight(chunkStarts[chunkIndex] + chunkOffset);
-
     updateUI();
 }
 
@@ -791,7 +755,6 @@ function chunkForFraction(f) {
 function seekToChunk(i, resume) {
     if (!prepareText()) return;
     i = Math.max(0, Math.min(chunks.length - 1, i));
-
     session++;
     if ("speechSynthesis" in window) speechSynthesis.cancel();
     stopProgressLoop();
@@ -799,7 +762,6 @@ function seekToChunk(i, resume) {
     chunkIndex   = i;
     chunkOffset  = 0;
     lastBoundary = 0;
-
     const abs = chunkStarts[i];
     setProgress(abs / totalChars);
     renderHighlight(abs);
@@ -897,7 +859,6 @@ function clearText() {
    ============================================================ */
 function updateLanguage() {
     document.documentElement.lang = language();
-
     $("subtitle").textContent      = t("subtitle");
     $("languageLabel").textContent = t("languageLabel");
     $("voiceLabel").textContent    = t("voiceLabel");
@@ -905,10 +866,8 @@ function updateLanguage() {
     $("pitchLabel").textContent    = t("pitchLabel");
     $("textLabel").textContent     = t("textLabel");
     textarea.placeholder           = t("placeholder");
-
     bar.setAttribute("aria-label", t("progress"));
     $("clearBtn").setAttribute("aria-label", t("clear"));
-
     loadVoices();
     updateUI();
 }
@@ -967,7 +926,7 @@ setProgress(0);
 if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => {
         navigator.serviceWorker.register("./sw.js").catch(error => {
-            console.error("Erreur Service Worker JUNIOR SAVY :", error);
+            console.error("Erreur Service Worker :", error);
         });
     });
 }
