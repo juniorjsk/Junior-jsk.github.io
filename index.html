@@ -7,13 +7,15 @@
 <meta name="description" content="JUNIOR SAVY, ton assistant de lecture vocale.">
 <link rel="manifest" href="./manifest.json">
 <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
-<link rel="apple-touch-icon" href="./icon-512.png"> 
-    <!-- Balises Open Graph pour l'aperçu sur WhatsApp et les réseaux sociaux -->
+<link rel="apple-touch-icon" href="./icon-512.png">
+
+<!-- Balises Open Graph pour l'aperçu sur WhatsApp et les réseaux sociaux -->
 <meta property="og:title" content="ASSISTANT JUNIOR">
 <meta property="og:description" content="Ton assistant de lecture vocale. Écoute tous tes textes à voix haute, même hors ligne.">
 <meta property="og:image" content="https://juniorjsk.github.io/Junior-jsk.github.io/icon-512.png">
 <meta property="og:url" content="https://juniorjsk.github.io/Junior-jsk.github.io/">
 <meta property="og:type" content="website">
+
 <title>ASSISTANT JUNIOR</title>
 
 <style>
@@ -379,6 +381,7 @@ let rafId         = 0;
 let progress      = 0;
 let lastCurText   = "";
 let lastTotText   = "";
+let wakeLock      = null; // Pour garder l'écran allumé
 
 let highlightStart = -1;
 let highlightEnd   = -1;
@@ -389,6 +392,38 @@ const playBtn        = $("playBtn");
 const avatar         = $("avatar");
 const highlightLayer = $("highlightLayer");
 const textarea       = $("textInput");
+
+/* ============================================================
+   WAKE LOCK (Garder l'écran allumé)
+   ============================================================ */
+async function requestWakeLock() {
+    try {
+        if ('wakeLock' in navigator) {
+            wakeLock = await navigator.wakeLock.request('screen');
+            wakeLock.addEventListener('release', () => {
+                // L'écran a été déverrouillé
+            });
+        }
+    } catch (err) {
+        // Le navigateur a refusé (ex: batterie faible)
+    }
+}
+
+function releaseWakeLock() {
+    if (wakeLock !== null) {
+        wakeLock.release().then(() => {
+            wakeLock = null;
+        });
+        wakeLock = null;
+    }
+}
+
+// Si l'utilisateur change d'onglet et revient, on redemande le Wake Lock
+document.addEventListener('visibilitychange', async () => {
+    if (wakeLock !== null && document.visibilityState === 'visible') {
+        await requestWakeLock();
+    }
+});
 
 /* ============================================================
    TRADUCTIONS
@@ -698,6 +733,8 @@ function startReading() {
     setProgress(abs / totalChars);
     renderHighlight(abs);
     updateUI();
+    
+    requestWakeLock(); // <-- ACTIVE LE WAKE LOCK
 
     const token = session;
     const index = chunkIndex;
@@ -719,6 +756,8 @@ function pauseReading() {
     lastBoundary = chunkOffset;
     renderHighlight(chunkStarts[chunkIndex] + chunkOffset);
     updateUI();
+    
+    releaseWakeLock(); // <-- RELÂCHE LE WAKE LOCK (batterie)
 }
 
 function resumeReading() {
@@ -726,6 +765,8 @@ function resumeReading() {
     const token = ++session;
     updateUI();
     speakChunk(chunkIndex, token);
+    
+    requestWakeLock(); // <-- RÉACTIVE LE WAKE LOCK
 }
 
 function finishReading() {
@@ -738,6 +779,8 @@ function finishReading() {
     clearHighlight();
     setProgress(0);
     updateUI();
+    
+    releaseWakeLock(); // <-- RELÂCHE LE WAKE LOCK
 }
 
 function togglePlay() {
@@ -779,6 +822,7 @@ function seekToChunk(i, resume) {
         const token = session;
         const index = i;
         setTimeout(() => speakChunk(index, token), 60);
+        requestWakeLock();
     } else {
         updateUI();
     }
@@ -858,6 +902,8 @@ function clearText() {
     clearHighlight();
     setProgress(0);
     updateUI();
+    
+    releaseWakeLock();
 }
 
 /* ============================================================
@@ -938,5 +984,29 @@ if ("serviceWorker" in navigator) {
 }
 </script>
 
+<!-- Statistiques GoatCounter -->
+<script data-goatcounter="https://juniorjsk.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script>
+
+<script>
+  // Créer un ID unique et anonyme pour chaque utilisateur
+  let userId = localStorage.getItem('assistant_junior_id');
+  if (!userId) {
+    userId = 'user-' + Math.random().toString(36).slice(2, 9);
+    localStorage.setItem('assistant_junior_id', userId);
+    
+    // Envoyer un événement spécial à GoatCounter si c'est sa toute première visite
+    window.addEventListener('load', function() {
+      if (window.goatcounter && window.goatcounter.count) {
+        window.goatcounter.count({
+          path: 'nouvel-utilisateur',
+          title: 'Nouvel appareil',
+          event: true
+        });
+      }
+    });
+  }
+</script>
+
 </body>
-    </html>
+</html>
