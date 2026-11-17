@@ -13,6 +13,9 @@
 <meta property="og:title" content="ASSISTANT JUNIOR">
 <meta property="og:description" content="Ton assistant de lecture vocale. Écoute tous tes textes à voix haute, même hors ligne.">
 <meta property="og:image" content="https://juniorjsk.github.io/Junior-jsk.github.io/icon-512.png">
+<meta property="og:image:width" content="512">
+<meta property="og:image:height" content="512">
+<meta property="og:image:type" content="image/png">
 <meta property="og:url" content="https://juniorjsk.github.io/Junior-jsk.github.io/">
 <meta property="og:type" content="website">
 
@@ -241,7 +244,8 @@ input[type="range"] { padding: 5px 0; accent-color: #22c55e; }
     padding: 0 2px;
 }
 
-.clear-btn {
+/* Boutons ronds (Micro et Corbeille) */
+.action-btn {
     flex: 0 0 auto;
     width: 40px; height: 40px;
     padding: 0;
@@ -252,9 +256,24 @@ input[type="range"] { padding: 5px 0; accent-color: #22c55e; }
     font-size: 16px;
     cursor: pointer;
     display: grid; place-items: center;
+    transition: all .2s ease;
 }
-.clear-btn:active { transform: scale(.94); }
-.clear-btn:focus-visible { outline: 2px solid #22c55e; outline-offset: 3px; }
+.action-btn:active { transform: scale(.94); }
+.action-btn:focus-visible { outline: 2px solid #22c55e; outline-offset: 3px; }
+
+/* Style quand on enregistre */
+.action-btn.recording {
+    background: #dc2626;
+    border-color: #dc2626;
+    color: white;
+    animation: pulse-red 1.5s infinite;
+}
+
+@keyframes pulse-red {
+    0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+}
 
 .status {
     color: #4ade80;
@@ -272,9 +291,9 @@ footer {
 
 @media (max-width: 380px) {
     h1 { font-size: 25px; }
-    .player { gap: 9px; padding: 8px 10px; }
+    .player { gap: 6px; padding: 8px 10px; }
     .play-btn { width: 46px; height: 46px; }
-    .clear-btn { width: 36px; height: 36px; font-size: 14px; }
+    .action-btn { width: 34px; height: 34px; font-size: 14px; }
 }
 </style>
 </head>
@@ -345,7 +364,8 @@ footer {
             </div>
         </div>
 
-        <button class="clear-btn" id="clearBtn" type="button" aria-label="Effacer le texte">🗑️</button>
+        <button class="action-btn" id="dictateBtn" type="button" aria-label="Dicter du texte">🎤</button>
+        <button class="action-btn" id="clearBtn" type="button" aria-label="Effacer le texte">🗑️</button>
 
     </div>
 
@@ -381,49 +401,117 @@ let rafId         = 0;
 let progress      = 0;
 let lastCurText   = "";
 let lastTotText   = "";
-let wakeLock      = null; // Pour garder l'écran allumé
+let wakeLock      = null;
 
 let highlightStart = -1;
 let highlightEnd   = -1;
 
+// Dictée vocale
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+let recognition = null;
+let isDictating = false;
+
 const $ = id => document.getElementById(id);
 const bar            = $("progressBar");
 const playBtn        = $("playBtn");
+const dictateBtn     = $("dictateBtn");
 const avatar         = $("avatar");
 const highlightLayer = $("highlightLayer");
 const textarea       = $("textInput");
 
 /* ============================================================
-   WAKE LOCK (Garder l'écran allumé)
+   WAKE LOCK
    ============================================================ */
 async function requestWakeLock() {
     try {
         if ('wakeLock' in navigator) {
             wakeLock = await navigator.wakeLock.request('screen');
-            wakeLock.addEventListener('release', () => {
-                // L'écran a été déverrouillé
-            });
         }
-    } catch (err) {
-        // Le navigateur a refusé (ex: batterie faible)
-    }
+    } catch (err) {}
 }
-
 function releaseWakeLock() {
     if (wakeLock !== null) {
-        wakeLock.release().then(() => {
-            wakeLock = null;
-        });
+        wakeLock.release().then(() => { wakeLock = null; });
         wakeLock = null;
     }
 }
-
-// Si l'utilisateur change d'onglet et revient, on redemande le Wake Lock
 document.addEventListener('visibilitychange', async () => {
     if (wakeLock !== null && document.visibilityState === 'visible') {
         await requestWakeLock();
     }
 });
+
+/* ============================================================
+   DICTÉE VOCALE (Reconnaissance)
+   ============================================================ */
+if (SpeechRecognition) {
+    recognition = new SpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+
+    recognition.onstart = () => {
+        isDictating = true;
+        dictateBtn.classList.add("recording");
+        $("status").textContent = "● Micro actif...";
+    };
+
+    recognition.onresult = (event) => {
+        let finalTranscript = '';
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+            if (event.results[i].isFinal) {
+                finalTranscript += event.results[i][0].transcript;
+            }
+        }
+        if (finalTranscript) {
+            // Ajoute le texte à la suite (avec un espace si nécessaire)
+            const currentText = textarea.value;
+            const space = currentText.length > 0 && !currentText.endsWith(' ') ? ' ' : '';
+            textarea.value = currentText + space + finalTranscript;
+            textarea.scrollTop = textarea.scrollHeight;
+            // Force la mise à jour des chunks si on n'est pas en lecture
+            if (!isReading) {
+                preparedText = "";
+                setProgress(0);
+            }
+        }
+    };
+
+    recognition.onerror = (event) => {
+        console.error("Erreur de dictée:", event.error);
+        stopDictation();
+    };
+
+    recognition.onend = () => {
+        stopDictation();
+    };
+}
+
+function toggleDictation() {
+    if (!recognition) {
+        alert("La dictée vocale n'est pas supportée par votre navigateur. Utilisez Chrome.");
+        return;
+    }
+    if (isDictating) {
+        recognition.stop();
+    } else {
+        if (isReading) pauseReading(); // Coupe la lecture si elle est en cours
+        recognition.lang = language() === "fr" ? "fr-FR" : "en-US";
+        try {
+            recognition.start();
+        } catch (e) {
+            // Parfois le moteur met un peu de temps à se réinitialiser
+            setTimeout(() => recognition.start(), 100);
+        }
+    }
+}
+
+function stopDictation() {
+    isDictating = false;
+    dictateBtn.classList.remove("recording");
+    if (!isReading) $("status").textContent = t("ready");
+    else if (isPaused) $("status").textContent = t("paused");
+    else $("status").textContent = t("reading");
+}
 
 /* ============================================================
    TRADUCTIONS
@@ -618,7 +706,9 @@ function updateUI() {
     const playing = isReading && !isPaused;
     playBtn.classList.toggle("playing", playing);
     playBtn.setAttribute("aria-label", playing ? t("pause") : (isReading && isPaused ? t("resume") : t("play")));
-    $("status").textContent = isReading ? (isPaused ? t("paused") : t("reading")) : t("ready");
+    if (!isDictating) {
+        $("status").textContent = isReading ? (isPaused ? t("paused") : t("reading")) : t("ready");
+    }
     avatar.classList.toggle("speaking", playing);
 }
 
@@ -720,6 +810,8 @@ function startReading() {
     if (!("speechSynthesis" in window)) { alert(t("speechNotSupported")); return; }
     if (!prepareText()) { alert(t("empty")); return; }
     if (chunkIndex >= chunks.length) { chunkIndex = 0; chunkOffset = 0; }
+    
+    if (isDictating) recognition.stop(); // Coupe le micro si on lance la lecture
 
     session++;
     stopProgressLoop();
@@ -734,7 +826,7 @@ function startReading() {
     renderHighlight(abs);
     updateUI();
     
-    requestWakeLock(); // <-- ACTIVE LE WAKE LOCK
+    requestWakeLock();
 
     const token = session;
     const index = chunkIndex;
@@ -756,8 +848,7 @@ function pauseReading() {
     lastBoundary = chunkOffset;
     renderHighlight(chunkStarts[chunkIndex] + chunkOffset);
     updateUI();
-    
-    releaseWakeLock(); // <-- RELÂCHE LE WAKE LOCK (batterie)
+    releaseWakeLock();
 }
 
 function resumeReading() {
@@ -765,8 +856,7 @@ function resumeReading() {
     const token = ++session;
     updateUI();
     speakChunk(chunkIndex, token);
-    
-    requestWakeLock(); // <-- RÉACTIVE LE WAKE LOCK
+    requestWakeLock();
 }
 
 function finishReading() {
@@ -779,8 +869,7 @@ function finishReading() {
     clearHighlight();
     setProgress(0);
     updateUI();
-    
-    releaseWakeLock(); // <-- RELÂCHE LE WAKE LOCK
+    releaseWakeLock();
 }
 
 function togglePlay() {
@@ -886,6 +975,7 @@ function clearText() {
     session++;
     if ("speechSynthesis" in window) speechSynthesis.cancel();
     stopProgressLoop();
+    if (isDictating) recognition.stop();
 
     isReading = false;
     isPaused  = false;
@@ -902,7 +992,6 @@ function clearText() {
     clearHighlight();
     setProgress(0);
     updateUI();
-    
     releaseWakeLock();
 }
 
@@ -920,6 +1009,11 @@ function updateLanguage() {
     textarea.placeholder           = t("placeholder");
     bar.setAttribute("aria-label", t("progress"));
     $("clearBtn").setAttribute("aria-label", t("clear"));
+    
+    if (recognition) {
+        recognition.lang = language() === "fr" ? "fr-FR" : "en-US";
+    }
+
     loadVoices();
     updateUI();
 }
@@ -928,6 +1022,7 @@ function updateLanguage() {
    ÉVÉNEMENTS
    ============================================================ */
 playBtn.addEventListener("click", togglePlay);
+dictateBtn.addEventListener("click", toggleDictation);
 $("clearBtn").addEventListener("click", clearText);
 $("language").addEventListener("change", updateLanguage);
 
@@ -989,13 +1084,10 @@ if ("serviceWorker" in navigator) {
         async src="//gc.zgo.at/count.js"></script>
 
 <script>
-  // Créer un ID unique et anonyme pour chaque utilisateur
   let userId = localStorage.getItem('assistant_junior_id');
   if (!userId) {
     userId = 'user-' + Math.random().toString(36).slice(2, 9);
     localStorage.setItem('assistant_junior_id', userId);
-    
-    // Envoyer un événement spécial à GoatCounter si c'est sa toute première visite
     window.addEventListener('load', function() {
       if (window.goatcounter && window.goatcounter.count) {
         window.goatcounter.count({
