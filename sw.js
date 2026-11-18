@@ -1,4 +1,4 @@
-const CACHE_NAME = "assistant-junior-v10";
+const CACHE_NAME = "assistant-junior-v11";
 
 const FILES_TO_CACHE = [
   "./",
@@ -9,9 +9,6 @@ const FILES_TO_CACHE = [
   "./icon-maskable-512.png"
 ];
 
-/* ============================================================
-   INSTALLATION
-   ============================================================ */
 self.addEventListener("install", event => {
   event.waitUntil((async () => {
     const cache = await caches.open(CACHE_NAME);
@@ -25,9 +22,6 @@ self.addEventListener("install", event => {
   })());
 });
 
-/* ============================================================
-   ACTIVATION + NETTOYAGE
-   ============================================================ */
 self.addEventListener("activate", event => {
   event.waitUntil((async () => {
     const keys = await caches.keys();
@@ -40,9 +34,6 @@ self.addEventListener("activate", event => {
   })());
 });
 
-/* ============================================================
-   FETCH
-   ============================================================ */
 self.addEventListener("fetch", event => {
   const request = event.request;
   if (request.method !== "GET") return;
@@ -51,7 +42,6 @@ self.addEventListener("fetch", event => {
 
   const isHTML = request.mode === "navigate" || url.pathname.endsWith(".html") || url.pathname.endsWith("/");
 
-  /* ---- HTML : network-first ---- */
   if (isHTML) {
     event.respondWith((async () => {
       try {
@@ -76,7 +66,6 @@ self.addEventListener("fetch", event => {
     return;
   }
 
-  /* ---- Autres fichiers : cache-first ---- */
   event.respondWith((async () => {
     const cached = await caches.match(request);
     if (cached) return cached;
