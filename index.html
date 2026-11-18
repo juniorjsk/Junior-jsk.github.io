@@ -8,296 +8,162 @@
 <link rel="manifest" href="./manifest.json">
 <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
 <link rel="apple-touch-icon" href="./icon-512.png">
-
-<!-- Balises Open Graph pour l'aperçu sur WhatsApp et les réseaux sociaux -->
 <meta property="og:title" content="ASSISTANT JUNIOR">
 <meta property="og:description" content="Ton assistant de lecture vocale. Écoute tous tes textes à voix haute, même hors ligne.">
 <meta property="og:image" content="https://juniorjsk.github.io/Junior-jsk.github.io/icon-512.png">
 <meta property="og:image:width" content="512">
 <meta property="og:image:height" content="512">
-<meta property="og:image:type" content="image/png">
-<meta property="og:url" content="https://juniorjsk.github.io/Junior-jsk.github.io/">
 <meta property="og:type" content="website">
-
 <title>ASSISTANT JUNIOR</title>
 
 <style>
 * { box-sizing: border-box; }
-
 body {
-    margin: 0;
-    padding: 15px;
-    background: #0b1220;
-    color: white;
-    font-family: Arial, sans-serif;
-    color-scheme: dark;
+    margin: 0; padding: 15px; background: #0b1220; color: white;
+    font-family: Arial, sans-serif; color-scheme: dark;
 }
-
 .container { max-width: 650px; margin: auto; }
 
-header { text-align: center; padding: 20px 10px; }
-
+/* ---------- HEADER ---------- */
+header { text-align: center; padding: 10px 0 20px; position: relative; }
+.focus-btn {
+    position: absolute; top: 15px; right: 0;
+    background: transparent; border: none; color: #9ca3af; cursor: pointer;
+}
+.focus-btn svg { width: 24px; height: 24px; }
 .assistant-avatar {
-    position: relative;
-    width: 70px; height: 70px;
-    margin: 0 auto 10px;
-    background: #172337;
-    border: 2px solid #7c3aed;
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 30px;
+    position: relative; width: 60px; height: 60px; margin: 0 auto 10px;
+    background: #172337; border: 2px solid #7c3aed; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; font-size: 26px;
     box-shadow: 0 0 15px rgba(124, 58, 237, 0.4);
 }
 .assistant-avatar::after {
-    content: '';
-    position: absolute; inset: 0;
-    border-radius: 50%;
-    border: 2px solid #22c55e;
-    opacity: 0;
-    animation: none;
+    content: ''; position: absolute; inset: 0; border-radius: 50%;
+    border: 2px solid #22c55e; opacity: 0; animation: none;
 }
 .assistant-avatar.speaking::after { animation: pulse 2s infinite; }
+@keyframes pulse { 0% { transform: scale(1); opacity: .8; } 100% { transform: scale(1.35); opacity: 0; } }
+h1 { color: #22c55e; margin: 8px 0; font-size: 28px; }
+header p { color: #9ca3af; margin: 0; font-size: 14px; }
 
-@keyframes pulse {
-    0%   { transform: scale(1);    opacity: .8; }
-    100% { transform: scale(1.35); opacity: 0; }
-}
-
-h1 { color: #22c55e; margin: 8px 0; font-size: 30px; }
-header p { color: #9ca3af; margin: 0; }
-
+/* ---------- PANNEAU RÉGLAGES ---------- */
 .panel {
-    background: #172337;
-    padding: 16px;
-    border-radius: 16px;
-    margin-bottom: 15px;
-    border: 1px solid #293951;
+    background: #172337; padding: 16px; border-radius: 16px;
+    margin-bottom: 15px; border: 1px solid #293951; transition: all 0.3s ease;
 }
-
-label {
-    display: block;
-    margin: 12px 0 6px;
-    color: #cbd5e1;
-    font-size: 14px;
-}
-
-select, input {
-    width: 100%;
-    padding: 12px;
-    background: #0b1220;
-    border: 1px solid #37465e;
-    border-radius: 10px;
-    color: white;
-    font-size: 15px;
-    font-family: inherit;
-}
-
+.panel.hidden { display: none; }
+label { display: block; margin: 12px 0 6px; color: #cbd5e1; font-size: 14px; }
+select, input { width: 100%; padding: 12px; background: #0b1220; border: 1px solid #37465e; border-radius: 10px; color: white; font-size: 15px; font-family: inherit; }
 input[type="range"] { padding: 5px 0; accent-color: #22c55e; }
 
-/* ---------- ZONE TEXTE + SURLIGNAGE ---------- */
+/* ---------- BARRE D'OUTILS TEXTE ---------- */
+.text-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 5px; }
+.text-toolbar-label { color: #cbd5e1; font-size: 14px; }
+.toolbar-actions { display: flex; gap: 6px; }
+.tool-btn {
+    background: #1e2a3d; border: 1px solid #37465e; color: #cbd5e1;
+    padding: 6px 10px; border-radius: 8px; font-size: 12px;
+    display: flex; align-items: center; gap: 4px; cursor: pointer;
+}
+.tool-btn:hover { background: #293951; }
+.tool-btn svg { width: 14px; height: 14px; }
 
+/* ---------- ZONE TEXTE ---------- */
 .textarea-wrap {
-    position: relative;
-    background: #0b1220;
-    border: 1px solid #37465e;
-    border-radius: 10px;
-    margin-top: 6px;
-    transition: border-color .15s ease, box-shadow .15s ease;
+    position: relative; background: #0b1220; border: 1px solid #37465e;
+    border-radius: 10px; transition: border-color .15s ease, box-shadow .15s ease;
 }
-.textarea-wrap:focus-within {
-    border-color: #22c55e;
-    box-shadow: 0 0 0 3px rgba(34, 197, 94, .15);
-}
-
+.textarea-wrap:focus-within { border-color: #22c55e; box-shadow: 0 0 0 3px rgba(34, 197, 94, .15); }
 .textarea-wrap textarea {
-    position: relative;
-    z-index: 2;
-    display: block;
-    width: 100%;
-    min-height: 150px;
-    padding: 12px;
-    border: none;
-    border-radius: 10px;
-    background: transparent;
-    color: #fff;
-    font-family: inherit;
-    font-size: 15px;
-    line-height: 1.5;
-    resize: vertical;
-    outline: none;
-    scrollbar-width: none;
+    position: relative; z-index: 2; display: block; width: 100%; min-height: 120px;
+    padding: 12px; border: none; border-radius: 10px; background: transparent;
+    color: #fff; font-family: inherit; font-size: 15px; line-height: 1.5;
+    resize: vertical; outline: none; scrollbar-width: none;
 }
 .textarea-wrap textarea::-webkit-scrollbar { display: none; }
-
 .highlight-layer {
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    padding: 12px;
-    color: transparent;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    word-break: break-word;
-    overflow-y: auto;
-    pointer-events: none;
-    font-family: inherit;
-    font-size: 15px;
-    line-height: 1.5;
-    scrollbar-width: none;
+    position: absolute; inset: 0; z-index: 1; padding: 12px; color: transparent;
+    white-space: pre-wrap; word-wrap: break-word; word-break: break-word;
+    overflow-y: auto; pointer-events: none; font-family: inherit;
+    font-size: 15px; line-height: 1.5; scrollbar-width: none;
 }
 .highlight-layer::-webkit-scrollbar { display: none; }
-
-.highlight-layer mark {
-    background: #22c55e;
-    color: transparent;
-    padding: 0;
-    margin: 0;
-    border-radius: 3px;
-}
+.highlight-layer mark { background: #22c55e; color: transparent; padding: 0; margin: 0; border-radius: 3px; }
 
 /* ---------- LECTEUR AUDIO (2 LIGNES) ---------- */
 .player-container {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin-top: 15px;
-    padding: 12px;
-    background: #0b1220;
-    border: 1px solid #293951;
-    border-radius: 20px;
+    display: flex; flex-direction: column; gap: 12px; margin-top: 15px;
+    padding: 12px; background: #0b1220; border: 1px solid #293951; border-radius: 20px;
 }
-
-/* Ligne 1 : Play + Barre */
 .row-play {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    background: #0b1220;
-    border: 1px solid #293951;
-    border-radius: 999px;
-    padding: 8px 12px;
+    display: flex; align-items: center; gap: 12px;
+    background: #0b1220; border: 1px solid #293951; border-radius: 999px; padding: 8px 12px;
 }
-
 .play-btn {
-    flex: 0 0 auto;
-    width: 52px; height: 52px;
-    border-radius: 50%;
-    background: linear-gradient(145deg, #7c3aed, #5b21b6);
-    color: #fff;
-    display: grid; place-items: center;
-    border: none;
-    cursor: pointer;
-    box-shadow: 0 4px 14px rgba(124, 58, 237, .35);
-    transition: transform .12s ease;
+    flex: 0 0 auto; width: 52px; height: 52px; border-radius: 50%;
+    background: linear-gradient(145deg, #7c3aed, #5b21b6); color: #fff;
+    display: grid; place-items: center; border: none; cursor: pointer;
+    box-shadow: 0 4px 14px rgba(124, 58, 237, .35); transition: transform .12s ease;
 }
 .play-btn:active { transform: scale(.94); }
 .play-btn .icon-pause { display: none; }
 .play-btn.playing .icon-play { display: none; }
 .play-btn.playing .icon-pause { display: block; }
-
 .player-main { flex: 1 1 auto; min-width: 0; }
-
-.progress {
-    position: relative;
-    height: 28px;
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    touch-action: none;
-}
-.progress-track {
-    position: relative;
-    width: 100%;
-    height: 6px;
-    background: #293951;
-    border-radius: 999px;
-    overflow: hidden;
-}
-.progress-fill {
-    position: absolute;
-    top: 0; bottom: 0; left: 0;
-    width: 0%;
-    background: linear-gradient(90deg, #7c3aed, #22c55e);
-    border-radius: 999px;
-}
+.progress { position: relative; height: 28px; display: flex; align-items: center; cursor: pointer; touch-action: none; }
+.progress-track { position: relative; width: 100%; height: 6px; background: #293951; border-radius: 999px; overflow: hidden; }
+.progress-fill { position: absolute; top: 0; bottom: 0; left: 0; width: 0%; background: linear-gradient(90deg, #7c3aed, #22c55e); border-radius: 999px; }
 .progress-knob {
-    position: absolute;
-    top: 50%; left: 0%;
-    width: 14px; height: 14px;
-    border-radius: 50%;
-    background: #fff;
-    box-shadow: 0 0 0 3px rgba(34, 197, 94, .25);
-    transform: translate(-50%, -50%);
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity .15s ease;
+    position: absolute; top: 50%; left: 0%; width: 14px; height: 14px; border-radius: 50%;
+    background: #fff; box-shadow: 0 0 0 3px rgba(34, 197, 94, .25);
+    transform: translate(-50%, -50%); pointer-events: none; opacity: 0; transition: opacity .15s ease;
 }
-.progress:hover .progress-knob,
-.progress.dragging .progress-knob { opacity: 1; }
-
-.time {
-    display: flex;
-    justify-content: space-between;
-    font-size: 11px;
-    color: #8aa0bd;
-    font-variant-numeric: tabular-nums;
-    margin-top: 2px;
-    padding: 0 2px;
-}
-
-/* Ligne 2 : Actions (Micro, Trad, Corbeille) */
-.row-actions {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 5px;
-}
-
+.progress:hover .progress-knob, .progress.dragging .progress-knob { opacity: 1; }
+.time { display: flex; justify-content: space-between; font-size: 11px; color: #8aa0bd; font-variant-numeric: tabular-nums; margin-top: 2px; padding: 0 2px; }
+.row-actions { display: flex; justify-content: space-between; align-items: center; padding: 0 5px; }
 .action-btn {
-    flex: 0 0 auto;
-    width: 52px; height: 52px;
-    padding: 0;
-    border: none;
-    border-radius: 50%;
-    color: #fff;
-    cursor: pointer;
-    display: grid; place-items: center;
-    transition: transform .12s ease;
+    flex: 0 0 auto; width: 52px; height: 52px; padding: 0; border: none; border-radius: 50%;
+    color: #fff; cursor: pointer; display: grid; place-items: center; transition: transform .12s ease;
 }
 .action-btn:active { transform: scale(.92); }
 .action-btn svg { width: 24px; height: 24px; }
-
 .btn-green { background: linear-gradient(145deg, #22c55e, #16a34a); box-shadow: 0 4px 14px rgba(34, 197, 94, .35); }
 .btn-blue { background: linear-gradient(145deg, #3b82f6, #2563eb); box-shadow: 0 4px 14px rgba(59, 130, 246, .35); }
 .btn-red { background: linear-gradient(145deg, #ef4444, #dc2626); box-shadow: 0 4px 14px rgba(239, 68, 68, .35); }
+.btn-green.recording { background: linear-gradient(145deg, #ef4444, #dc2626); animation: pulse-red 1.5s infinite; }
+@keyframes pulse-red { 0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); } 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); } }
 
-.btn-green.recording {
-    background: linear-gradient(145deg, #ef4444, #dc2626);
-    animation: pulse-red 1.5s infinite;
+/* ---------- MODALES ---------- */
+.modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.8);
+    display: none; justify-content: center; align-items: center; z-index: 100;
 }
-
-@keyframes pulse-red {
-    0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); }
-    70% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+.modal-overlay.active { display: flex; }
+.modal-content {
+    background: #172337; border: 1px solid #293951; border-radius: 16px;
+    width: 90%; max-width: 500px; padding: 20px; max-height: 80vh;
+    display: flex; flex-direction: column;
 }
-
-.status {
-    color: #4ade80;
-    text-align: center;
-    font-size: 13px;
-    margin-top: 12px;
+.modal-content h2 { margin-top: 0; color: #22c55e; font-size: 20px; text-align: center; }
+.library-list { flex-grow: 1; overflow-y: auto; margin-bottom: 15px; display: flex; flex-direction: column; gap: 10px; }
+.lib-item {
+    background: #0b1220; border: 1px solid #293951; padding: 12px;
+    border-radius: 10px; display: flex; justify-content: space-between; align-items: center;
 }
-
-footer {
-    text-align: center;
-    color: #64748b;
-    padding: 15px;
-    font-size: 12px;
+.lib-item-text { flex-grow: 1; cursor: pointer; }
+.lib-item-title { font-weight: bold; color: #fff; margin-bottom: 4px; display: block; }
+.lib-item-date { font-size: 11px; color: #8aa0bd; }
+.lib-item-delete { background: transparent; border: none; color: #ef4444; cursor: pointer; font-size: 18px; padding: 5px; }
+.modal-close {
+    background: #293951; border: none; color: white; padding: 12px;
+    border-radius: 10px; font-weight: bold; cursor: pointer; width: 100%;
 }
+.modal-close:hover { background: #37465e; }
 
+.status { color: #4ade80; text-align: center; font-size: 13px; margin-top: 12px; }
+footer { text-align: center; color: #64748b; padding: 15px; font-size: 12px; }
 @media (max-width: 380px) {
-    h1 { font-size: 25px; }
+    h1 { font-size: 24px; }
     .play-btn, .action-btn { width: 44px; height: 44px; }
     .play-btn svg, .action-btn svg { width: 20px; height: 20px; }
 }
@@ -309,13 +175,17 @@ footer {
 <div class="container">
 
 <header>
+    <button class="focus-btn" id="focusBtn" aria-label="Mode Focus">
+        <svg id="eyeOpen" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+        <svg id="eyeClosed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+    </button>
     <div class="assistant-avatar" id="avatar" title="JUNIOR SAVY">🎙️</div>
     <h1>JUNIOR SAVY</h1>
     <p id="subtitle">Ton assistant de lecture vocale</p>
 </header>
 
-<div class="panel">
-
+<!-- Panneau Réglages (caché en mode focus) -->
+<div class="panel" id="settingsPanel">
     <label id="languageLabel" for="language">Langue</label>
     <select id="language">
         <option value="fr">Français</option>
@@ -330,22 +200,37 @@ footer {
 
     <label for="pitch"><span id="pitchLabel">Tonalité : </span><span id="pitchValue">1.0</span></label>
     <input type="range" id="pitch" min="0.5" max="2" step="0.1" value="1">
-
 </div>
 
 <div class="panel">
-
-    <label id="textLabel" for="textInput">Écris ou colle ton texte ici :</label>
+    <!-- Barre d'outils -->
+    <div class="text-toolbar">
+        <span class="text-toolbar-label" id="textLabel">Écris ou colle ton texte :</span>
+        <div class="toolbar-actions">
+            <button class="tool-btn" id="saveBtn" title="Sauvegarder ce cours">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                Sauver
+            </button>
+            <button class="tool-btn" id="importBtn" title="Importer un fichier texte">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                Importer
+            </button>
+            <button class="tool-btn" id="libraryBtn" title="Voir mes cours sauvegardés">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+                Mes cours
+            </button>
+        </div>
+    </div>
+    
+    <input type="file" id="fileInput" accept=".txt" style="display:none">
 
     <div class="textarea-wrap">
         <div class="highlight-layer" id="highlightLayer" aria-hidden="true"></div>
-        <textarea id="textInput" maxlength="20000" placeholder="Tape ton texte à lire à haute voix...">Bienvenue sur JUNIOR SAVY ! 🎙️ Je suis ton assistant. Écris ou colle ton cours ci-dessous, puis clique sur ▶️ pour que je te le lise à voix haute (même sans internet). Tu peux aussi me parler en cliquant sur le micro 🎤. Bon courage pour tes révisions !</textarea>
+        <textarea id="textInput" maxlength="20000" placeholder="Tape ton texte...">Bienvenue sur JUNIOR SAVY ! 🎙️ Je suis ton assistant. Écris ou colle ton cours ci-dessous, puis clique sur ▶️ pour que je te le lise à voix haute (même sans internet). Tu peux aussi me parler en cliquant sur le micro 🎤. Bon courage pour tes révisions !</textarea>
     </div>
 
-    <!-- NOUVEAU LECTEUR (2 LIGNES) -->
+    <!-- LECTEUR -->
     <div class="player-container">
-        
-        <!-- LIGNE 1 : Play + Barre -->
         <div class="row-play">
             <button class="play-btn" id="playBtn" type="button" aria-label="Lire">
                 <svg class="icon-play" viewBox="0 0 24 24" width="24" height="24"><path d="M8 5.2v13.6c0 .85.93 1.36 1.65.9l10.3-6.8a1.08 1.08 0 0 0 0-1.8L9.65 4.3A1.08 1.08 0 0 0 8 5.2z" fill="currentColor"/></svg>
@@ -365,185 +250,233 @@ footer {
             </div>
         </div>
 
-        <!-- LIGNE 2 : Actions (Micro, Trado, Corbeille) -->
         <div class="row-actions">
             <button class="action-btn btn-green" id="dictateBtn" type="button" aria-label="Dicter">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"></path>
-                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
-                    <line x1="12" y1="19" x2="12" y2="22"></line>
-                </svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="22"></line></svg>
             </button>
-
             <button class="action-btn btn-blue" id="translateBtn" type="button" aria-label="Traduire">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
-                    <path d="M2 12h20"></path>
-                </svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path><path d="M2 12h20"></path></svg>
             </button>
-
             <button class="action-btn btn-red" id="clearBtn" type="button" aria-label="Effacer">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="3 6 5 6 21 6"></polyline>
-                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                    <line x1="10" y1="11" x2="10" y2="17"></line>
-                    <line x1="14" y1="11" x2="14" y2="17"></line>
-                </svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
             </button>
         </div>
-
     </div>
-
     <div class="status" id="status" role="status" aria-live="polite">● Prêt</div>
-
 </div>
 
 <footer>
-    ASSISTANT JUNIOR © 2026<br>
-    Assistant personnel
+    ASSISTANT JUNIOR © 2026<br>Assistant personnel
 </footer>
 
+</div>
+
+<!-- MODALE BIBLIOTHÈQUE -->
+<div class="modal-overlay" id="libraryModal">
+    <div class="modal-content">
+        <h2>📂 Mes cours sauvegardés</h2>
+        <div class="library-list" id="libraryList">
+            <!-- Rempli par JS -->
+        </div>
+        <button class="modal-close" id="closeLibraryBtn">Fermer</button>
+    </div>
 </div>
 
 <script>
 /* ============================================================
    ÉTAT
    ============================================================ */
-let voices        = [];
-let chunks        = [];
-let chunkStarts   = [];
-let totalChars    = 0;
-let chunkIndex    = 0;
-let chunkOffset   = 0;
-let lastBoundary  = 0;
-let session       = 0;
-let isReading     = false;
-let isPaused      = false;
-let preparedText  = "";
-let estDuration   = 0;
-let chunkStartTs  = 0;
-let rafId         = 0;
-let progress      = 0;
-let lastCurText   = "";
-let lastTotText   = "";
-let wakeLock      = null;
+let voices = [], chunks = [], chunkStarts = [], totalChars = 0;
+let chunkIndex = 0, chunkOffset = 0, lastBoundary = 0, session = 0;
+let isReading = false, isPaused = false, preparedText = "", estDuration = 0;
+let chunkStartTs = 0, rafId = 0, progress = 0, lastCurText = "", lastTotText = "";
+let wakeLock = null, highlightStart = -1, highlightEnd = -1;
 
-let highlightStart = -1;
-let highlightEnd   = -1;
-
-// Dictée
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-let recognition = null;
-let isDictating = false;
-let dictationBase = "";  
-let dictationFinal = ""; 
+let recognition = null, isDictating = false, dictationBase = "", dictationFinal = "", silenceTimer = null;
 
 const $ = id => document.getElementById(id);
-const bar            = $("progressBar");
-const playBtn        = $("playBtn");
-const dictateBtn     = $("dictateBtn");
-const translateBtn   = $("translateBtn");
-const avatar         = $("avatar");
-const highlightLayer = $("highlightLayer");
-const textarea       = $("textInput");
+const bar = $("progressBar"), playBtn = $("playBtn"), dictateBtn = $("dictateBtn"), translateBtn = $("translateBtn");
+const avatar = $("avatar"), highlightLayer = $("highlightLayer"), textarea = $("textInput");
 
 /* ============================================================
    WAKE LOCK
    ============================================================ */
-async function requestWakeLock() {
-    try {
-        if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen');
-    } catch (err) {}
-}
-function releaseWakeLock() {
-    if (wakeLock !== null) {
-        wakeLock.release().then(() => { wakeLock = null; });
-        wakeLock = null;
+async function requestWakeLock() { try { if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen'); } catch (err) {} }
+function releaseWakeLock() { if (wakeLock !== null) { wakeLock.release().then(() => { wakeLock = null; }); wakeLock = null; } }
+document.addEventListener('visibilitychange', async () => { if (wakeLock !== null && document.visibilityState === 'visible') await requestWakeLock(); });
+
+/* ============================================================
+   SAUVEGARDE AUTO & BIBLIOTHÈQUE
+   ============================================================ */
+let library = JSON.parse(localStorage.getItem('junior_savvy_library') || '[]');
+
+function autoSave() {
+    if (textarea.value !== "Bienvenue sur JUNIOR SAVY ! 🎙️ Je suis ton assistant. Écris ou colle ton cours ci-dessous, puis clique sur ▶️ pour que je te le lise à voix haute (même sans internet). Tu peux aussi me parler en cliquant sur le micro 🎤. Bon courage pour tes révisions !") {
+        localStorage.setItem('junior_savvy_autosave', textarea.value);
     }
 }
-document.addEventListener('visibilitychange', async () => {
-    if (wakeLock !== null && document.visibilityState === 'visible') await requestWakeLock();
+
+function loadAutoSave() {
+    const saved = localStorage.getItem('junior_savvy_autosave');
+    if (saved && saved.trim().length > 0) {
+        textarea.value = saved;
+        hasClearedWelcome = true;
+    }
+}
+
+$("saveBtn").addEventListener("click", () => {
+    const text = textarea.value.trim();
+    if (!text) { alert("Le texte est vide !"); return; }
+    const title = prompt("Donne un nom à ce cours (ex: Histoire - Chapitre 1) :");
+    if (title) {
+        library.unshift({ title, text, date: new Date().toLocaleDateString() });
+        localStorage.setItem('junior_savvy_library', JSON.stringify(library));
+        alert("Cours sauvegardé dans ta bibliothèque ! ✅");
+    }
+});
+
+$("libraryBtn").addEventListener("click", () => {
+    const list = $("libraryList");
+    list.innerHTML = "";
+    if (library.length === 0) {
+        list.innerHTML = "<p style='text-align:center; color:#8aa0bd;'>Aucun cours sauvegardé pour le moment.</p>";
+    } else {
+        library.forEach((item, index) => {
+            const div = document.createElement("div");
+            div.className = "lib-item";
+            div.innerHTML = `
+                <div class="lib-item-text" onclick="loadCourse(${index})">
+                    <span class="lib-item-title">${item.title}</span>
+                    <span class="lib-item-date">${item.date}</span>
+                </div>
+                <button class="lib-item-delete" onclick="deleteCourse(${index})">🗑️</button>
+            `;
+            list.appendChild(div);
+        });
+    }
+    $("libraryModal").classList.add("active");
+});
+
+$("closeLibraryBtn").addEventListener("click", () => $("libraryModal").classList.remove("active"));
+
+window.loadCourse = (index) => {
+    textarea.value = library[index].text;
+    hasClearedWelcome = true;
+    $("libraryModal").classList.remove("active");
+    prepareText(); setProgress(0); updateUI();
+    autoSave();
+};
+
+window.deleteCourse = (index) => {
+    if (confirm("Supprimer ce cours ?")) {
+        library.splice(index, 1);
+        localStorage.setItem('junior_savvy_library', JSON.stringify(library));
+        $("libraryBtn").click(); // Rafraîchit la liste
+    }
+};
+
+/* ============================================================
+   IMPORTATION DE FICHIER .TXT
+   ============================================================ */
+$("importBtn").addEventListener("click", () => $("fileInput").click());
+$("fileInput").addEventListener("change", (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+        textarea.value = event.target.result;
+        hasClearedWelcome = true;
+        prepareText(); setProgress(0); updateUI();
+        autoSave();
+        $("status").textContent = "● Fichier importé !";
+    };
+    reader.readAsText(file);
+    e.target.value = ""; // Reset
 });
 
 /* ============================================================
-   DICTÉE (Fix anti-bégaiement 100%)
+   MODE FOCUS
+   ============================================================ */
+$("focusBtn").addEventListener("click", () => {
+    const panel = $("settingsPanel");
+    const isHidden = panel.classList.toggle("hidden");
+    $("eyeOpen").style.display = isHidden ? "none" : "block";
+    $("eyeClosed").style.display = isHidden ? "block" : "none";
+});
+
+/* ============================================================
+   DICTÉE (Renforcée)
    ============================================================ */
 if (SpeechRecognition) {
     recognition = new SpeechRecognition();
-    recognition.continuous = false; // <-- Désactive le mode continu
+    recognition.continuous = false;
     recognition.interimResults = true;
 
     recognition.onstart = () => {
-        isDictating = true;
-        dictateBtn.classList.add("recording");
+        isDictating = true; dictateBtn.classList.add("recording");
         $("status").textContent = "● Micro actif...";
-        dictationBase = textarea.value;
-        dictationFinal = "";
+        dictationBase = textarea.value; dictationFinal = "";
+        resetSilenceTimer();
     };
 
     recognition.onresult = (event) => {
+        resetSilenceTimer();
         let interim = '';
-        // On récupère le texte final de cette phrase
         for (let i = event.resultIndex; i < event.results.length; ++i) {
-            if (event.results[i].isFinal) {
-                dictationFinal += event.results[i][0].transcript + ' ';
-            } else {
-                interim += event.results[i][0].transcript;
-            }
+            if (event.results[i].isFinal) dictationFinal += event.results[i][0].transcript + ' ';
+            else interim += event.results[i][0].transcript;
         }
-        
-        // On reconstruit proprement
         const space = (dictationBase.length > 0 && !dictationBase.endsWith(' ')) ? ' ' : '';
         textarea.value = dictationBase + space + dictationFinal + interim;
         textarea.scrollTop = textarea.scrollHeight;
-        
-        if (!isReading) {
-            preparedText = "";
-            setProgress(0);
-        }
+        if (!isReading) { preparedText = ""; setProgress(0); }
+        autoSave();
     };
 
     recognition.onerror = (event) => {
-        if (event.error === 'no-speech') return; // On ignore si pas de son
+        if (event.error === 'no-speech') return;
+        if (event.error === 'not-allowed') alert("Veuillez autoriser le microphone dans les paramètres de votre navigateur.");
         stopDictation();
     };
 
     recognition.onend = () => {
-        // Si l'utilisateur n'a pas cliqué sur Stop, on relance automatiquement
         if (isDictating) {
-            try {
-                recognition.start();
-            } catch (e) {
-                setTimeout(() => { if (isDictating) recognition.start(); }, 100);
-            }
-        } else {
-            stopDictation();
-        }
+            try { recognition.start(); } catch (e) { setTimeout(() => { if (isDictating) recognition.start(); }, 100); }
+        } else { stopDictation(); }
     };
 }
 
-function toggleDictation() {
-    if (!recognition) {
-        alert("Utilisez Chrome pour la dictée vocale.");
-        return;
-    }
+function resetSilenceTimer() {
+    clearTimeout(silenceTimer);
     if (isDictating) {
-        isDictating = false;
-        recognition.stop();
+        silenceTimer = setTimeout(() => {
+            if (isDictating) {
+                isDictating = false; recognition.stop();
+                $("status").textContent = "● Micro arrêté (silence)";
+                dictateBtn.classList.remove("recording");
+            }
+        }, 10000); // 10 secondes
+    }
+}
+
+function toggleDictation() {
+    if (!navigator.onLine) { alert("La dictée vocale nécessite une connexion internet."); return; }
+    if (!recognition) { alert("Utilisez Chrome pour la dictée."); return; }
+    
+    if (isDictating) {
+        isDictating = false; recognition.stop();
     } else {
         if (isReading) pauseReading();
         recognition.lang = language() === "fr" ? "fr-FR" : "en-US";
-        dictationBase = textarea.value;
-        dictationFinal = "";
-        isDictating = true;
+        dictationBase = textarea.value; dictationFinal = ""; isDictating = true;
         try { recognition.start(); } catch (e) { setTimeout(() => recognition.start(), 100); }
     }
 }
 
 function stopDictation() {
-    isDictating = false;
-    dictateBtn.classList.remove("recording");
+    isDictating = false; dictateBtn.classList.remove("recording");
+    clearTimeout(silenceTimer);
     updateUI();
 }
 
@@ -552,60 +485,40 @@ function stopDictation() {
    ============================================================ */
 translateBtn.addEventListener("click", async () => {
     if (isDictating) toggleDictation();
-    
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
+    const start = textarea.selectionStart, end = textarea.selectionEnd;
     const hasSelection = start !== end;
-    
-    let textToTranslate = hasSelection 
-        ? textarea.value.substring(start, end) 
-        : textarea.value.trim();
+    let textToTranslate = hasSelection ? textarea.value.substring(start, end) : textarea.value.trim();
 
-    if (!textToTranslate) {
-        alert("Veuillez écrire ou sélectionner du texte à traduire.");
-        return;
-    }
-
-    const toEnglish = confirm("Traduire vers l'Anglais ?\n(Cliquez sur Annuler pour traduire vers le Français)");
+    if (!textToTranslate) { alert("Veuillez écrire du texte."); return; }
+    const toEnglish = confirm("Traduire vers l'Anglais ?\n(Annuler = vers le Français)");
     const targetLang = toEnglish ? "en" : "fr";
 
-    $("status").textContent = "● Traduction en cours...";
-    translateBtn.style.opacity = "0.5";
-    translateBtn.disabled = true;
+    $("status").textContent = "● Traduction...";
+    translateBtn.style.opacity = "0.5"; translateBtn.disabled = true;
 
     try {
         const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${targetLang}&dt=t&q=${encodeURIComponent(textToTranslate)}`);
         const data = await res.json();
         const translatedText = data[0].map(item => item[0]).join('');
 
-        if (hasSelection) {
-            // Remplace uniquement la sélection
-            textarea.value = textarea.value.substring(0, start) + translatedText + textarea.value.substring(end);
-        } else {
-            // Remplace tout le texte
-            textarea.value = translatedText;
-            hasClearedWelcome = true; // Évite de remettre le message d'accueil
-        }
+        if (hasSelection) textarea.value = textarea.value.substring(0, start) + translatedText + textarea.value.substring(end);
+        else { textarea.value = translatedText; hasClearedWelcome = true; }
         
-        // Rafraîchit l'interface
-        preparedText = "";
-        setProgress(0);
-        updateUI();
+        prepareText(); setProgress(0); updateUI(); autoSave();
     } catch (err) {
         alert("Erreur de connexion. La traduction nécessite internet.");
         updateUI();
     } finally {
-        translateBtn.style.opacity = "1";
-        translateBtn.disabled = false;
+        translateBtn.style.opacity = "1"; translateBtn.disabled = false;
     }
 });
 
 /* ============================================================
-   RESTE DU CODE (Lecture, UI, etc.)
+   LECTURE (Reste du code existant)
    ============================================================ */
 const translations = {
-    fr: { subtitle: "Ton assistant de lecture vocale", languageLabel: "Langue", voiceLabel: "Voix disponible", speedLabel: "Vitesse : ", pitchLabel: "Tonalité : ", textLabel: "Écris ou colle ton texte ici :", placeholder: "Tape ton texte...", play: "Lire", pause: "Pause", resume: "Reprendre", clear: "Effacer", progress: "Progression", ready: "● Prêt", reading: "● Lecture...", paused: "● En pause", empty: "Entrez du texte.", noVoice: "Aucune voix", speechNotSupported: "Non supporté." },
-    en: { subtitle: "Your voice reading assistant", languageLabel: "Language", voiceLabel: "Available voice", speedLabel: "Speed : ", pitchLabel: "Pitch : ", textLabel: "Type or paste text here:", placeholder: "Type text...", play: "Read", pause: "Pause", resume: "Resume", clear: "Clear", progress: "Progress", ready: "● Ready", reading: "● Reading...", paused: "● Paused", empty: "Enter text.", noVoice: "No voice", speechNotSupported: "Not supported." }
+    fr: { subtitle: "Ton assistant de lecture vocale", languageLabel: "Langue", voiceLabel: "Voix disponible", speedLabel: "Vitesse : ", pitchLabel: "Tonalité : ", textLabel: "Écris ou colle ton texte :", play: "Lire", pause: "Pause", resume: "Reprendre", ready: "● Prêt", reading: "● Lecture...", paused: "● En pause", empty: "Entrez du texte.", noVoice: "Aucune voix", speechNotSupported: "Non supporté." },
+    en: { subtitle: "Your voice reading assistant", languageLabel: "Language", voiceLabel: "Available voice", speedLabel: "Speed : ", pitchLabel: "Pitch : ", textLabel: "Type or paste text:", play: "Read", pause: "Pause", resume: "Resume", ready: "● Ready", reading: "● Reading...", paused: "● Paused", empty: "Enter text.", noVoice: "No voice", speechNotSupported: "Not supported." }
 };
 const language = () => $("language").value;
 const t = key => translations[language()][key];
@@ -618,16 +531,12 @@ function loadVoices() {
     $("voice").innerHTML = "";
     filtered.forEach(v => {
         const opt = document.createElement("option");
-        opt.value = v.voiceURI;
-        opt.textContent = v.name + " (" + v.lang + ")";
-        $("voice").appendChild(opt);
+        opt.value = v.voiceURI; opt.textContent = v.name + " (" + v.lang + ")"; $("voice").appendChild(opt);
     });
     if (filtered.length === 0) {
         const opt = document.createElement("option");
         opt.value = ""; opt.textContent = t("noVoice"); $("voice").appendChild(opt);
-    } else if (previous && filtered.some(v => v.voiceURI === previous)) {
-        $("voice").value = previous;
-    }
+    } else if (previous && filtered.some(v => v.voiceURI === previous)) { $("voice").value = previous; }
 }
 
 function splitIntoChunks(text) {
@@ -696,10 +605,7 @@ function clearHighlight() {
     highlightLayer.textContent = "";
 }
 
-function syncScroll() {
-    highlightLayer.scrollTop = textarea.scrollTop;
-    highlightLayer.scrollLeft = textarea.scrollLeft;
-}
+function syncScroll() { highlightLayer.scrollTop = textarea.scrollTop; highlightLayer.scrollLeft = textarea.scrollLeft; }
 textarea.addEventListener("scroll", syncScroll);
 
 function formatTime(sec) {
@@ -724,9 +630,7 @@ function updateUI() {
     const playing = isReading && !isPaused;
     playBtn.classList.toggle("playing", playing);
     playBtn.setAttribute("aria-label", playing ? t("pause") : (isReading && isPaused ? t("resume") : t("play")));
-    if (!isDictating) {
-        $("status").textContent = isReading ? (isPaused ? t("paused") : t("reading")) : t("ready");
-    }
+    if (!isDictating) $("status").textContent = isReading ? (isPaused ? t("paused") : t("reading")) : t("ready");
     avatar.classList.toggle("speaking", playing);
 }
 
@@ -736,26 +640,21 @@ function interpolatedChar() {
     if (!estPerChar) return chunkStarts[chunkIndex] + chunkOffset;
     const elapsed = (performance.now() - chunkStartTs) / 1000;
     const len = chunks[chunkIndex] ? chunks[chunkIndex].length : 0;
-    const posInChunk = Math.min(len, chunkOffset + elapsed / estPerChar);
-    return chunkStarts[chunkIndex] + posInChunk;
+    return chunkStarts[chunkIndex] + Math.min(len, chunkOffset + elapsed / estPerChar);
 }
 
 function startProgressLoop() {
     stopProgressLoop();
     const tick = () => {
         if (!isReading || isPaused) { rafId = 0; return; }
-        const abs = interpolatedChar();
-        setProgress(abs / totalChars);
-        renderHighlight(abs);
+        setProgress(interpolatedChar() / totalChars);
+        renderHighlight(interpolatedChar());
         rafId = requestAnimationFrame(tick);
     };
     rafId = requestAnimationFrame(tick);
 }
 
-function stopProgressLoop() {
-    if (rafId) cancelAnimationFrame(rafId);
-    rafId = 0;
-}
+function stopProgressLoop() { if (rafId) cancelAnimationFrame(rafId); rafId = 0; }
 
 function speakChunk(i, token) {
     if (token !== session) return;
@@ -776,36 +675,27 @@ function speakChunk(i, token) {
     utterance.pitch = Number($("pitch").value);
     const chunkLen = chunks[i].length;
 
-    utterance.onstart = () => {
-        if (token !== session) return;
-        chunkStartTs = performance.now();
-        startProgressLoop();
-    };
-
+    utterance.onstart = () => { if (token !== session) return; chunkStartTs = performance.now(); startProgressLoop(); };
     utterance.onboundary = (e) => {
         if (token !== session) return;
         const pos = Math.min(chunkOffset + (e.charIndex || 0), chunkLen);
         if (pos <= lastBoundary) return;
         lastBoundary = pos;
         const abs = chunkStarts[i] + pos;
-        setProgress(abs / totalChars);
-        renderHighlight(abs);
+        setProgress(abs / totalChars); renderHighlight(abs);
         const estPerChar = estDuration / totalChars;
         if (estPerChar > 0) chunkStartTs = performance.now() - (pos - chunkOffset) * estPerChar * 1000;
     };
-
     utterance.onend = () => {
         if (token !== session) return;
         setProgress((chunkStarts[i] + chunkLen) / totalChars);
         chunkOffset = 0; lastBoundary = 0;
         speakChunk(i + 1, token);
     };
-
     utterance.onerror = (e) => {
         if (token !== session) return;
         if (e.error === "interrupted" || e.error === "canceled") return;
-        chunkOffset = 0;
-        speakChunk(i + 1, token);
+        chunkOffset = 0; speakChunk(i + 1, token);
     };
     speechSynthesis.speak(utterance);
 }
@@ -818,53 +708,35 @@ function startReading() {
 
     session++;
     stopProgressLoop();
-    isReading = true; isPaused = false;
-    chunkOffset = 0; lastBoundary = 0;
+    isReading = true; isPaused = false; chunkOffset = 0; lastBoundary = 0;
     estDuration = estimateDuration(preparedText, Number($("speed").value));
     const abs = chunkStarts[chunkIndex];
-    setProgress(abs / totalChars);
-    renderHighlight(abs);
-    updateUI();
-    requestWakeLock();
+    setProgress(abs / totalChars); renderHighlight(abs); updateUI(); requestWakeLock();
 
-    const token = session;
-    const index = chunkIndex;
+    const token = session; const index = chunkIndex;
     if (speechSynthesis.speaking || speechSynthesis.pending) {
-        speechSynthesis.cancel();
-        setTimeout(() => speakChunk(index, token), 80);
-    } else {
-        speakChunk(index, token);
-    }
+        speechSynthesis.cancel(); setTimeout(() => speakChunk(index, token), 80);
+    } else { speakChunk(index, token); }
 }
 
 function pauseReading() {
     session++;
     if ("speechSynthesis" in window) speechSynthesis.cancel();
-    isPaused = true;
-    stopProgressLoop();
+    isPaused = true; stopProgressLoop();
     chunkOffset = Math.min(lastBoundary, chunks[chunkIndex] ? chunks[chunkIndex].length : 0);
-    lastBoundary = chunkOffset;
-    renderHighlight(chunkStarts[chunkIndex] + chunkOffset);
-    updateUI();
-    releaseWakeLock();
+    lastBoundary = chunkOffset; renderHighlight(chunkStarts[chunkIndex] + chunkOffset);
+    updateUI(); releaseWakeLock();
 }
 
 function resumeReading() {
-    isPaused = false;
-    const token = ++session;
-    updateUI();
-    speakChunk(chunkIndex, token);
-    requestWakeLock();
+    isPaused = false; const token = ++session;
+    updateUI(); speakChunk(chunkIndex, token); requestWakeLock();
 }
 
 function finishReading() {
     stopProgressLoop();
-    isReading = false; isPaused = false;
-    chunkIndex = 0; chunkOffset = 0; lastBoundary = 0;
-    clearHighlight();
-    setProgress(0);
-    updateUI();
-    releaseWakeLock();
+    isReading = false; isPaused = false; chunkIndex = 0; chunkOffset = 0; lastBoundary = 0;
+    clearHighlight(); setProgress(0); updateUI(); releaseWakeLock();
 }
 
 function togglePlay() {
@@ -890,14 +762,11 @@ function seekToChunk(i, resume) {
     stopProgressLoop();
     chunkIndex = i; chunkOffset = 0; lastBoundary = 0;
     const abs = chunkStarts[i];
-    setProgress(abs / totalChars);
-    renderHighlight(abs);
+    setProgress(abs / totalChars); renderHighlight(abs);
     if (resume) {
-        isReading = true; isPaused = false;
-        updateUI();
+        isReading = true; isPaused = false; updateUI();
         const token = session; const index = i;
-        setTimeout(() => speakChunk(index, token), 60);
-        requestWakeLock();
+        setTimeout(() => speakChunk(index, token), 60); requestWakeLock();
     } else { updateUI(); }
 }
 
@@ -910,8 +779,7 @@ let dragging = false; let resumeAfterDrag = false;
 
 bar.addEventListener("pointerdown", (e) => {
     if (!prepareText()) return;
-    dragging = true;
-    resumeAfterDrag = isReading && !isPaused;
+    dragging = true; resumeAfterDrag = isReading && !isPaused;
     bar.classList.add("dragging");
     if (resumeAfterDrag) pauseReading();
     try { bar.setPointerCapture(e.pointerId); } catch (_) {}
@@ -920,8 +788,7 @@ bar.addEventListener("pointerdown", (e) => {
 bar.addEventListener("pointermove", (e) => { if (dragging) setProgress(fractionFromEvent(e)); });
 bar.addEventListener("pointerup", (e) => {
     if (!dragging) return;
-    dragging = false;
-    bar.classList.remove("dragging");
+    dragging = false; bar.classList.remove("dragging");
     const f = fractionFromEvent(e);
     try { bar.releasePointerCapture(e.pointerId); } catch (_) {}
     seekToChunk(chunkForFraction(f), resumeAfterDrag);
@@ -936,7 +803,7 @@ function clearText() {
     isReading = false; isPaused = false;
     chunks = []; chunkStarts = []; totalChars = 0; chunkIndex = 0; chunkOffset = 0; lastBoundary = 0;
     preparedText = ""; estDuration = 0;
-    textarea.value = "";
+    textarea.value = ""; localStorage.removeItem('junior_savvy_autosave');
     clearHighlight(); setProgress(0); updateUI(); releaseWakeLock();
 }
 
@@ -948,10 +815,8 @@ function updateLanguage() {
     $("speedLabel").textContent = t("speedLabel");
     $("pitchLabel").textContent = t("pitchLabel");
     $("textLabel").textContent = t("textLabel");
-    textarea.placeholder = t("placeholder");
     if (recognition) recognition.lang = language() === "fr" ? "fr-FR" : "en-US";
-    loadVoices();
-    updateUI();
+    loadVoices(); updateUI();
 }
 
 playBtn.addEventListener("click", togglePlay);
@@ -962,10 +827,7 @@ $("language").addEventListener("change", updateLanguage);
 let hasClearedWelcome = false;
 textarea.addEventListener("focus", () => {
     if (!hasClearedWelcome && textarea.value.includes("Bienvenue sur JUNIOR SAVY")) {
-        textarea.value = "";
-        hasClearedWelcome = true;
-        preparedText = "";
-        setProgress(0);
+        textarea.value = ""; hasClearedWelcome = true; preparedText = ""; setProgress(0);
     }
 });
 
@@ -983,14 +845,13 @@ textarea.addEventListener("input", () => {
     preparedText = ""; chunks = []; chunkStarts = []; totalChars = 0;
     chunkIndex = 0; chunkOffset = 0; estDuration = 0;
     clearHighlight(); setProgress(0); updateUI();
+    autoSave();
 });
 
-if ("speechSynthesis" in window) {
-    speechSynthesis.onvoiceschanged = loadVoices;
-    loadVoices();
-}
-updateLanguage();
-setProgress(0);
+if ("speechSynthesis" in window) { speechSynthesis.onvoiceschanged = loadVoices; loadVoices(); }
+
+// Initialisation
+updateLanguage(); setProgress(0); loadAutoSave();
 
 if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => {
