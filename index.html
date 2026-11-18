@@ -155,69 +155,45 @@ input[type="range"] { padding: 5px 0; accent-color: #22c55e; }
     border-radius: 3px;
 }
 
-/* ---------- LECTEUR AUDIO ---------- */
+/* ---------- LECTEUR AUDIO (2 LIGNES) ---------- */
+.player-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 15px;
+    padding: 12px;
+    background: #0b1220;
+    border: 1px solid #293951;
+    border-radius: 20px;
+}
 
-.player {
+/* Ligne 1 : Play + Barre */
+.row-play {
     display: flex;
     align-items: center;
-    gap: 10px;
-    margin-top: 15px;
-    padding: 10px 12px;
+    gap: 12px;
     background: #0b1220;
     border: 1px solid #293951;
     border-radius: 999px;
+    padding: 8px 12px;
 }
 
-/* Taille commune pour les 3 boutons */
-.play-btn, .action-btn {
+.play-btn {
     flex: 0 0 auto;
     width: 52px; height: 52px;
-    padding: 0;
-    border: none;
     border-radius: 50%;
-    color: #fff;
-    display: grid; 
-    place-items: center;
-    cursor: pointer;
-    transition: transform .12s ease, box-shadow .2s ease;
-}
-.play-btn:active, .action-btn:active { transform: scale(.94); }
-.play-btn:focus-visible, .action-btn:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
-
-/* Le bouton Play (Violet) */
-.play-btn {
     background: linear-gradient(145deg, #7c3aed, #5b21b6);
+    color: #fff;
+    display: grid; place-items: center;
+    border: none;
+    cursor: pointer;
     box-shadow: 0 4px 14px rgba(124, 58, 237, .35);
+    transition: transform .12s ease;
 }
+.play-btn:active { transform: scale(.94); }
 .play-btn .icon-pause { display: none; }
 .play-btn.playing .icon-play { display: none; }
 .play-btn.playing .icon-pause { display: block; }
-
-/* Le bouton Micro (Vert) */
-#dictateBtn {
-    background: linear-gradient(145deg, #22c55e, #16a34a);
-    box-shadow: 0 4px 14px rgba(34, 197, 94, .35);
-}
-#dictateBtn.recording {
-    background: linear-gradient(145deg, #ef4444, #dc2626);
-    box-shadow: 0 4px 14px rgba(239, 68, 68, .35);
-    animation: pulse-red 1.5s infinite;
-}
-
-/* Le bouton Corbeille (Rouge) */
-#clearBtn {
-    background: linear-gradient(145deg, #ef4444, #dc2626);
-    box-shadow: 0 4px 14px rgba(239, 68, 68, .35);
-}
-
-@keyframes pulse-red {
-    0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); }
-    70% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
-}
-
-/* Taille des icônes SVG */
-.play-btn svg, .action-btn svg { width: 24px; height: 24px; }
 
 .player-main { flex: 1 1 auto; min-width: 0; }
 
@@ -228,10 +204,7 @@ input[type="range"] { padding: 5px 0; accent-color: #22c55e; }
     align-items: center;
     cursor: pointer;
     touch-action: none;
-    border-radius: 8px;
 }
-.progress:focus-visible { outline: 2px solid #22c55e; outline-offset: 2px; }
-
 .progress-track {
     position: relative;
     width: 100%;
@@ -240,7 +213,6 @@ input[type="range"] { padding: 5px 0; accent-color: #22c55e; }
     border-radius: 999px;
     overflow: hidden;
 }
-
 .progress-fill {
     position: absolute;
     top: 0; bottom: 0; left: 0;
@@ -248,7 +220,6 @@ input[type="range"] { padding: 5px 0; accent-color: #22c55e; }
     background: linear-gradient(90deg, #7c3aed, #22c55e);
     border-radius: 999px;
 }
-
 .progress-knob {
     position: absolute;
     top: 50%; left: 0%;
@@ -262,8 +233,7 @@ input[type="range"] { padding: 5px 0; accent-color: #22c55e; }
     transition: opacity .15s ease;
 }
 .progress:hover .progress-knob,
-.progress.dragging .progress-knob,
-.progress:focus-visible .progress-knob { opacity: 1; }
+.progress.dragging .progress-knob { opacity: 1; }
 
 .time {
     display: flex;
@@ -273,6 +243,43 @@ input[type="range"] { padding: 5px 0; accent-color: #22c55e; }
     font-variant-numeric: tabular-nums;
     margin-top: 2px;
     padding: 0 2px;
+}
+
+/* Ligne 2 : Actions (Micro, Trad, Corbeille) */
+.row-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 5px;
+}
+
+.action-btn {
+    flex: 0 0 auto;
+    width: 52px; height: 52px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    color: #fff;
+    cursor: pointer;
+    display: grid; place-items: center;
+    transition: transform .12s ease;
+}
+.action-btn:active { transform: scale(.92); }
+.action-btn svg { width: 24px; height: 24px; }
+
+.btn-green { background: linear-gradient(145deg, #22c55e, #16a34a); box-shadow: 0 4px 14px rgba(34, 197, 94, .35); }
+.btn-blue { background: linear-gradient(145deg, #3b82f6, #2563eb); box-shadow: 0 4px 14px rgba(59, 130, 246, .35); }
+.btn-red { background: linear-gradient(145deg, #ef4444, #dc2626); box-shadow: 0 4px 14px rgba(239, 68, 68, .35); }
+
+.btn-green.recording {
+    background: linear-gradient(145deg, #ef4444, #dc2626);
+    animation: pulse-red 1.5s infinite;
+}
+
+@keyframes pulse-red {
+    0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
 }
 
 .status {
@@ -291,7 +298,6 @@ footer {
 
 @media (max-width: 380px) {
     h1 { font-size: 25px; }
-    .player { gap: 6px; padding: 8px 10px; }
     .play-btn, .action-btn { width: 44px; height: 44px; }
     .play-btn svg, .action-btn svg { width: 20px; height: 20px; }
 }
@@ -333,54 +339,59 @@ footer {
 
     <div class="textarea-wrap">
         <div class="highlight-layer" id="highlightLayer" aria-hidden="true"></div>
-        <!-- Le message d'accueil est intégré ici -->
         <textarea id="textInput" maxlength="20000" placeholder="Tape ton texte à lire à haute voix...">Bienvenue sur JUNIOR SAVY ! 🎙️ Je suis ton assistant. Écris ou colle ton cours ci-dessous, puis clique sur ▶️ pour que je te le lise à voix haute (même sans internet). Tu peux aussi me parler en cliquant sur le micro 🎤. Bon courage pour tes révisions !</textarea>
     </div>
 
-    <!-- LECTEUR AUDIO -->
-    <div class="player">
-
-        <button class="play-btn" id="playBtn" type="button" aria-label="Lire">
-            <svg class="icon-play" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false">
-                <path d="M8 5.2v13.6c0 .85.93 1.36 1.65.9l10.3-6.8a1.08 1.08 0 0 0 0-1.8L9.65 4.3A1.08 1.08 0 0 0 8 5.2z" fill="currentColor"/>
-            </svg>
-            <svg class="icon-pause" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false">
-                <rect x="6.5" y="5" width="4" height="14" rx="1.4" fill="currentColor"/>
-                <rect x="13.5" y="5" width="4" height="14" rx="1.4" fill="currentColor"/>
-            </svg>
-        </button>
-
-        <div class="player-main">
-            <div class="progress" id="progressBar" role="slider" tabindex="0"
-                 aria-label="Progression de la lecture"
-                 aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="0 %">
-                <div class="progress-track">
-                    <div class="progress-fill" id="progressFill"></div>
-                    <div class="progress-knob" id="progressKnob"></div>
+    <!-- NOUVEAU LECTEUR (2 LIGNES) -->
+    <div class="player-container">
+        
+        <!-- LIGNE 1 : Play + Barre -->
+        <div class="row-play">
+            <button class="play-btn" id="playBtn" type="button" aria-label="Lire">
+                <svg class="icon-play" viewBox="0 0 24 24" width="24" height="24"><path d="M8 5.2v13.6c0 .85.93 1.36 1.65.9l10.3-6.8a1.08 1.08 0 0 0 0-1.8L9.65 4.3A1.08 1.08 0 0 0 8 5.2z" fill="currentColor"/></svg>
+                <svg class="icon-pause" viewBox="0 0 24 24" width="24" height="24"><rect x="6.5" y="5" width="4" height="14" rx="1.4" fill="currentColor"/><rect x="13.5" y="5" width="4" height="14" rx="1.4" fill="currentColor"/></svg>
+            </button>
+            <div class="player-main">
+                <div class="progress" id="progressBar" role="slider" tabindex="0" aria-label="Progression">
+                    <div class="progress-track">
+                        <div class="progress-fill" id="progressFill"></div>
+                        <div class="progress-knob" id="progressKnob"></div>
+                    </div>
                 </div>
-            </div>
-            <div class="time">
-                <span id="timeCurrent">0:00</span>
-                <span id="timeTotal">0:00</span>
+                <div class="time">
+                    <span id="timeCurrent">0:00</span>
+                    <span id="timeTotal">0:00</span>
+                </div>
             </div>
         </div>
 
-        <button class="action-btn" id="dictateBtn" type="button" aria-label="Dicter du texte">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"></path>
-                <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
-                <line x1="12" y1="19" x2="12" y2="22"></line>
-            </svg>
-        </button>
+        <!-- LIGNE 2 : Actions (Micro, Trado, Corbeille) -->
+        <div class="row-actions">
+            <button class="action-btn btn-green" id="dictateBtn" type="button" aria-label="Dicter">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"></path>
+                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                    <line x1="12" y1="19" x2="12" y2="22"></line>
+                </svg>
+            </button>
 
-        <button class="action-btn" id="clearBtn" type="button" aria-label="Effacer le texte">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="3 6 5 6 21 6"></polyline>
-                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                <line x1="10" y1="11" x2="10" y2="17"></line>
-                <line x1="14" y1="11" x2="14" y2="17"></line>
-            </svg>
-        </button>
+            <button class="action-btn btn-blue" id="translateBtn" type="button" aria-label="Traduire">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                    <path d="M2 12h20"></path>
+                </svg>
+            </button>
+
+            <button class="action-btn btn-red" id="clearBtn" type="button" aria-label="Effacer">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    <line x1="10" y1="11" x2="10" y2="17"></line>
+                    <line x1="14" y1="11" x2="14" y2="17"></line>
+                </svg>
+            </button>
+        </div>
 
     </div>
 
@@ -421,16 +432,18 @@ let wakeLock      = null;
 let highlightStart = -1;
 let highlightEnd   = -1;
 
-// Dictée vocale
+// Dictée
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 let recognition = null;
 let isDictating = false;
 let dictationBase = "";  
+let dictationFinal = ""; 
 
 const $ = id => document.getElementById(id);
 const bar            = $("progressBar");
 const playBtn        = $("playBtn");
 const dictateBtn     = $("dictateBtn");
+const translateBtn   = $("translateBtn");
 const avatar         = $("avatar");
 const highlightLayer = $("highlightLayer");
 const textarea       = $("textInput");
@@ -440,9 +453,7 @@ const textarea       = $("textInput");
    ============================================================ */
 async function requestWakeLock() {
     try {
-        if ('wakeLock' in navigator) {
-            wakeLock = await navigator.wakeLock.request('screen');
-        }
+        if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen');
     } catch (err) {}
 }
 function releaseWakeLock() {
@@ -452,140 +463,158 @@ function releaseWakeLock() {
     }
 }
 document.addEventListener('visibilitychange', async () => {
-    if (wakeLock !== null && document.visibilityState === 'visible') {
-        await requestWakeLock();
-    }
+    if (wakeLock !== null && document.visibilityState === 'visible') await requestWakeLock();
 });
 
 /* ============================================================
-   DICTÉE VOCALE (Version anti-bégaiement)
+   DICTÉE (Fix anti-bégaiement 100%)
    ============================================================ */
 if (SpeechRecognition) {
     recognition = new SpeechRecognition();
-    recognition.continuous = true;
+    recognition.continuous = false; // <-- Désactive le mode continu
     recognition.interimResults = true;
 
     recognition.onstart = () => {
         isDictating = true;
         dictateBtn.classList.add("recording");
         $("status").textContent = "● Micro actif...";
-        dictationBase = textarea.value; // On garde le texte qui était déjà là
+        dictationBase = textarea.value;
+        dictationFinal = "";
     };
 
     recognition.onresult = (event) => {
-        let fullTranscript = '';
-        
-        // On récupère TOUT ce qui a été dit depuis le début du clic sur le micro
-        for (let i = 0; i < event.results.length; ++i) {
-            fullTranscript += event.results[i][0].transcript + ' ';
+        let interim = '';
+        // On récupère le texte final de cette phrase
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+            if (event.results[i].isFinal) {
+                dictationFinal += event.results[i][0].transcript + ' ';
+            } else {
+                interim += event.results[i][0].transcript;
+            }
         }
         
-        fullTranscript = fullTranscript.trim();
-
-        if (fullTranscript.length > 0) {
-            // On reconstruit le texte : Base + Espace + Ce qui a été dit
-            const space = (dictationBase.length > 0 && !dictationBase.endsWith(' ')) ? ' ' : '';
-            textarea.value = dictationBase + space + fullTranscript;
-            textarea.scrollTop = textarea.scrollHeight;
-            
-            if (!isReading) {
-                preparedText = "";
-                setProgress(0);
-            }
+        // On reconstruit proprement
+        const space = (dictationBase.length > 0 && !dictationBase.endsWith(' ')) ? ' ' : '';
+        textarea.value = dictationBase + space + dictationFinal + interim;
+        textarea.scrollTop = textarea.scrollHeight;
+        
+        if (!isReading) {
+            preparedText = "";
+            setProgress(0);
         }
     };
 
     recognition.onerror = (event) => {
-        console.error("Erreur de dictée:", event.error);
+        if (event.error === 'no-speech') return; // On ignore si pas de son
         stopDictation();
     };
 
     recognition.onend = () => {
-        stopDictation();
+        // Si l'utilisateur n'a pas cliqué sur Stop, on relance automatiquement
+        if (isDictating) {
+            try {
+                recognition.start();
+            } catch (e) {
+                setTimeout(() => { if (isDictating) recognition.start(); }, 100);
+            }
+        } else {
+            stopDictation();
+        }
     };
 }
 
 function toggleDictation() {
     if (!recognition) {
-        alert("La dictée vocale n'est pas supportée par votre navigateur. Utilisez Chrome.");
+        alert("Utilisez Chrome pour la dictée vocale.");
         return;
     }
     if (isDictating) {
+        isDictating = false;
         recognition.stop();
     } else {
         if (isReading) pauseReading();
         recognition.lang = language() === "fr" ? "fr-FR" : "en-US";
-        try {
-            recognition.start();
-        } catch (e) {
-            setTimeout(() => recognition.start(), 100);
-        }
+        dictationBase = textarea.value;
+        dictationFinal = "";
+        isDictating = true;
+        try { recognition.start(); } catch (e) { setTimeout(() => recognition.start(), 100); }
     }
 }
 
 function stopDictation() {
     isDictating = false;
     dictateBtn.classList.remove("recording");
-    if (!isReading) $("status").textContent = t("ready");
-    else if (isPaused) $("status").textContent = t("paused");
-    else $("status").textContent = t("reading");
+    updateUI();
 }
 
 /* ============================================================
-   TRADUCTIONS
+   TRADUCTION
+   ============================================================ */
+translateBtn.addEventListener("click", async () => {
+    if (isDictating) toggleDictation();
+    
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const hasSelection = start !== end;
+    
+    let textToTranslate = hasSelection 
+        ? textarea.value.substring(start, end) 
+        : textarea.value.trim();
+
+    if (!textToTranslate) {
+        alert("Veuillez écrire ou sélectionner du texte à traduire.");
+        return;
+    }
+
+    const toEnglish = confirm("Traduire vers l'Anglais ?\n(Cliquez sur Annuler pour traduire vers le Français)");
+    const targetLang = toEnglish ? "en" : "fr";
+
+    $("status").textContent = "● Traduction en cours...";
+    translateBtn.style.opacity = "0.5";
+    translateBtn.disabled = true;
+
+    try {
+        const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${targetLang}&dt=t&q=${encodeURIComponent(textToTranslate)}`);
+        const data = await res.json();
+        const translatedText = data[0].map(item => item[0]).join('');
+
+        if (hasSelection) {
+            // Remplace uniquement la sélection
+            textarea.value = textarea.value.substring(0, start) + translatedText + textarea.value.substring(end);
+        } else {
+            // Remplace tout le texte
+            textarea.value = translatedText;
+            hasClearedWelcome = true; // Évite de remettre le message d'accueil
+        }
+        
+        // Rafraîchit l'interface
+        preparedText = "";
+        setProgress(0);
+        updateUI();
+    } catch (err) {
+        alert("Erreur de connexion. La traduction nécessite internet.");
+        updateUI();
+    } finally {
+        translateBtn.style.opacity = "1";
+        translateBtn.disabled = false;
+    }
+});
+
+/* ============================================================
+   RESTE DU CODE (Lecture, UI, etc.)
    ============================================================ */
 const translations = {
-    fr: {
-        subtitle: "Ton assistant de lecture vocale",
-        languageLabel: "Langue",
-        voiceLabel: "Voix disponible",
-        speedLabel: "Vitesse : ",
-        pitchLabel: "Tonalité : ",
-        textLabel: "Écris ou colle ton texte ici :",
-        placeholder: "Tape ton texte à lire à haute voix...",
-        play: "Lire", pause: "Pause", resume: "Reprendre",
-        clear: "Effacer le texte",
-        progress: "Progression de la lecture",
-        ready: "● Prêt",
-        reading: "● Lecture en cours...",
-        paused: "● En pause",
-        empty: "Veuillez entrer du texte à lire pour JUNIOR SAVY.",
-        noVoice: "Aucune voix disponible",
-        speechNotSupported: "La synthèse vocale n'est pas supportée par votre navigateur."
-    },
-    en: {
-        subtitle: "Your voice reading assistant",
-        languageLabel: "Language",
-        voiceLabel: "Available voice",
-        speedLabel: "Speed : ",
-        pitchLabel: "Pitch : ",
-        textLabel: "Type or paste your text here:",
-        placeholder: "Type text to read aloud...",
-        play: "Read", pause: "Pause", resume: "Resume",
-        clear: "Clear text",
-        progress: "Reading progress",
-        ready: "● Ready",
-        reading: "● Reading...",
-        paused: "● Paused",
-        empty: "Please enter some text for JUNIOR SAVY to read.",
-        noVoice: "No voice available",
-        speechNotSupported: "Speech synthesis is not supported by your browser."
-    }
+    fr: { subtitle: "Ton assistant de lecture vocale", languageLabel: "Langue", voiceLabel: "Voix disponible", speedLabel: "Vitesse : ", pitchLabel: "Tonalité : ", textLabel: "Écris ou colle ton texte ici :", placeholder: "Tape ton texte...", play: "Lire", pause: "Pause", resume: "Reprendre", clear: "Effacer", progress: "Progression", ready: "● Prêt", reading: "● Lecture...", paused: "● En pause", empty: "Entrez du texte.", noVoice: "Aucune voix", speechNotSupported: "Non supporté." },
+    en: { subtitle: "Your voice reading assistant", languageLabel: "Language", voiceLabel: "Available voice", speedLabel: "Speed : ", pitchLabel: "Pitch : ", textLabel: "Type or paste text here:", placeholder: "Type text...", play: "Read", pause: "Pause", resume: "Resume", clear: "Clear", progress: "Progress", ready: "● Ready", reading: "● Reading...", paused: "● Paused", empty: "Enter text.", noVoice: "No voice", speechNotSupported: "Not supported." }
 };
-
 const language = () => $("language").value;
 const t = key => translations[language()][key];
 
-/* ============================================================
-   VOIX
-   ============================================================ */
 function loadVoices() {
     if (!("speechSynthesis" in window)) return;
     const previous = $("voice").value;
     voices = speechSynthesis.getVoices();
-    const lang = language();
-    const filtered = voices.filter(v => v.lang.toLowerCase().startsWith(lang));
-
+    const filtered = voices.filter(v => v.lang.toLowerCase().startsWith(language()));
     $("voice").innerHTML = "";
     filtered.forEach(v => {
         const opt = document.createElement("option");
@@ -593,25 +622,18 @@ function loadVoices() {
         opt.textContent = v.name + " (" + v.lang + ")";
         $("voice").appendChild(opt);
     });
-
     if (filtered.length === 0) {
         const opt = document.createElement("option");
-        opt.value = "";
-        opt.textContent = t("noVoice");
-        $("voice").appendChild(opt);
+        opt.value = ""; opt.textContent = t("noVoice"); $("voice").appendChild(opt);
     } else if (previous && filtered.some(v => v.voiceURI === previous)) {
         $("voice").value = previous;
     }
 }
 
-/* ============================================================
-   DÉCOUPAGE
-   ============================================================ */
 function splitIntoChunks(text) {
     const clean = text.replace(/\s+/g, " ").trim();
     const sentences = clean.match(/[^.!?…;:]+[.!?…;:]*\s*/g) || [clean];
-    const out = [];
-    let buf = "";
+    const out = []; let buf = "";
     for (const s of sentences) {
         if (buf && (buf.length + s.length) > 140) { out.push(buf); buf = s; }
         else buf += s;
@@ -622,33 +644,23 @@ function splitIntoChunks(text) {
 
 function estimateDuration(text, rate) {
     const words = text.trim().split(/\s+/).filter(Boolean).length;
-    const wpm = 170;
-    return Math.max(1, (words / wpm) * 60 / Math.max(0.5, rate));
+    return Math.max(1, (words / 170) * 60 / Math.max(0.5, rate));
 }
 
 function prepareText() {
     const text = textarea.value.trim();
     if (!text) return false;
     if (text === preparedText && chunks.length) return true;
-
     preparedText = text;
     chunks = splitIntoChunks(text);
-    chunkStarts = [];
-
-    let acc = 0;
+    chunkStarts = []; let acc = 0;
     for (const c of chunks) { chunkStarts.push(acc); acc += c.length; }
     totalChars = acc;
-
-    chunkIndex = 0;
-    chunkOffset = 0;
-    lastBoundary = 0;
+    chunkIndex = 0; chunkOffset = 0; lastBoundary = 0;
     estDuration = estimateDuration(text, Number($("speed").value));
     return true;
 }
 
-/* ============================================================
-   SURLIGNAGE
-   ============================================================ */
 function getWordBoundsAt(text, pos) {
     pos = Math.max(0, Math.min(pos, text.length));
     let p = pos;
@@ -658,10 +670,8 @@ function getWordBoundsAt(text, pos) {
         while (p > 0 && /\s/.test(text[p - 1])) p--;
         if (p === 0) return { start: 0, end: 0 };
     }
-    let start = p;
-    while (start > 0 && !/\s/.test(text[start - 1])) start--;
-    let end = p;
-    while (end < text.length && !/\s/.test(text[end])) end++;
+    let start = p; while (start > 0 && !/\s/.test(text[start - 1])) start--;
+    let end = p; while (end < text.length && !/\s/.test(text[end])) end++;
     return { start, end };
 }
 
@@ -670,36 +680,28 @@ function renderHighlight(absPos) {
     if (!text) { clearHighlight(); return; }
     const { start, end } = getWordBoundsAt(text, absPos);
     if (start === highlightStart && end === highlightEnd) return;
-    highlightStart = start;
-    highlightEnd   = end;
+    highlightStart = start; highlightEnd = end;
     if (start >= end) { highlightLayer.textContent = ""; return; }
-
     highlightLayer.textContent = "";
     const before = document.createTextNode(text.slice(0, start));
-    const mark   = document.createElement("mark");
-    mark.textContent = text.slice(start, end);
-    const after  = document.createTextNode(text.slice(end));
+    const mark = document.createElement("mark"); mark.textContent = text.slice(start, end);
+    const after = document.createTextNode(text.slice(end));
     highlightLayer.append(before, mark, after);
     syncScroll();
 }
 
 function clearHighlight() {
     if (highlightStart === -1 && highlightEnd === -1) return;
-    highlightStart = -1;
-    highlightEnd   = -1;
+    highlightStart = -1; highlightEnd = -1;
     highlightLayer.textContent = "";
 }
 
 function syncScroll() {
-    highlightLayer.scrollTop  = textarea.scrollTop;
+    highlightLayer.scrollTop = textarea.scrollTop;
     highlightLayer.scrollLeft = textarea.scrollLeft;
 }
-
 textarea.addEventListener("scroll", syncScroll);
 
-/* ============================================================
-   UI
-   ============================================================ */
 function formatTime(sec) {
     if (!isFinite(sec) || sec < 0) sec = 0;
     const total = Math.round(sec);
@@ -710,14 +712,12 @@ function setProgress(p) {
     progress = Math.max(0, Math.min(1, p || 0));
     const pct = progress * 100;
     $("progressFill").style.width = pct.toFixed(2) + "%";
-    $("progressKnob").style.left  = pct.toFixed(2) + "%";
+    $("progressKnob").style.left = pct.toFixed(2) + "%";
     bar.setAttribute("aria-valuenow", Math.round(pct));
-    bar.setAttribute("aria-valuetext", Math.round(pct) + " %");
-
     const curTxt = formatTime(progress * estDuration);
     const totTxt = formatTime(estDuration);
     if (curTxt !== lastCurText) { $("timeCurrent").textContent = curTxt; lastCurText = curTxt; }
-    if (totTxt !== lastTotText) { $("timeTotal").textContent   = totTxt; lastTotText = totTxt; }
+    if (totTxt !== lastTotText) { $("timeTotal").textContent = totTxt; lastTotText = totTxt; }
 }
 
 function updateUI() {
@@ -730,9 +730,6 @@ function updateUI() {
     avatar.classList.toggle("speaking", playing);
 }
 
-/* ============================================================
-   BOUCLE DE PROGRESSION
-   ============================================================ */
 function interpolatedChar() {
     if (!totalChars) return 0;
     const estPerChar = estDuration / totalChars;
@@ -760,13 +757,9 @@ function stopProgressLoop() {
     rafId = 0;
 }
 
-/* ============================================================
-   MOTEUR DE LECTURE
-   ============================================================ */
 function speakChunk(i, token) {
     if (token !== session) return;
     if (i >= chunks.length) { finishReading(); return; }
-
     chunkIndex = i;
     const piece = chunks[i].slice(chunkOffset).trim();
     if (!piece) { chunkOffset = 0; speakChunk(i + 1, token); return; }
@@ -778,11 +771,9 @@ function speakChunk(i, token) {
     const utterance = new SpeechSynthesisUtterance(piece);
     const voice = voices.find(v => v.voiceURI === $("voice").value);
     if (voice) utterance.voice = voice;
-
-    utterance.lang  = language() === "fr" ? "fr-FR" : "en-US";
-    utterance.rate  = Number($("speed").value);
+    utterance.lang = language() === "fr" ? "fr-FR" : "en-US";
+    utterance.rate = Number($("speed").value);
     utterance.pitch = Number($("pitch").value);
-
     const chunkLen = chunks[i].length;
 
     utterance.onstart = () => {
@@ -799,18 +790,14 @@ function speakChunk(i, token) {
         const abs = chunkStarts[i] + pos;
         setProgress(abs / totalChars);
         renderHighlight(abs);
-
         const estPerChar = estDuration / totalChars;
-        if (estPerChar > 0) {
-            chunkStartTs = performance.now() - (pos - chunkOffset) * estPerChar * 1000;
-        }
+        if (estPerChar > 0) chunkStartTs = performance.now() - (pos - chunkOffset) * estPerChar * 1000;
     };
 
     utterance.onend = () => {
         if (token !== session) return;
         setProgress((chunkStarts[i] + chunkLen) / totalChars);
-        chunkOffset = 0;
-        lastBoundary = 0;
+        chunkOffset = 0; lastBoundary = 0;
         speakChunk(i + 1, token);
     };
 
@@ -820,7 +807,6 @@ function speakChunk(i, token) {
         chunkOffset = 0;
         speakChunk(i + 1, token);
     };
-
     speechSynthesis.speak(utterance);
 }
 
@@ -828,27 +814,21 @@ function startReading() {
     if (!("speechSynthesis" in window)) { alert(t("speechNotSupported")); return; }
     if (!prepareText()) { alert(t("empty")); return; }
     if (chunkIndex >= chunks.length) { chunkIndex = 0; chunkOffset = 0; }
-    
-    if (isDictating) recognition.stop();
+    if (isDictating) toggleDictation();
 
     session++;
     stopProgressLoop();
-    isReading    = true;
-    isPaused     = false;
-    chunkOffset  = 0;
-    lastBoundary = 0;
-    estDuration  = estimateDuration(preparedText, Number($("speed").value));
-
+    isReading = true; isPaused = false;
+    chunkOffset = 0; lastBoundary = 0;
+    estDuration = estimateDuration(preparedText, Number($("speed").value));
     const abs = chunkStarts[chunkIndex];
     setProgress(abs / totalChars);
     renderHighlight(abs);
     updateUI();
-    
     requestWakeLock();
 
     const token = session;
     const index = chunkIndex;
-
     if (speechSynthesis.speaking || speechSynthesis.pending) {
         speechSynthesis.cancel();
         setTimeout(() => speakChunk(index, token), 80);
@@ -879,11 +859,8 @@ function resumeReading() {
 
 function finishReading() {
     stopProgressLoop();
-    isReading = false;
-    isPaused  = false;
-    chunkIndex = 0;
-    chunkOffset = 0;
-    lastBoundary = 0;
+    isReading = false; isPaused = false;
+    chunkIndex = 0; chunkOffset = 0; lastBoundary = 0;
     clearHighlight();
     setProgress(0);
     updateUI();
@@ -891,14 +868,11 @@ function finishReading() {
 }
 
 function togglePlay() {
-    if (isReading && !isPaused) { pauseReading(); return; }
-    if (isReading && isPaused)  { resumeReading(); return; }
-    startReading();
+    if (isReading && !isPaused) pauseReading();
+    else if (isReading && isPaused) resumeReading();
+    else startReading();
 }
 
-/* ============================================================
-   SEEK
-   ============================================================ */
 function chunkForFraction(f) {
     if (!chunks.length) return 0;
     const target = Math.max(0, Math.min(1, f)) * totalChars;
@@ -914,25 +888,17 @@ function seekToChunk(i, resume) {
     session++;
     if ("speechSynthesis" in window) speechSynthesis.cancel();
     stopProgressLoop();
-
-    chunkIndex   = i;
-    chunkOffset  = 0;
-    lastBoundary = 0;
+    chunkIndex = i; chunkOffset = 0; lastBoundary = 0;
     const abs = chunkStarts[i];
     setProgress(abs / totalChars);
     renderHighlight(abs);
-
     if (resume) {
-        isReading = true;
-        isPaused  = false;
+        isReading = true; isPaused = false;
         updateUI();
-        const token = session;
-        const index = i;
+        const token = session; const index = i;
         setTimeout(() => speakChunk(index, token), 60);
         requestWakeLock();
-    } else {
-        updateUI();
-    }
+    } else { updateUI(); }
 }
 
 function fractionFromEvent(e) {
@@ -940,8 +906,7 @@ function fractionFromEvent(e) {
     return Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
 }
 
-let dragging = false;
-let resumeAfterDrag = false;
+let dragging = false; let resumeAfterDrag = false;
 
 bar.addEventListener("pointerdown", (e) => {
     if (!prepareText()) return;
@@ -952,12 +917,7 @@ bar.addEventListener("pointerdown", (e) => {
     try { bar.setPointerCapture(e.pointerId); } catch (_) {}
     setProgress(fractionFromEvent(e));
 });
-
-bar.addEventListener("pointermove", (e) => {
-    if (!dragging) return;
-    setProgress(fractionFromEvent(e));
-});
-
+bar.addEventListener("pointermove", (e) => { if (dragging) setProgress(fractionFromEvent(e)); });
 bar.addEventListener("pointerup", (e) => {
     if (!dragging) return;
     dragging = false;
@@ -966,85 +926,39 @@ bar.addEventListener("pointerup", (e) => {
     try { bar.releasePointerCapture(e.pointerId); } catch (_) {}
     seekToChunk(chunkForFraction(f), resumeAfterDrag);
 });
+bar.addEventListener("pointercancel", () => { dragging = false; bar.classList.remove("dragging"); });
 
-bar.addEventListener("pointercancel", () => {
-    dragging = false;
-    bar.classList.remove("dragging");
-});
-
-bar.addEventListener("keydown", (e) => {
-    if (!prepareText()) return;
-    const resume = isReading && !isPaused;
-    if (e.key === "ArrowRight" || e.key === "ArrowUp") {
-        e.preventDefault(); seekToChunk(chunkIndex + 1, resume);
-    } else if (e.key === "ArrowLeft" || e.key === "ArrowDown") {
-        e.preventDefault(); seekToChunk(chunkIndex - 1, resume);
-    } else if (e.key === "Home") {
-        e.preventDefault(); seekToChunk(0, resume);
-    } else if (e.key === "End") {
-        e.preventDefault(); seekToChunk(chunks.length - 1, resume);
-    }
-});
-
-/* ============================================================
-   EFFACER
-   ============================================================ */
 function clearText() {
     session++;
     if ("speechSynthesis" in window) speechSynthesis.cancel();
     stopProgressLoop();
-    if (isDictating) recognition.stop();
-
-    isReading = false;
-    isPaused  = false;
-    chunks = [];
-    chunkStarts = [];
-    totalChars = 0;
-    chunkIndex = 0;
-    chunkOffset = 0;
-    lastBoundary = 0;
-    preparedText = "";
-    estDuration = 0;
-
+    if (isDictating) toggleDictation();
+    isReading = false; isPaused = false;
+    chunks = []; chunkStarts = []; totalChars = 0; chunkIndex = 0; chunkOffset = 0; lastBoundary = 0;
+    preparedText = ""; estDuration = 0;
     textarea.value = "";
-    clearHighlight();
-    setProgress(0);
-    updateUI();
-    releaseWakeLock();
+    clearHighlight(); setProgress(0); updateUI(); releaseWakeLock();
 }
 
-/* ============================================================
-   LANGUE / RÉGLAGES
-   ============================================================ */
 function updateLanguage() {
     document.documentElement.lang = language();
-    $("subtitle").textContent      = t("subtitle");
+    $("subtitle").textContent = t("subtitle");
     $("languageLabel").textContent = t("languageLabel");
-    $("voiceLabel").textContent    = t("voiceLabel");
-    $("speedLabel").textContent    = t("speedLabel");
-    $("pitchLabel").textContent    = t("pitchLabel");
-    $("textLabel").textContent     = t("textLabel");
-    textarea.placeholder           = t("placeholder");
-    bar.setAttribute("aria-label", t("progress"));
-    $("clearBtn").setAttribute("aria-label", t("clear"));
-    
-    if (recognition) {
-        recognition.lang = language() === "fr" ? "fr-FR" : "en-US";
-    }
-
+    $("voiceLabel").textContent = t("voiceLabel");
+    $("speedLabel").textContent = t("speedLabel");
+    $("pitchLabel").textContent = t("pitchLabel");
+    $("textLabel").textContent = t("textLabel");
+    textarea.placeholder = t("placeholder");
+    if (recognition) recognition.lang = language() === "fr" ? "fr-FR" : "en-US";
     loadVoices();
     updateUI();
 }
 
-/* ============================================================
-   ÉVÉNEMENTS
-   ============================================================ */
 playBtn.addEventListener("click", togglePlay);
 dictateBtn.addEventListener("click", toggleDictation);
 $("clearBtn").addEventListener("click", clearText);
 $("language").addEventListener("change", updateLanguage);
 
-// EFFACER LE MESSAGE D'ACCUEIL AU PREMIER CLIC
 let hasClearedWelcome = false;
 textarea.addEventListener("focus", () => {
     if (!hasClearedWelcome && textarea.value.includes("Bienvenue sur JUNIOR SAVY")) {
@@ -1062,56 +976,31 @@ $("speed").addEventListener("input", () => {
         setProgress(progress);
     }
 });
-
-$("pitch").addEventListener("input", () => {
-    $("pitchValue").textContent = Number($("pitch").value).toFixed(1);
-});
+$("pitch").addEventListener("input", () => { $("pitchValue").textContent = Number($("pitch").value).toFixed(1); });
 
 textarea.addEventListener("input", () => {
     if (isReading) return;
-    preparedText = "";
-    chunks = [];
-    chunkStarts = [];
-    totalChars = 0;
-    chunkIndex = 0;
-    chunkOffset = 0;
-    estDuration = 0;
-    clearHighlight();
-    setProgress(0);
-    updateUI();
+    preparedText = ""; chunks = []; chunkStarts = []; totalChars = 0;
+    chunkIndex = 0; chunkOffset = 0; estDuration = 0;
+    clearHighlight(); setProgress(0); updateUI();
 });
 
-textarea.addEventListener("keydown", (e) => {
-    if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
-        e.preventDefault();
-        togglePlay();
-    }
-});
-
-/* ============================================================
-   INITIALISATION
-   ============================================================ */
 if ("speechSynthesis" in window) {
     speechSynthesis.onvoiceschanged = loadVoices;
     loadVoices();
 }
-
 updateLanguage();
 setProgress(0);
 
 if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => {
-        navigator.serviceWorker.register("./sw.js").catch(error => {
-            console.error("Erreur Service Worker :", error);
-        });
+        navigator.serviceWorker.register("./sw.js").catch(error => console.error("SW Error:", error));
     });
 }
 </script>
 
 <!-- Statistiques GoatCounter -->
-<script data-goatcounter="https://juniorjsk.goatcounter.com/count"
-        async src="//gc.zgo.at/count.js"></script>
-
+<script data-goatcounter="https://juniorjsk.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 <script>
   let userId = localStorage.getItem('assistant_junior_id');
   if (!userId) {
@@ -1119,11 +1008,7 @@ if ("serviceWorker" in navigator) {
     localStorage.setItem('assistant_junior_id', userId);
     window.addEventListener('load', function() {
       if (window.goatcounter && window.goatcounter.count) {
-        window.goatcounter.count({
-          path: 'nouvel-utilisateur',
-          title: 'Nouvel appareil',
-          event: true
-        });
+        window.goatcounter.count({ path: 'nouvel-utilisateur', title: 'Nouvel appareil', event: true });
       }
     });
   }
