@@ -333,7 +333,8 @@ footer {
 
     <div class="textarea-wrap">
         <div class="highlight-layer" id="highlightLayer" aria-hidden="true"></div>
-        <textarea id="textInput" maxlength="20000" placeholder="Tape ton texte à lire à haute voix..."></textarea>
+        <!-- Le message d'accueil est intégré ici -->
+        <textarea id="textInput" maxlength="20000" placeholder="Tape ton texte à lire à haute voix...">Bienvenue sur JUNIOR SAVY ! 🎙️ Je suis ton assistant. Écris ou colle ton cours ci-dessous, puis clique sur ▶️ pour que je te le lise à voix haute (même sans internet). Tu peux aussi me parler en cliquant sur le micro 🎤. Bon courage pour tes révisions !</textarea>
     </div>
 
     <!-- LECTEUR AUDIO -->
@@ -457,7 +458,7 @@ document.addEventListener('visibilitychange', async () => {
 });
 
 /* ============================================================
-   DICTÉE VOCALE (Version finale et robuste)
+   DICTÉE VOCALE (Version anti-bégaiement)
    ============================================================ */
 if (SpeechRecognition) {
     recognition = new SpeechRecognition();
@@ -468,31 +469,29 @@ if (SpeechRecognition) {
         isDictating = true;
         dictateBtn.classList.add("recording");
         $("status").textContent = "● Micro actif...";
-        dictationBase = textarea.value;
+        dictationBase = textarea.value; // On garde le texte qui était déjà là
     };
 
     recognition.onresult = (event) => {
-        let finalTranscript = '';
-        let interimTranscript = '';
-
-        // On parcourt TOUS les résultats depuis le début de la session
+        let fullTranscript = '';
+        
+        // On récupère TOUT ce qui a été dit depuis le début du clic sur le micro
         for (let i = 0; i < event.results.length; ++i) {
-            if (event.results[i].isFinal) {
-                finalTranscript += event.results[i][0].transcript + ' ';
-            } else {
-                interimTranscript += event.results[i][0].transcript;
-            }
+            fullTranscript += event.results[i][0].transcript + ' ';
         }
+        
+        fullTranscript = fullTranscript.trim();
 
-        // On reconstruit le texte proprement (Base + Ce qui a été dit)
-        const space = (dictationBase.length > 0 && !dictationBase.endsWith(' ')) ? ' ' : '';
-        textarea.value = dictationBase + space + finalTranscript + interimTranscript;
-        
-        textarea.scrollTop = textarea.scrollHeight;
-        
-        if (!isReading) {
-            preparedText = "";
-            setProgress(0);
+        if (fullTranscript.length > 0) {
+            // On reconstruit le texte : Base + Espace + Ce qui a été dit
+            const space = (dictationBase.length > 0 && !dictationBase.endsWith(' ')) ? ' ' : '';
+            textarea.value = dictationBase + space + fullTranscript;
+            textarea.scrollTop = textarea.scrollHeight;
+            
+            if (!isReading) {
+                preparedText = "";
+                setProgress(0);
+            }
         }
     };
 
@@ -1044,6 +1043,17 @@ playBtn.addEventListener("click", togglePlay);
 dictateBtn.addEventListener("click", toggleDictation);
 $("clearBtn").addEventListener("click", clearText);
 $("language").addEventListener("change", updateLanguage);
+
+// EFFACER LE MESSAGE D'ACCUEIL AU PREMIER CLIC
+let hasClearedWelcome = false;
+textarea.addEventListener("focus", () => {
+    if (!hasClearedWelcome && textarea.value.includes("Bienvenue sur JUNIOR SAVY")) {
+        textarea.value = "";
+        hasClearedWelcome = true;
+        preparedText = "";
+        setProgress(0);
+    }
+});
 
 $("speed").addEventListener("input", () => {
     $("speedValue").textContent = Number($("speed").value).toFixed(1);
