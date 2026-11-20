@@ -1,4 +1,4 @@
-const CACHE_NAME = "assistant-junior-v11";
+const CACHE_NAME = "assistant-junior-v12";
 
 const FILES_TO_CACHE = [
   "./",
