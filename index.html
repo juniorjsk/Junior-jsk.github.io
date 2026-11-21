@@ -16,7 +16,10 @@
 <meta property="og:type" content="website">
 <title>ASSISTANT JUNIOR</title>
 
-<style>
+    <script src="https://cdn.jsdelivr.net/npm/@breezystack/lamejs@1.2.7/lame.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mespeak@2.0.2/src/mespeak.js"></script>
+
+    <style>
 * { box-sizing: border-box; }
 body {
     margin: 0; padding: 15px; background: #0b1220; color: white;
@@ -447,23 +450,24 @@ $("downloadBtn").addEventListener("click", async () => {
     $("downloadBtn").disabled = true;
 
     try {
-        // On utilise les liens directs (CDN) pour les outils
-        if (!window.meSpeak) {
-            await loadScript("https://cdn.jsdelivr.net/npm/mespeak@2.0.2/src/mespeak.js");
-            await new Promise(r => meSpeak.loadConfig("https://cdn.jsdelivr.net/npm/mespeak@2.0.2/src/mespeak_config.json", r));
-            const voiceUrl = language() === "fr" ? "https://cdn.jsdelivr.net/npm/mespeak@2.0.2/voices/fr.json" : "https://cdn.jsdelivr.net/npm/mespeak@2.0.2/voices/en/en-us.json";
-            await new Promise(r => meSpeak.loadVoice(voiceUrl, r));
-        }
-        if (!window.lamejs) {
-            await loadScript("https://cdn.jsdelivr.net/npm/lamejs@1.2.1/lame.min.js");
-        }
+        // 1. Charger la config et la voix (en attendant que ce soit prêt)
+        await new Promise((resolve) => {
+            meSpeak.loadConfig("https://cdn.jsdelivr.net/npm/mespeak@2.0.2/src/mespeak_config.json", resolve);
+        });
+        const voiceUrl = language() === "fr" ? "https://cdn.jsdelivr.net/npm/mespeak@2.0.2/voices/fr.json" : "https://cdn.jsdelivr.net/npm/mespeak@2.0.2/voices/en/en-us.json";
+        await new Promise((resolve) => {
+            meSpeak.loadVoice(voiceUrl, resolve);
+        });
 
         // 2. Générer le WAV
         const wavData = meSpeak.speak(text, { rawdata: 'array' });
 
-        // 3. Convertir en MP3
-        const wav = new lamejs.WavHeader.readHeader(new DataView(wavData));
-        const samples = new Int16Array(wavData, wav.dataOffset, wav.dataLen / 2);
+        // 3. LE CORRECTIF EST ICI : Convertir le tableau en vrai fichier binaire
+        const buffer = new Uint8Array(wavData).buffer;
+        const wav = new lamejs.WavHeader.readHeader(new DataView(buffer));
+        const samples = new Int16Array(buffer, wav.dataOffset, wav.dataLen / 2);
+        
+        // 4. Convertir en MP3
         const mp3encoder = new lamejs.Mp3Encoder(1, wav.sampleRate, 64);
         const mp3Data = [];
         const sampleBlockSize = 1152;
@@ -475,7 +479,7 @@ $("downloadBtn").addEventListener("click", async () => {
         const mp3buf = mp3encoder.flush();
         if (mp3buf.length > 0) mp3Data.push(mp3buf);
 
-        // 4. Lancer le téléchargement
+        // 5. Télécharger
         const blob = new Blob(mp3Data, { type: 'audio/mp3' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
@@ -484,10 +488,10 @@ $("downloadBtn").addEventListener("click", async () => {
         a.click();
         URL.revokeObjectURL(url);
 
-        $("status").textContent = "● Audio téléchargé !";
+        $("status").textContent = "● Audio téléchargé avec succès !";
     } catch (err) {
-        console.error(err);
-        alert("Erreur lors de la génération. Assurez-vous d'avoir internet.");
+        console.error("Erreur technique :", err);
+        alert("Erreur de génération. Veuillez réessayer.");
         $("status").textContent = originalStatus;
     } finally {
         $("downloadBtn").style.opacity = "1";
