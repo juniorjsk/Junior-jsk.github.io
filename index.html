@@ -447,26 +447,25 @@ $("downloadBtn").addEventListener("click", async () => {
     $("downloadBtn").disabled = true;
 
     try {
-        // 1. Charger meSpeak et lamejs si ce n'est pas déjà fait
+        // On utilise les liens directs (CDN) pour les outils
         if (!window.meSpeak) {
-            await loadScript("https://www.masswerk.at/mespeak/mespeak.js");
-            await new Promise(r => meSpeak.loadConfig("https://www.masswerk.at/mespeak/mespeak_config.json", r));
-            await new Promise(r => meSpeak.loadVoice(language() === "fr" ? "https://www.masswerk.at/mespeak/voices/fr.json" : "https://www.masswerk.at/mespeak/voices/en.json", r));
+            await loadScript("https://cdn.jsdelivr.net/npm/mespeak@2.0.2/src/mespeak.js");
+            await new Promise(r => meSpeak.loadConfig("https://cdn.jsdelivr.net/npm/mespeak@2.0.2/src/mespeak_config.json", r));
+            const voiceUrl = language() === "fr" ? "https://cdn.jsdelivr.net/npm/mespeak@2.0.2/voices/fr.json" : "https://cdn.jsdelivr.net/npm/mespeak@2.0.2/voices/en/en-us.json";
+            await new Promise(r => meSpeak.loadVoice(voiceUrl, r));
         }
         if (!window.lamejs) {
             await loadScript("https://cdn.jsdelivr.net/npm/lamejs@1.2.1/lame.min.js");
         }
 
-        // 2. Générer le WAV via meSpeak
-        const options = { rawdata: 'array' };
-        const wavData = meSpeak.speak(text, options); // Retourne un ArrayBuffer WAV
+        // 2. Générer le WAV
+        const wavData = meSpeak.speak(text, { rawdata: 'array' });
 
-        // 3. Convertir en MP3 avec lamejs
+        // 3. Convertir en MP3
         const wav = new lamejs.WavHeader.readHeader(new DataView(wavData));
         const samples = new Int16Array(wavData, wav.dataOffset, wav.dataLen / 2);
         const mp3encoder = new lamejs.Mp3Encoder(1, wav.sampleRate, 64);
         const mp3Data = [];
-        
         const sampleBlockSize = 1152;
         for (let i = 0; i < samples.length; i += sampleBlockSize) {
             const sampleChunk = samples.subarray(i, i + sampleBlockSize);
@@ -476,19 +475,19 @@ $("downloadBtn").addEventListener("click", async () => {
         const mp3buf = mp3encoder.flush();
         if (mp3buf.length > 0) mp3Data.push(mp3buf);
 
-        // 4. Télécharger
+        // 4. Lancer le téléchargement
         const blob = new Blob(mp3Data, { type: 'audio/mp3' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = "junior-savy-" + new Date().getTime() + ".mp3";
+        a.download = "assistant-junior-" + new Date().getTime() + ".mp3";
         a.click();
         URL.revokeObjectURL(url);
 
         $("status").textContent = "● Audio téléchargé !";
     } catch (err) {
         console.error(err);
-        alert("Erreur lors de la génération de l'audio. Vérifiez votre connexion.");
+        alert("Erreur lors de la génération. Assurez-vous d'avoir internet.");
         $("status").textContent = originalStatus;
     } finally {
         $("downloadBtn").style.opacity = "1";
