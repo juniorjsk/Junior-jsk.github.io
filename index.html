@@ -16,8 +16,9 @@
 <meta property="og:type" content="website">
 <title>ASSISTANT JUNIOR</title>
 
+
 <script src="https://cdn.jsdelivr.net/npm/@breezystack/lamejs@1.2.7/lame.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/mespeak@2.0.2/src/mespeak.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mespeak@2.0.2/mespeak.js"></script>
 
 <style>
 * { box-sizing: border-box; }
@@ -427,8 +428,9 @@ $("downloadBtn").addEventListener("click", async () => {
 
     try {
         if (!window.meSpeak) {
-            await loadScript("https://cdn.jsdelivr.net/npm/mespeak@2.0.2/src/mespeak.js");
-            await new Promise(r => meSpeak.loadConfig("https://cdn.jsdelivr.net/npm/mespeak@2.0.2/src/mespeak_config.json", r));
+            // Lien corrigé ici aussi
+            await loadScript("https://cdn.jsdelivr.net/npm/mespeak@2.0.2/mespeak.js");
+            await new Promise(r => meSpeak.loadConfig("https://cdn.jsdelivr.net/npm/mespeak@2.0.2/mespeak_config.json", r));
             const voiceUrl = language() === "fr" ? "https://cdn.jsdelivr.net/npm/mespeak@2.0.2/voices/fr.json" : "https://cdn.jsdelivr.net/npm/mespeak@2.0.2/voices/en/en-us.json";
             await new Promise(r => meSpeak.loadVoice(voiceUrl, r));
         }
@@ -438,7 +440,7 @@ $("downloadBtn").addEventListener("click", async () => {
 
         // Générer le WAV
         const wavData = meSpeak.speak(text, { rawdata: 'array' });
-        if (!wavData) throw new Error("Le moteur vocal n'a pas réussi à générer le son.");
+        if (!wavData) throw new Error("Le moteur vocal n'a pas pu générer le son.");
 
         // Convertir en MP3
         const buffer = new Uint8Array(wavData).buffer;
@@ -468,8 +470,7 @@ $("downloadBtn").addEventListener("click", async () => {
         $("status").textContent = "● Audio téléchargé !";
     } catch (err) {
         console.error(err);
-        // C'EST ICI QU'ON AFFICHE LA VRAIE ERREUR
-        alert("Erreur technique : " + err.message); 
+        alert("Erreur : " + err.message); 
         $("status").textContent = originalStatus;
     } finally {
         $("downloadBtn").style.opacity = "1";
