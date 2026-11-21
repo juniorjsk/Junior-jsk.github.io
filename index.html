@@ -16,10 +16,10 @@
 <meta property="og:type" content="website">
 <title>ASSISTANT JUNIOR</title>
 
-    <script src="https://cdn.jsdelivr.net/npm/@breezystack/lamejs@1.2.7/lame.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@breezystack/lamejs@1.2.7/lame.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/mespeak@2.0.2/src/mespeak.js"></script>
 
-    <style>
+<style>
 * { box-sizing: border-box; }
 body {
     margin: 0; padding: 15px; background: #0b1220; color: white;
@@ -315,8 +315,6 @@ function triggerPauseModal() {
     pauseReading();
     isPauseModalActive = true;
     $("pauseModal").classList.add("active");
-    
-    // Annonce vocale
     speechSynthesis.cancel();
     const utt = new SpeechSynthesisUtterance("Cher collègue, c'est l'heure de la pause ! Veux-tu faire une pause ou continuer ?");
     utt.lang = language() === "fr" ? "fr-FR" : "en-US";
@@ -328,37 +326,30 @@ function triggerPauseModal() {
 $("btnContinue").addEventListener("click", () => {
     isPauseModalActive = false;
     $("pauseModal").classList.remove("active");
-    startPauseTimer(); // Reset le chrono
+    startPauseTimer();
     resumeReading();
 });
 
 $("btnRest").addEventListener("click", () => {
     isPauseModalActive = false;
     $("pauseModal").classList.remove("active");
-    secondsRead = 0; // Reset
+    secondsRead = 0;
     $("status").textContent = "● En pause...";
-    // On laisse l'app en pause. L'utilisateur devra cliquer sur Play pour reprendre.
 });
 
 /* ============================================================
    SAUVEGARDE AUTO & BIBLIOTHÈQUE
    ============================================================ */
 let library = JSON.parse(localStorage.getItem('junior_savvy_library') || '[]');
-
 function autoSave() {
     if (textarea.value !== "Bienvenue sur JUNIOR SAVY ! 🎙️ Je suis ton assistant. Écris ou colle ton cours ci-dessous, puis clique sur ▶️ pour que je te le lise à voix haute (même sans internet). Tu peux aussi me parler en cliquant sur le micro 🎤. Bon courage pour tes révisions !") {
         localStorage.setItem('junior_savvy_autosave', textarea.value);
     }
 }
-
 function loadAutoSave() {
     const saved = localStorage.getItem('junior_savvy_autosave');
-    if (saved && saved.trim().length > 0) {
-        textarea.value = saved;
-        hasClearedWelcome = true;
-    }
+    if (saved && saved.trim().length > 0) { textarea.value = saved; hasClearedWelcome = true; }
 }
-
 $("saveBtn").addEventListener("click", () => {
     const text = textarea.value.trim();
     if (!text) { alert("Le texte est vide !"); return; }
@@ -369,7 +360,6 @@ $("saveBtn").addEventListener("click", () => {
         alert("Cours sauvegardé dans ta bibliothèque ! ✅");
     }
 });
-
 $("libraryBtn").addEventListener("click", () => {
     const list = $("libraryList");
     list.innerHTML = "";
@@ -379,28 +369,18 @@ $("libraryBtn").addEventListener("click", () => {
         library.forEach((item, index) => {
             const div = document.createElement("div");
             div.className = "lib-item";
-            div.innerHTML = `
-                <div class="lib-item-text" onclick="loadCourse(${index})">
-                    <span class="lib-item-title">${item.title}</span>
-                    <span class="lib-item-date">${item.date}</span>
-                </div>
-                <button class="lib-item-delete" onclick="deleteCourse(${index})">🗑️</button>
-            `;
+            div.innerHTML = `<div class="lib-item-text" onclick="loadCourse(${index})"><span class="lib-item-title">${item.title}</span><span class="lib-item-date">${item.date}</span></div><button class="lib-item-delete" onclick="deleteCourse(${index})">🗑️</button>`;
             list.appendChild(div);
         });
     }
     $("libraryModal").classList.add("active");
 });
-
 $("closeLibraryBtn").addEventListener("click", () => $("libraryModal").classList.remove("active"));
-
 window.loadCourse = (index) => {
-    textarea.value = library[index].text;
-    hasClearedWelcome = true;
+    textarea.value = library[index].text; hasClearedWelcome = true;
     $("libraryModal").classList.remove("active");
     prepareText(); setProgress(0); updateUI(); autoSave();
 };
-
 window.deleteCourse = (index) => {
     if (confirm("Supprimer ce cours ?")) {
         library.splice(index, 1);
@@ -418,13 +398,11 @@ $("fileInput").addEventListener("change", (e) => {
     if (!file) return;
     const reader = new FileReader();
     reader.onload = (event) => {
-        textarea.value = event.target.result;
-        hasClearedWelcome = true;
+        textarea.value = event.target.result; hasClearedWelcome = true;
         prepareText(); setProgress(0); updateUI(); autoSave();
         $("status").textContent = "● Fichier importé !";
     };
-    reader.readAsText(file);
-    e.target.value = "";
+    reader.readAsText(file); e.target.value = "";
 });
 
 /* ============================================================
@@ -432,10 +410,9 @@ $("fileInput").addEventListener("change", (e) => {
    ============================================================ */
 function loadScript(src) {
     return new Promise((resolve, reject) => {
+        if (document.querySelector(`script[src="${src}"]`)) return resolve();
         const s = document.createElement('script');
-        s.src = src;
-        s.onload = resolve;
-        s.onerror = reject;
+        s.src = src; s.onload = resolve; s.onerror = reject;
         document.head.appendChild(s);
     });
 }
@@ -446,23 +423,24 @@ $("downloadBtn").addEventListener("click", async () => {
     
     const originalStatus = $("status").textContent;
     $("status").textContent = "● Préparation de l'audio... Patientez.";
-    $("downloadBtn").style.opacity = "0.5";
-    $("downloadBtn").disabled = true;
+    $("downloadBtn").style.opacity = "0.5"; $("downloadBtn").disabled = true;
 
     try {
-        // 1. Charger la config et la voix (en attendant que ce soit prêt)
-        await new Promise((resolve) => {
-            meSpeak.loadConfig("https://cdn.jsdelivr.net/npm/mespeak@2.0.2/src/mespeak_config.json", resolve);
-        });
-        const voiceUrl = language() === "fr" ? "https://cdn.jsdelivr.net/npm/mespeak@2.0.2/voices/fr.json" : "https://cdn.jsdelivr.net/npm/mespeak@2.0.2/voices/en/en-us.json";
-        await new Promise((resolve) => {
-            meSpeak.loadVoice(voiceUrl, resolve);
-        });
+        // 1. Charger meSpeak et lamejs depuis les CDN
+        if (!window.meSpeak) {
+            await loadScript("https://cdn.jsdelivr.net/npm/mespeak@2.0.2/src/mespeak.js");
+            await new Promise(r => meSpeak.loadConfig("https://cdn.jsdelivr.net/npm/mespeak@2.0.2/src/mespeak_config.json", r));
+            const voiceUrl = language() === "fr" ? "https://cdn.jsdelivr.net/npm/mespeak@2.0.2/voices/fr.json" : "https://cdn.jsdelivr.net/npm/mespeak@2.0.2/voices/en/en-us.json";
+            await new Promise(r => meSpeak.loadVoice(voiceUrl, r));
+        }
+        if (!window.lamejs) {
+            await loadScript("https://cdn.jsdelivr.net/npm/@breezystack/lamejs@1.2.7/lame.min.js");
+        }
 
         // 2. Générer le WAV
         const wavData = meSpeak.speak(text, { rawdata: 'array' });
 
-        // 3. LE CORRECTIF EST ICI : Convertir le tableau en vrai fichier binaire
+        // 3. CORRECTION : Convertir le tableau retourné en vrai buffer binaire
         const buffer = new Uint8Array(wavData).buffer;
         const wav = new lamejs.WavHeader.readHeader(new DataView(buffer));
         const samples = new Int16Array(buffer, wav.dataOffset, wav.dataLen / 2);
@@ -488,14 +466,13 @@ $("downloadBtn").addEventListener("click", async () => {
         a.click();
         URL.revokeObjectURL(url);
 
-        $("status").textContent = "● Audio téléchargé avec succès !";
+        $("status").textContent = "● Audio téléchargé !";
     } catch (err) {
-        console.error("Erreur technique :", err);
+        console.error(err);
         alert("Erreur de génération. Veuillez réessayer.");
         $("status").textContent = originalStatus;
     } finally {
-        $("downloadBtn").style.opacity = "1";
-        $("downloadBtn").disabled = false;
+        $("downloadBtn").style.opacity = "1"; $("downloadBtn").disabled = false;
     }
 });
 
@@ -590,26 +567,20 @@ $("translateBtn").addEventListener("click", async () => {
     const start = textarea.selectionStart, end = textarea.selectionEnd;
     const hasSelection = start !== end;
     let textToTranslate = hasSelection ? textarea.value.substring(start, end) : textarea.value.trim();
-
     if (!textToTranslate) { alert("Veuillez écrire du texte."); return; }
     const toEnglish = confirm("Traduire vers l'Anglais ?\n(Annuler = vers le Français)");
     const targetLang = toEnglish ? "en" : "fr";
-
     $("status").textContent = "● Traduction...";
     $("translateBtn").style.opacity = "0.5"; $("translateBtn").disabled = true;
-
     try {
         const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${targetLang}&dt=t&q=${encodeURIComponent(textToTranslate)}`);
         const data = await res.json();
         const translatedText = data[0].map(item => item[0]).join('');
-
         if (hasSelection) textarea.value = textarea.value.substring(0, start) + translatedText + textarea.value.substring(end);
         else { textarea.value = translatedText; hasClearedWelcome = true; }
-        
         prepareText(); setProgress(0); updateUI(); autoSave();
     } catch (err) {
-        alert("Erreur de connexion.");
-        updateUI();
+        alert("Erreur de connexion."); updateUI();
     } finally {
         $("translateBtn").style.opacity = "1"; $("translateBtn").disabled = false;
     }
@@ -763,11 +734,9 @@ function speakChunk(i, token) {
     chunkIndex = i;
     const piece = chunks[i].slice(chunkOffset).trim();
     if (!piece) { chunkOffset = 0; speakChunk(i + 1, token); return; }
-
     lastBoundary = chunkOffset;
     chunkStartTs = performance.now();
     renderHighlight(chunkStarts[i] + chunkOffset);
-
     const utterance = new SpeechSynthesisUtterance(piece);
     const voice = voices.find(v => v.voiceURI === $("voice").value);
     if (voice) utterance.voice = voice;
@@ -775,7 +744,6 @@ function speakChunk(i, token) {
     utterance.rate = Number($("speed").value);
     utterance.pitch = Number($("pitch").value);
     const chunkLen = chunks[i].length;
-
     utterance.onstart = () => { if (token !== session) return; chunkStartTs = performance.now(); startProgressLoop(); };
     utterance.onboundary = (e) => {
         if (token !== session) return;
@@ -806,15 +774,13 @@ function startReading() {
     if (!prepareText()) { alert(t("empty")); return; }
     if (chunkIndex >= chunks.length) { chunkIndex = 0; chunkOffset = 0; }
     if (isDictating) toggleDictation();
-
     session++;
     stopProgressLoop();
     isReading = true; isPaused = false; chunkOffset = 0; lastBoundary = 0;
     estDuration = estimateDuration(preparedText, Number($("speed").value));
     const abs = chunkStarts[chunkIndex];
     setProgress(abs / totalChars); renderHighlight(abs); updateUI(); requestWakeLock();
-    startPauseTimer(); // Lance le minuteur
-
+    startPauseTimer();
     const token = session; const index = chunkIndex;
     if (speechSynthesis.speaking || speechSynthesis.pending) {
         speechSynthesis.cancel(); setTimeout(() => speakChunk(index, token), 80);
@@ -825,7 +791,7 @@ function pauseReading() {
     session++;
     if ("speechSynthesis" in window) speechSynthesis.cancel();
     isPaused = true; stopProgressLoop();
-    clearInterval(timerInterval); // Stoppe le minuteur
+    clearInterval(timerInterval);
     chunkOffset = Math.min(lastBoundary, chunks[chunkIndex] ? chunks[chunkIndex].length : 0);
     lastBoundary = chunkOffset; renderHighlight(chunkStarts[chunkIndex] + chunkOffset);
     updateUI(); releaseWakeLock();
@@ -834,7 +800,7 @@ function pauseReading() {
 function resumeReading() {
     isPaused = false; const token = ++session;
     updateUI(); speakChunk(chunkIndex, token); requestWakeLock();
-    startPauseTimer(); // Relance le minuteur
+    startPauseTimer();
 }
 
 function finishReading() {
@@ -957,7 +923,6 @@ textarea.addEventListener("input", () => {
 
 if ("speechSynthesis" in window) { speechSynthesis.onvoiceschanged = loadVoices; loadVoices(); }
 
-// Initialisation
 updateLanguage(); setProgress(0); loadAutoSave();
 
 if ("serviceWorker" in navigator) {
@@ -983,4 +948,4 @@ if ("serviceWorker" in navigator) {
 </script>
 
 </body>
-</html>
+    </html>
