@@ -416,17 +416,16 @@ function loadScript(src) {
         document.head.appendChild(s);
     });
 }
-
 $("downloadBtn").addEventListener("click", async () => {
     const text = textarea.value.trim();
     if (!text) { alert("Il n'y a pas de texte à télécharger."); return; }
     
     const originalStatus = $("status").textContent;
     $("status").textContent = "● Préparation de l'audio... Patientez.";
-    $("downloadBtn").style.opacity = "0.5"; $("downloadBtn").disabled = true;
+    $("downloadBtn").style.opacity = "0.5";
+    $("downloadBtn").disabled = true;
 
     try {
-        // 1. Charger meSpeak et lamejs depuis les CDN
         if (!window.meSpeak) {
             await loadScript("https://cdn.jsdelivr.net/npm/mespeak@2.0.2/src/mespeak.js");
             await new Promise(r => meSpeak.loadConfig("https://cdn.jsdelivr.net/npm/mespeak@2.0.2/src/mespeak_config.json", r));
@@ -437,15 +436,15 @@ $("downloadBtn").addEventListener("click", async () => {
             await loadScript("https://cdn.jsdelivr.net/npm/@breezystack/lamejs@1.2.7/lame.min.js");
         }
 
-        // 2. Générer le WAV
+        // Générer le WAV
         const wavData = meSpeak.speak(text, { rawdata: 'array' });
+        if (!wavData) throw new Error("Le moteur vocal n'a pas réussi à générer le son.");
 
-        // 3. CORRECTION : Convertir le tableau retourné en vrai buffer binaire
+        // Convertir en MP3
         const buffer = new Uint8Array(wavData).buffer;
         const wav = new lamejs.WavHeader.readHeader(new DataView(buffer));
         const samples = new Int16Array(buffer, wav.dataOffset, wav.dataLen / 2);
         
-        // 4. Convertir en MP3
         const mp3encoder = new lamejs.Mp3Encoder(1, wav.sampleRate, 64);
         const mp3Data = [];
         const sampleBlockSize = 1152;
@@ -457,7 +456,7 @@ $("downloadBtn").addEventListener("click", async () => {
         const mp3buf = mp3encoder.flush();
         if (mp3buf.length > 0) mp3Data.push(mp3buf);
 
-        // 5. Télécharger
+        // Télécharger
         const blob = new Blob(mp3Data, { type: 'audio/mp3' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
@@ -469,10 +468,12 @@ $("downloadBtn").addEventListener("click", async () => {
         $("status").textContent = "● Audio téléchargé !";
     } catch (err) {
         console.error(err);
-        alert("Erreur de génération. Veuillez réessayer.");
+        // C'EST ICI QU'ON AFFICHE LA VRAIE ERREUR
+        alert("Erreur technique : " + err.message); 
         $("status").textContent = originalStatus;
     } finally {
-        $("downloadBtn").style.opacity = "1"; $("downloadBtn").disabled = false;
+        $("downloadBtn").style.opacity = "1";
+        $("downloadBtn").disabled = false;
     }
 });
 
