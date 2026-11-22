@@ -24,6 +24,23 @@ body {
 }
 .container { max-width: 650px; margin: auto; position: relative; }
 
+/* BOUTON INSTALLER */
+.install-container { text-align: center; margin-bottom: 15px; display: none; }
+.install-btn {
+    background: linear-gradient(145deg, #7c3aed, #5b21b6);
+    color: white; padding: 12px 20px; border: none; border-radius: 12px;
+    font-weight: bold; font-size: 15px; cursor: pointer;
+    box-shadow: 0 4px 14px rgba(124, 58, 237, 0.4);
+    display: inline-flex; align-items: center; gap: 8px;
+    animation: pulse-purple 2s infinite;
+}
+.install-btn:active { transform: scale(0.95); }
+@keyframes pulse-purple {
+    0% { box-shadow: 0 0 0 0 rgba(124, 58, 237, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(124, 58, 237, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(124, 58, 237, 0); }
+}
+
 /* HEADER */
 header { text-align: center; padding: 10px 0 20px; position: relative; }
 .focus-btn { position: absolute; top: 15px; right: 0; background: transparent; border: none; color: #9ca3af; cursor: pointer; }
@@ -114,8 +131,9 @@ input[type="range"] { padding: 5px 0; accent-color: #22c55e; }
 .status { color: #4ade80; text-align: center; font-size: 13px; margin-top: 12px; }
 footer { text-align: center; color: #64748b; padding: 15px; font-size: 12px; }
 
-/* ---------- MODE PLEIN ÉCRAN POUR LE TEXTE ---------- */
+/* MODE PLEIN ÉCRAN POUR LE TEXTE */
 body.fullscreen-mode header,
+body.fullscreen-mode #installContainer,
 body.fullscreen-mode #settingsPanel,
 body.fullscreen-mode .player-container,
 body.fullscreen-mode footer,
@@ -161,6 +179,11 @@ body.fullscreen-mode #expandBtn {
     <h1>JUNIOR SAVY</h1>
     <p id="subtitle">Ton assistant de lecture vocale</p>
 </header>
+
+<!-- BOUTON INSTALLER L'APPLICATION -->
+<div class="install-container" id="installContainer">
+    <button class="install-btn" id="installBtn">📲 Installer l'application</button>
+</div>
 
 <div class="panel" id="settingsPanel">
     <label id="languageLabel" for="language">Langue</label>
@@ -268,6 +291,39 @@ body.fullscreen-mode #expandBtn {
 </div>
 
 <script>
+/* ============================================================
+   INSTALLATION DE L'APPLICATION (PWA)
+   ============================================================ */
+let deferredPrompt;
+const installContainer = document.getElementById('installContainer');
+const installBtn = document.getElementById('installBtn');
+
+// Vérifier si on est déjà installé
+const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+
+if (!isStandalone) {
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        installContainer.style.display = 'block';
+    });
+}
+
+installBtn.addEventListener('click', async () => {
+    if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+            installContainer.style.display = 'none';
+        }
+        deferredPrompt = null;
+    }
+});
+
+window.addEventListener('appinstalled', () => {
+    installContainer.style.display = 'none';
+});
+
 /* ============================================================
    ÉTAT GLOBAL
    ============================================================ */
@@ -907,4 +963,4 @@ if ("serviceWorker" in navigator) {
 </script>
 
 </body>
-</html>
+    </html>
