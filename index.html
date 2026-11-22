@@ -22,7 +22,7 @@ body {
     margin: 0; padding: 15px; background: #0b1220; color: white;
     font-family: Arial, sans-serif; color-scheme: dark;
 }
-.container { max-width: 650px; margin: auto; }
+.container { max-width: 650px; margin: auto; position: relative; }
 
 /* HEADER */
 header { text-align: center; padding: 10px 0 20px; position: relative; }
@@ -55,10 +55,10 @@ input[type="range"] { padding: 5px 0; accent-color: #22c55e; }
 .tool-btn:hover { background: #293951; }
 .tool-btn svg { width: 14px; height: 14px; }
 
-/* ZONE TEXTE */
+/* ZONE TEXTE (Agrandie à 250px) */
 .textarea-wrap { position: relative; background: #0b1220; border: 1px solid #37465e; border-radius: 10px; transition: border-color .15s ease, box-shadow .15s ease; }
 .textarea-wrap:focus-within { border-color: #22c55e; box-shadow: 0 0 0 3px rgba(34, 197, 94, .15); }
-.textarea-wrap textarea { position: relative; z-index: 2; display: block; width: 100%; min-height: 120px; padding: 12px; border: none; border-radius: 10px; background: transparent; color: #fff; font-family: inherit; font-size: 15px; line-height: 1.5; resize: vertical; outline: none; scrollbar-width: none; }
+.textarea-wrap textarea { position: relative; z-index: 2; display: block; width: 100%; min-height: 250px; padding: 12px; border: none; border-radius: 10px; background: transparent; color: #fff; font-family: inherit; font-size: 15px; line-height: 1.5; resize: vertical; outline: none; scrollbar-width: none; }
 .textarea-wrap textarea::-webkit-scrollbar { display: none; }
 .highlight-layer { position: absolute; inset: 0; z-index: 1; padding: 12px; color: transparent; white-space: pre-wrap; word-wrap: break-word; word-break: break-word; overflow-y: auto; pointer-events: none; font-family: inherit; font-size: 15px; line-height: 1.5; scrollbar-width: none; }
 .highlight-layer::-webkit-scrollbar { display: none; }
@@ -113,6 +113,33 @@ input[type="range"] { padding: 5px 0; accent-color: #22c55e; }
 
 .status { color: #4ade80; text-align: center; font-size: 13px; margin-top: 12px; }
 footer { text-align: center; color: #64748b; padding: 15px; font-size: 12px; }
+
+/* ---------- MODE PLEIN ÉCRAN POUR LE TEXTE ---------- */
+body.fullscreen-mode header,
+body.fullscreen-mode #settingsPanel,
+body.fullscreen-mode .player-container,
+body.fullscreen-mode footer,
+body.fullscreen-mode .toolbar-actions .tool-btn:not(#expandBtn),
+body.fullscreen-mode .text-toolbar-label {
+    display: none !important;
+}
+body.fullscreen-mode .text-toolbar {
+    position: fixed; top: 10px; right: 10px; z-index: 1002; margin: 0;
+}
+body.fullscreen-mode .textarea-wrap {
+    position: fixed; top: 10px; left: 10px; right: 10px; bottom: 10px;
+    z-index: 1001; min-height: auto; border-color: #7c3aed; box-shadow: 0 0 20px rgba(124, 58, 237, 0.3);
+}
+body.fullscreen-mode .textarea-wrap textarea,
+body.fullscreen-mode .highlight-layer {
+    height: 100%; resize: none;
+}
+body.fullscreen-mode #expandBtn {
+    background: #dc2626; color: white; border: none;
+    width: 40px; height: 40px; font-size: 20px; padding: 0; border-radius: 50%;
+    display: grid; place-items: center; box-shadow: 0 4px 14px rgba(220, 38, 38, .35);
+}
+
 @media (max-width: 380px) {
     h1 { font-size: 24px; }
     .play-btn, .action-btn { width: 44px; height: 44px; }
@@ -148,9 +175,10 @@ footer { text-align: center; color: #64748b; padding: 15px; font-size: 12px; }
     <label id="timerLabel" for="pauseTimer">Minuteur de pause</label>
     <select id="pauseTimer">
         <option value="0">Désactivé</option>
+        <option value="1">Toutes les 1 minute</option>
+        <option value="2">Toutes les 2 minutes</option>
         <option value="5">Toutes les 5 minutes</option>
         <option value="10">Toutes les 10 minutes</option>
-        <option value="15">Toutes les 15 minutes</option>
     </select>
 
     <label for="speed"><span id="speedLabel">Vitesse : </span><span id="speedValue">1.0</span></label>
@@ -168,6 +196,7 @@ footer { text-align: center; color: #64748b; padding: 15px; font-size: 12px; }
             <button class="tool-btn" id="importBtn" title="Importer un fichier .txt">📥 Importer</button>
             <button class="tool-btn" id="libraryBtn" title="Voir mes cours">📂 Cours</button>
             <button class="tool-btn" id="shareAppBtn" title="Partager l'application">📤 Partager</button>
+            <button class="tool-btn" id="expandBtn" title="Agrandir la zone de texte">⛶</button>
         </div>
     </div>
     
@@ -288,6 +317,14 @@ $("shareAppBtn").addEventListener("click", async () => {
 });
 
 /* ============================================================
+   MODE PLEIN ÉCRAN POUR LE TEXTE
+   ============================================================ */
+$("expandBtn").addEventListener("click", () => {
+    const isFullscreen = document.body.classList.toggle("fullscreen-mode");
+    $("expandBtn").textContent = isFullscreen ? "✖" : "⛶";
+});
+
+/* ============================================================
    MINUTEUR DE PAUSE (POMODORO)
    ============================================================ */
 function startPauseTimer() {
@@ -399,7 +436,7 @@ $("fileInput").addEventListener("change", (e) => {
 });
 
 /* ============================================================
-   MODE FOCUS
+   MODE FOCUS (Réglages)
    ============================================================ */
 $("focusBtn").addEventListener("click", () => {
     const panel = $("settingsPanel");
@@ -870,4 +907,4 @@ if ("serviceWorker" in navigator) {
 </script>
 
 </body>
-    </html>
+</html>
