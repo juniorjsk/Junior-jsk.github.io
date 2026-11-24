@@ -72,7 +72,7 @@ input[type="range"] { padding: 5px 0; accent-color: #22c55e; }
 .tool-btn:hover { background: #293951; }
 .tool-btn svg { width: 14px; height: 14px; }
 
-/* ZONE TEXTE AVEC EFFET NÉON (PHOTO 3) */
+/* ZONE TEXTE AVEC EFFET NÉON */
 .textarea-wrap { 
     position: relative; 
     background: #0b1220; 
@@ -102,72 +102,79 @@ input[type="range"] { padding: 5px 0; accent-color: #22c55e; }
 .progress:hover .progress-knob, .progress.dragging .progress-knob { opacity: 1; }
 .time { display: flex; justify-content: space-between; font-size: 11px; color: #8aa0bd; font-variant-numeric: tabular-nums; margin-top: 4px; padding: 0 2px; }
 
-/* ---------- BOUTONS EFFET MAGIQUE/NÉON ---------- */
-.row-actions { display: flex; justify-content: space-around; align-items: center; padding: 5px 0; }
-.action-btn, .play-btn { 
-    flex: 0 0 auto; width: 58px; height: 58px; border-radius: 50%; 
-    color: #fff; cursor: pointer; display: grid; place-items: center; 
-    transition: transform .12s ease; border: 2px solid transparent; 
-    background: #0b1220; /* Fond sombre pour faire ressortir le néon */
-    position: relative;
-    z-index: 1;
-}
-.action-btn:active, .play-btn:active { transform: scale(.92); }
-.action-btn svg, .play-btn svg { width: 28px; height: 28px; filter: drop-shadow(0 0 5px currentColor); z-index: 2; }
-
-/* Play (Violet Magique) */
-.play-btn {
-    border-color: #a78bfa;
-    color: #d8b4fe;
-    box-shadow: 0 0 15px #7c3aed, inset 0 0 15px #7c3aed, 0 0 30px rgba(124, 58, 237, 0.5);
-    animation: magic-pulse-purple 3s infinite alternate;
-}
-/* Micro (Vert Magique) */
-.btn-green {
-    border-color: #4ade80;
-    color: #86efac;
-    box-shadow: 0 0 15px #22c55e, inset 0 0 15px #22c55e, 0 0 30px rgba(34, 197, 94, 0.5);
-    animation: magic-pulse-green 3s infinite alternate;
-}
-/* Traduire (Bleu Magique) */
-.btn-blue {
-    border-color: #60a5fa;
-    color: #93c5fd;
-    box-shadow: 0 0 15px #3b82f6, inset 0 0 15px #3b82f6, 0 0 30px rgba(59, 130, 246, 0.5);
-    animation: magic-pulse-blue 3s infinite alternate;
-}
-/* Corbeille (Rouge Magique) */
-.btn-red {
-    border-color: #f87171;
-    color: #fca5a5;
-    box-shadow: 0 0 15px #ef4444, inset 0 0 15px #ef4444, 0 0 30px rgba(239, 68, 68, 0.5);
-    animation: magic-pulse-red 3s infinite alternate;
+/* ---------- BOUTONS NÉON (STYLE GEMINI) ---------- */
+.btn-row {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 5px 0;
 }
 
-/* Animations de pulsation */
-@keyframes magic-pulse-purple { 0% { box-shadow: 0 0 10px #7c3aed, inset 0 0 10px #7c3aed; } 100% { box-shadow: 0 0 25px #7c3aed, inset 0 0 20px #7c3aed, 0 0 40px rgba(124, 58, 237, 0.6); } }
-@keyframes magic-pulse-green { 0% { box-shadow: 0 0 10px #22c55e, inset 0 0 10px #22c55e; } 100% { box-shadow: 0 0 25px #22c55e, inset 0 0 20px #22c55e, 0 0 40px rgba(34, 197, 94, 0.6); } }
-@keyframes magic-pulse-blue { 0% { box-shadow: 0 0 10px #3b82f6, inset 0 0 10px #3b82f6; } 100% { box-shadow: 0 0 25px #3b82f6, inset 0 0 20px #3b82f6, 0 0 40px rgba(59, 130, 246, 0.6); } }
-@keyframes magic-pulse-red { 0% { box-shadow: 0 0 10px #ef4444, inset 0 0 10px #ef4444; } 100% { box-shadow: 0 0 25px #ef4444, inset 0 0 20px #ef4444, 0 0 40px rgba(239, 68, 68, 0.6); } }
-
-/* Animation quand le micro écoute */
-.btn-green.recording {
-    background: #dc2626; 
-    border-color: #f87171;
-    color: #fca5a5;
-    animation: pulse-red 1.5s infinite;
-    box-shadow: 0 0 20px #ef4444, inset 0 0 20px #ef4444;
-}
-@keyframes pulse-red { 
-    0% { box-shadow: 0 0 15px #ef4444, 0 0 0 0 rgba(239, 68, 68, 0.7), inset 0 0 15px #ef4444; } 
-    70% { box-shadow: 0 0 15px #ef4444, 0 0 0 15px rgba(239, 68, 68, 0), inset 0 0 15px #ef4444; } 
-    100% { box-shadow: 0 0 15px #ef4444, 0 0 0 0 rgba(239, 68, 68, 0), inset 0 0 15px #ef4444; } 
+.btn-neon {
+    --c: #a855f7;
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    border: 2px solid var(--c);
+    background: radial-gradient(circle at 30% 25%, rgba(255, 255, 255, 0.18), rgba(23, 35, 55, 0.85) 65%);
+    box-shadow: 0 0 12px rgba(168, 85, 247, 0.45), inset 0 0 8px rgba(168, 85, 247, 0.28);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform 0.15s ease;
 }
 
-/* Gestion de l'icône Play/Pause */
-.play-btn .icon-pause { display: none; }
-.play-btn.playing .icon-play { display: none; }
-.play-btn.playing .icon-pause { display: block; }
+.btn-neon:active {
+    transform: scale(0.92);
+}
+
+.btn-neon svg {
+    width: 26px;
+    height: 26px;
+    fill: none;
+    stroke: var(--c);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* Couleurs spécifiques */
+.btn-neon.purple {
+    --c: #a855f7;
+    box-shadow: 0 0 12px rgba(168, 85, 247, 0.45), inset 0 0 8px rgba(168, 85, 247, 0.28);
+}
+.btn-neon.green {
+    --c: #22c55e;
+    box-shadow: 0 0 12px rgba(34, 197, 94, 0.45), inset 0 0 8px rgba(34, 197, 94, 0.28);
+}
+.btn-neon.blue {
+    --c: #38bdf8;
+    box-shadow: 0 0 12px rgba(56, 189, 248, 0.45), inset 0 0 8px rgba(56, 189, 248, 0.28);
+}
+.btn-neon.red {
+    --c: #ef4444;
+    box-shadow: 0 0 12px rgba(239, 68, 68, 0.45), inset 0 0 8px rgba(239, 68, 68, 0.28);
+}
+
+/* Gestion Play/Pause (couleur de l'icône) */
+.btn-neon.purple .icon-pause { display: none; }
+.btn-neon.purple.playing .icon-play { display: none; }
+.btn-neon.purple.playing .icon-pause { display: block; }
+
+/* Animation uniquement quand le micro enregistre */
+.btn-neon.green.recording {
+    --c: #ef4444;
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.8), inset 0 0 10px rgba(239, 68, 68, 0.4);
+    animation: pulse-mic 1.5s infinite;
+}
+
+@keyframes pulse-mic {
+    0% { box-shadow: 0 0 12px rgba(239, 68, 68, 0.6), inset 0 0 8px rgba(239, 68, 68, 0.3); }
+    50% { box-shadow: 0 0 20px rgba(239, 68, 68, 0.9), inset 0 0 12px rgba(239, 68, 68, 0.5); }
+    100% { box-shadow: 0 0 12px rgba(239, 68, 68, 0.6), inset 0 0 8px rgba(239, 68, 68, 0.3); }
+}
 
 /* MODALES */
 .modal-overlay { position: fixed; inset: 0; background: rgba(11, 18, 32, 0.9); display: none; justify-content: center; align-items: center; z-index: 100; backdrop-filter: blur(3px); }
@@ -223,8 +230,8 @@ body.fullscreen-mode #expandBtn {
 
 @media (max-width: 380px) {
     h1 { font-size: 24px; }
-    .play-btn, .action-btn { width: 50px; height: 50px; }
-    .play-btn svg, .action-btn svg { width: 24px; height: 24px; }
+    .btn-neon { width: 50px; height: 50px; }
+    .btn-neon svg { width: 22px; height: 22px; }
 }
 </style>
 </head>
@@ -294,9 +301,11 @@ body.fullscreen-mode #expandBtn {
 
     <div class="player-container">
         <div class="row-play">
-            <button class="play-btn" id="playBtn" type="button" aria-label="Lire">
-                <svg class="icon-play" viewBox="0 0 24 24" width="24" height="24"><path d="M8 5.2v13.6c0 .85.93 1.36 1.65.9l10.3-6.8a1.08 1.08 0 0 0 0-1.8L9.65 4.3A1.08 1.08 0 0 0 8 5.2z" fill="currentColor"/></svg>
-                <svg class="icon-pause" viewBox="0 0 24 24" width="24" height="24"><rect x="6.5" y="5" width="4" height="14" rx="1.4" fill="currentColor"/><rect x="13.5" y="5" width="4" height="14" rx="1.4" fill="currentColor"/></svg>
+            <button class="btn-neon purple" id="playBtn" type="button" aria-label="Lire">
+                <!-- Icône Play (Contour) -->
+                <svg class="icon-play" viewBox="0 0 24 24"><polygon points="8,5 19,12 8,19" /></svg>
+                <!-- Icône Pause (Contour) -->
+                <svg class="icon-pause" viewBox="0 0 24 24"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>
             </button>
             <div class="player-main">
                 <div class="progress" id="progressBar" role="slider" tabindex="0" aria-label="Progression">
@@ -312,15 +321,18 @@ body.fullscreen-mode #expandBtn {
             </div>
         </div>
 
-        <div class="row-actions">
-            <button class="action-btn btn-green" id="dictateBtn" type="button" aria-label="Dicter">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="22"></line></svg>
+        <div class="btn-row">
+            <button class="btn-neon green" id="dictateBtn" type="button" aria-label="Dicter">
+                <!-- Icône Micro (Contour) -->
+                <svg viewBox="0 0 24 24"><path d="M12 14a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v5a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2z" /></svg>
             </button>
-            <button class="action-btn btn-blue" id="translateBtn" type="button" aria-label="Traduire">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path><path d="M2 12h20"></path></svg>
+            <button class="btn-neon blue" id="translateBtn" type="button" aria-label="Traduire">
+                <!-- Icône Globe (Contour) -->
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M3.6 9h16.8M3.6 15h16.8M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18" /></svg>
             </button>
-            <button class="action-btn btn-red" id="clearBtn" type="button" aria-label="Effacer">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+            <button class="btn-neon red" id="clearBtn" type="button" aria-label="Effacer">
+                <!-- Icône Corbeille (Contour) -->
+                <svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2m-9 0l1 14h8l1-14" /></svg>
             </button>
         </div>
     </div>
@@ -1016,4 +1028,4 @@ if ("serviceWorker" in navigator) {
 </script>
 
 </body>
-</html>
+    </html>
