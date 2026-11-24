@@ -91,8 +91,16 @@ input[type="range"] { padding: 5px 0; accent-color: #22c55e; }
 .highlight-layer::-webkit-scrollbar { display: none; }
 .highlight-layer mark { background: #22c55e; color: transparent; padding: 0; margin: 0; border-radius: 3px; }
 
-/* LECTEUR AUDIO */
-.player-container { display: flex; flex-direction: column; gap: 15px; margin-top: 15px; padding: 12px; background: #0b1220; border: 1px solid #293951; border-radius: 20px; }
+/* LECTEUR AUDIO - BORDURE DÉGRADÉE (CHOIX 2) */
+.player-container { 
+    display: flex; flex-direction: column; gap: 15px; margin-top: 15px; padding: 15px; 
+    /* La magie du bord dégradé ici */
+    border: 2px solid transparent;
+    background: linear-gradient(#0b1220, #0b1220) padding-box, 
+                linear-gradient(90deg, #7c3aed, #22c55e, #3b82f6, #ef4444) border-box;
+    border-radius: 20px; 
+}
+
 .row-play { display: flex; align-items: center; gap: 10px; background: #0b1220; border: 1px solid #293951; border-radius: 999px; padding: 6px 10px; width: 100%; }
 .player-main { flex: 1 1 auto; min-width: 0; width: 100%; }
 .progress { position: relative; height: 32px; display: flex; align-items: center; cursor: pointer; touch-action: none; width: 100%; }
@@ -102,8 +110,8 @@ input[type="range"] { padding: 5px 0; accent-color: #22c55e; }
 .progress:hover .progress-knob, .progress.dragging .progress-knob { opacity: 1; }
 .time { display: flex; justify-content: space-between; font-size: 11px; color: #8aa0bd; font-variant-numeric: tabular-nums; margin-top: 4px; padding: 0 2px; }
 
-/* ---------- BOUTONS NÉON (STYLE GEMINI) ---------- */
-.btn-row {
+/* ---------- BOUTONS EFFET VERRE/NÉON (GEMINI) ---------- */
+.row-actions {
     display: flex;
     justify-content: space-around;
     align-items: center;
@@ -116,8 +124,8 @@ input[type="range"] { padding: 5px 0; accent-color: #22c55e; }
     height: 58px;
     border-radius: 50%;
     border: 2px solid var(--c);
-    background: radial-gradient(circle at 30% 25%, rgba(255, 255, 255, 0.18), rgba(23, 35, 55, 0.85) 65%);
-    box-shadow: 0 0 12px rgba(168, 85, 247, 0.45), inset 0 0 8px rgba(168, 85, 247, 0.28);
+    background: radial-gradient(circle at 30% 25%, rgba(255, 255, 255, 0.15), rgba(23, 35, 55, 0.85) 65%);
+    box-shadow: 0 0 12px var(--c), inset 0 0 8px var(--c);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -126,9 +134,7 @@ input[type="range"] { padding: 5px 0; accent-color: #22c55e; }
     transition: transform 0.15s ease;
 }
 
-.btn-neon:active {
-    transform: scale(0.92);
-}
+.btn-neon:active { transform: scale(0.92); }
 
 .btn-neon svg {
     width: 26px;
@@ -140,28 +146,10 @@ input[type="range"] { padding: 5px 0; accent-color: #22c55e; }
     stroke-linejoin: round;
 }
 
-/* Couleurs spécifiques */
-.btn-neon.purple {
-    --c: #a855f7;
-    box-shadow: 0 0 12px rgba(168, 85, 247, 0.45), inset 0 0 8px rgba(168, 85, 247, 0.28);
-}
-.btn-neon.green {
-    --c: #22c55e;
-    box-shadow: 0 0 12px rgba(34, 197, 94, 0.45), inset 0 0 8px rgba(34, 197, 94, 0.28);
-}
-.btn-neon.blue {
-    --c: #38bdf8;
-    box-shadow: 0 0 12px rgba(56, 189, 248, 0.45), inset 0 0 8px rgba(56, 189, 248, 0.28);
-}
-.btn-neon.red {
-    --c: #ef4444;
-    box-shadow: 0 0 12px rgba(239, 68, 68, 0.45), inset 0 0 8px rgba(239, 68, 68, 0.28);
-}
-
-/* Gestion Play/Pause (couleur de l'icône) */
-.btn-neon.purple .icon-pause { display: none; }
-.btn-neon.purple.playing .icon-play { display: none; }
-.btn-neon.purple.playing .icon-pause { display: block; }
+.btn-neon.purple { --c: #a855f7; }
+.btn-neon.green { --c: #22c55e; }
+.btn-neon.blue { --c: #38bdf8; }
+.btn-neon.red { --c: #ef4444; }
 
 /* Animation uniquement quand le micro enregistre */
 .btn-neon.green.recording {
@@ -175,6 +163,11 @@ input[type="range"] { padding: 5px 0; accent-color: #22c55e; }
     50% { box-shadow: 0 0 20px rgba(239, 68, 68, 0.9), inset 0 0 12px rgba(239, 68, 68, 0.5); }
     100% { box-shadow: 0 0 12px rgba(239, 68, 68, 0.6), inset 0 0 8px rgba(239, 68, 68, 0.3); }
 }
+
+/* Gestion Play/Pause (couleur de l'icône) */
+.btn-neon.purple .icon-pause { display: none; }
+.btn-neon.purple.playing .icon-play { display: none; }
+.btn-neon.purple.playing .icon-pause { display: block; }
 
 /* MODALES */
 .modal-overlay { position: fixed; inset: 0; background: rgba(11, 18, 32, 0.9); display: none; justify-content: center; align-items: center; z-index: 100; backdrop-filter: blur(3px); }
@@ -302,9 +295,7 @@ body.fullscreen-mode #expandBtn {
     <div class="player-container">
         <div class="row-play">
             <button class="btn-neon purple" id="playBtn" type="button" aria-label="Lire">
-                <!-- Icône Play (Contour) -->
                 <svg class="icon-play" viewBox="0 0 24 24"><polygon points="8,5 19,12 8,19" /></svg>
-                <!-- Icône Pause (Contour) -->
                 <svg class="icon-pause" viewBox="0 0 24 24"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>
             </button>
             <div class="player-main">
@@ -321,17 +312,14 @@ body.fullscreen-mode #expandBtn {
             </div>
         </div>
 
-        <div class="btn-row">
+        <div class="row-actions">
             <button class="btn-neon green" id="dictateBtn" type="button" aria-label="Dicter">
-                <!-- Icône Micro (Contour) -->
                 <svg viewBox="0 0 24 24"><path d="M12 14a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v5a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2z" /></svg>
             </button>
             <button class="btn-neon blue" id="translateBtn" type="button" aria-label="Traduire">
-                <!-- Icône Globe (Contour) -->
                 <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M3.6 9h16.8M3.6 15h16.8M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18" /></svg>
             </button>
             <button class="btn-neon red" id="clearBtn" type="button" aria-label="Effacer">
-                <!-- Icône Corbeille (Contour) -->
                 <svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2m-9 0l1 14h8l1-14" /></svg>
             </button>
         </div>
@@ -402,9 +390,11 @@ let isReading = false, isPaused = false, preparedText = "", estDuration = 0;
 let chunkStartTs = 0, rafId = 0, progress = 0, lastCurText = "", lastTotText = "";
 let wakeLock = null, highlightStart = -1, highlightEnd = -1;
 
-// Minuteur
+// Minuteur (Corrigé)
 let timerInterval = null;
-let secondsRead = 0;
+let timerStartTime = 0;
+let timerPausedTime = 0;
+let timerTargetDuration = 0;
 let isPauseModalActive = false;
 
 // Dictée
@@ -446,16 +436,28 @@ $("expandBtn").addEventListener("click", () => {
 });
 
 /* ============================================================
-   MINUTEUR DE PAUSE (POMODORO)
+   MINUTEUR DE PAUSE (CORRIGÉ)
    ============================================================ */
-function startPauseTimer() {
+function startPauseTimer(reset = false) {
     clearInterval(timerInterval);
-    secondsRead = 0;
     const pauseMin = parseInt($("pauseTimer").value);
+    
     if (pauseMin > 0) {
+        timerTargetDuration = pauseMin * 60 * 1000; // en millisecondes
+        
+        if (reset) {
+            timerPausedTime = 0;
+            timerStartTime = Date.now();
+        } else {
+            timerStartTime = Date.now();
+        }
+
         timerInterval = setInterval(() => {
-            secondsRead++;
-            if (secondsRead >= pauseMin * 60 && isReading && !isPaused && !isPauseModalActive) {
+            if (!isReading || isPaused || isPauseModalActive) return;
+            
+            const elapsed = timerPausedTime + (Date.now() - timerStartTime);
+            
+            if (elapsed >= timerTargetDuration) {
                 triggerPauseModal();
             }
         }, 1000);
@@ -477,14 +479,22 @@ function triggerPauseModal() {
 $("btnContinue").addEventListener("click", () => {
     isPauseModalActive = false;
     $("pauseModal").classList.remove("active");
-    startPauseTimer();
+    // Remise à zéro du chrono et relance
+    timerPausedTime = 0;
+    timerStartTime = Date.now();
+    startPauseTimer(false);
     resumeReading();
 });
 
 $("btnRest").addEventListener("click", () => {
     isPauseModalActive = false;
     $("pauseModal").classList.remove("active");
-    secondsRead = 0;
+    // On gèle le temps actuel
+    if (timerInterval) {
+        timerPausedTime += (Date.now() - timerStartTime);
+        clearInterval(timerInterval);
+        timerInterval = null;
+    }
     $("status").textContent = "● En pause...";
 });
 
@@ -854,13 +864,18 @@ function startReading() {
     if (!prepareText()) { alert(t("empty")); return; }
     if (chunkIndex >= chunks.length) { chunkIndex = 0; chunkOffset = 0; }
     if (isDictating) toggleDictation();
+    
     session++;
     stopProgressLoop();
     isReading = true; isPaused = false; chunkOffset = 0; lastBoundary = 0;
     estDuration = estimateDuration(preparedText, Number($("speed").value));
+    
     const abs = chunkStarts[chunkIndex];
     setProgress(abs / totalChars); renderHighlight(abs); updateUI(); requestWakeLock();
-    startPauseTimer();
+    
+    // Reset complet du minuteur au démarrage
+    startPauseTimer(true); 
+
     const token = session; const index = chunkIndex;
     if (speechSynthesis.speaking || speechSynthesis.pending) {
         speechSynthesis.cancel(); setTimeout(() => speakChunk(index, token), 80);
@@ -871,7 +886,14 @@ function pauseReading() {
     session++;
     if ("speechSynthesis" in window) speechSynthesis.cancel();
     isPaused = true; stopProgressLoop();
-    clearInterval(timerInterval);
+    
+    // On gèle le temps
+    if (timerInterval) {
+        timerPausedTime += (Date.now() - timerStartTime);
+        clearInterval(timerInterval);
+        timerInterval = null;
+    }
+
     chunkOffset = Math.min(lastBoundary, chunks[chunkIndex] ? chunks[chunkIndex].length : 0);
     lastBoundary = chunkOffset; renderHighlight(chunkStarts[chunkIndex] + chunkOffset);
     updateUI(); releaseWakeLock();
@@ -880,13 +902,17 @@ function pauseReading() {
 function resumeReading() {
     isPaused = false; const token = ++session;
     updateUI(); speakChunk(chunkIndex, token); requestWakeLock();
-    startPauseTimer();
+    
+    // Relance le minuteur là où on s'était arrêté
+    if (parseInt($("pauseTimer").value) > 0) {
+        startPauseTimer(false);
+    }
 }
 
 function finishReading() {
     stopProgressLoop();
     isReading = false; isPaused = false; chunkIndex = 0; chunkOffset = 0; lastBoundary = 0;
-    clearInterval(timerInterval);
+    clearInterval(timerInterval); timerInterval = null; timerPausedTime = 0;
     clearHighlight(); setProgress(0); updateUI(); releaseWakeLock();
 }
 
@@ -918,7 +944,10 @@ function seekToChunk(i, resume) {
         isReading = true; isPaused = false; updateUI();
         const token = session; const index = i;
         setTimeout(() => speakChunk(index, token), 60); requestWakeLock();
-        startPauseTimer();
+        // Ne reset pas le timer si on a déjà lu un peu
+        if (parseInt($("pauseTimer").value) > 0 && !timerInterval) {
+            startPauseTimer(false);
+        }
     } else { updateUI(); }
 }
 
@@ -951,7 +980,7 @@ function clearText() {
     session++;
     if ("speechSynthesis" in window) speechSynthesis.cancel();
     stopProgressLoop();
-    clearInterval(timerInterval);
+    clearInterval(timerInterval); timerInterval = null; timerPausedTime = 0;
     if (isDictating) toggleDictation();
     isReading = false; isPaused = false;
     chunks = []; chunkStarts = []; totalChars = 0; chunkIndex = 0; chunkOffset = 0; lastBoundary = 0;
