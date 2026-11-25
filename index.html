@@ -21,8 +21,26 @@
 body {
     margin: 0; padding: 15px; background: #0b1220; color: white;
     font-family: Arial, sans-serif; color-scheme: dark;
+    transition: background 0.3s ease, color 0.3s ease;
 }
 .container { max-width: 650px; margin: auto; position: relative; }
+
+/* ---------- MODE ÉCO (ÉCRAN NOIR) ---------- */
+body.eco-mode { background: #000000; }
+body.eco-mode .panel, body.eco-mode .player-container { background: #000000; border-color: #111; }
+body.eco-mode .textarea-wrap { background: #000000; border-color: #222; box-shadow: none; }
+body.eco-mode .textarea-wrap textarea { color: #888; }
+body.eco-mode .btn-neon { background: #000; box-shadow: none; border-color: #333; color: #555; }
+body.eco-mode .btn-neon svg { stroke: #555; }
+body.eco-mode .btn-neon.purple { border-color: #111; }
+body.eco-mode .btn-neon.purple svg { stroke: #444; }
+body.eco-mode .progress-track { background: #111; }
+body.eco-mode .progress-fill { background: #333; }
+body.eco-mode .time { color: #444; }
+body.eco-mode header, body.eco-mode footer, body.eco-mode .text-toolbar { opacity: 0.3; }
+body.eco-mode .player-container {
+    background: linear-gradient(#000, #000) padding-box, linear-gradient(90deg, #111, #222) border-box;
+}
 
 /* BOUTON INSTALLER */
 .install-container { text-align: center; margin-bottom: 15px; display: none; }
@@ -45,6 +63,8 @@ body {
 header { text-align: center; padding: 10px 0 20px; position: relative; }
 .focus-btn { position: absolute; top: 15px; right: 0; background: transparent; border: none; color: #9ca3af; cursor: pointer; }
 .focus-btn svg { width: 24px; height: 24px; }
+.eco-btn { position: absolute; top: 15px; left: 0; background: transparent; border: none; color: #9ca3af; cursor: pointer; }
+.eco-btn svg { width: 24px; height: 24px; }
 .assistant-avatar {
     position: relative; width: 60px; height: 60px; margin: 0 auto 10px;
     background: #172337; border: 2px solid #7c3aed; border-radius: 50%;
@@ -56,6 +76,26 @@ header { text-align: center; padding: 10px 0 20px; position: relative; }
 @keyframes pulse { 0% { transform: scale(1); opacity: .8; } 100% { transform: scale(1.35); opacity: 0; } }
 h1 { color: #22c55e; margin: 8px 0; font-size: 28px; }
 header p { color: #9ca3af; margin: 0; font-size: 14px; }
+
+/* MESSAGE DU JOUR */
+.motivation-msg {
+    text-align: center; font-size: 12px; color: #22c55e; font-style: italic;
+    margin-bottom: 10px; padding: 5px; background: rgba(34, 197, 94, 0.1);
+    border-radius: 8px; border: 1px dashed #22c55e;
+}
+
+/* ACCUEIL BOSS */
+.boss-resume { display: none; margin-bottom: 15px; }
+.boss-resume.active { display: block; }
+.boss-title { font-size: 14px; color: #9ca3af; margin-bottom: 8px; }
+.boss-list { display: flex; flex-direction: column; gap: 8px; }
+.boss-item {
+    background: #172337; border: 1px solid #293951; padding: 10px; border-radius: 10px;
+    display: flex; justify-content: space-between; align-items: center; cursor: pointer;
+}
+.boss-item:hover { border-color: #7c3aed; }
+.boss-item-title { font-weight: bold; color: #fff; font-size: 14px; }
+.boss-item-date { font-size: 11px; color: #8aa0bd; }
 
 /* PANNEAU RÉGLAGES */
 .panel { background: #172337; padding: 16px; border-radius: 16px; margin-bottom: 15px; border: 1px solid #293951; transition: all 0.3s ease; }
@@ -72,99 +112,59 @@ input[type="range"] { padding: 5px 0; accent-color: #22c55e; }
 .tool-btn:hover { background: #293951; }
 .tool-btn svg { width: 14px; height: 14px; }
 
-/* ZONE TEXTE AVEC EFFET NÉON */
+/* ZONE TEXTE */
 .textarea-wrap { 
-    position: relative; 
-    background: #0b1220; 
-    border: 2px solid #7c3aed;
-    border-radius: 16px;
+    position: relative; background: #0b1220; border: 2px solid #7c3aed; border-radius: 16px;
     box-shadow: 0 0 15px rgba(124, 58, 237, 0.4), inset 0 0 10px rgba(124, 58, 237, 0.1);
     transition: all .2s ease; 
 }
-.textarea-wrap:focus-within { 
-    border-color: #a78bfa;
-    box-shadow: 0 0 20px rgba(124, 58, 237, 0.7), inset 0 0 15px rgba(124, 58, 237, 0.2); 
-}
-.textarea-wrap textarea { position: relative; z-index: 2; display: block; width: 100%; min-height: 250px; padding: 16px; border: none; border-radius: 14px; background: transparent; color: #fff; font-family: inherit; font-size: 15px; line-height: 1.5; resize: vertical; outline: none; scrollbar-width: none; }
-.textarea-wrap textarea::-webkit-scrollbar { display: none; }
-.highlight-layer { position: absolute; inset: 0; z-index: 1; padding: 16px; color: transparent; white-space: pre-wrap; word-wrap: break-word; word-break: break-word; overflow-y: auto; pointer-events: none; font-family: inherit; font-size: 15px; line-height: 1.5; scrollbar-width: none; }
-.highlight-layer::-webkit-scrollbar { display: none; }
+.textarea-wrap:focus-within { border-color: #a78bfa; box-shadow: 0 0 20px rgba(124, 58, 237, 0.7); }
+.textarea-wrap textarea { position: relative; z-index: 2; display: block; width: 100%; min-height: 250px; padding: 16px; border: none; border-radius: 14px; background: transparent; color: #fff; font-family: inherit; font-size: 15px; line-height: 1.5; resize: vertical; outline: none; }
+.highlight-layer { position: absolute; inset: 0; z-index: 1; padding: 16px; color: transparent; white-space: pre-wrap; word-wrap: break-word; word-break: break-word; overflow-y: auto; pointer-events: none; font-family: inherit; font-size: 15px; line-height: 1.5; }
 .highlight-layer mark { background: #22c55e; color: transparent; padding: 0; margin: 0; border-radius: 3px; }
 
-/* LECTEUR AUDIO - BORDURE DÉGRADÉE (CHOIX 2) */
+/* LECTEUR AUDIO - BORDURE DÉGRADÉE */
 .player-container { 
     display: flex; flex-direction: column; gap: 15px; margin-top: 15px; padding: 15px; 
-    /* La magie du bord dégradé ici */
     border: 2px solid transparent;
-    background: linear-gradient(#0b1220, #0b1220) padding-box, 
-                linear-gradient(90deg, #7c3aed, #22c55e, #3b82f6, #ef4444) border-box;
+    background: linear-gradient(#0b1220, #0b1220) padding-box, linear-gradient(90deg, #7c3aed, #22c55e, #3b82f6, #ef4444) border-box;
     border-radius: 20px; 
 }
-
 .row-play { display: flex; align-items: center; gap: 10px; background: #0b1220; border: 1px solid #293951; border-radius: 999px; padding: 6px 10px; width: 100%; }
 .player-main { flex: 1 1 auto; min-width: 0; width: 100%; }
 .progress { position: relative; height: 32px; display: flex; align-items: center; cursor: pointer; touch-action: none; width: 100%; }
 .progress-track { position: relative; width: 100%; height: 8px; background: #293951; border-radius: 999px; overflow: hidden; }
 .progress-fill { position: absolute; top: 0; bottom: 0; left: 0; width: 0%; background: linear-gradient(90deg, #7c3aed, #22c55e); border-radius: 999px; }
-.progress-knob { position: absolute; top: 50%; left: 0%; width: 16px; height: 16px; border-radius: 50%; background: #fff; box-shadow: 0 0 10px #22c55e, 0 0 0 3px rgba(34, 197, 94, .25); transform: translate(-50%, -50%); pointer-events: none; opacity: 0; transition: opacity .15s ease; }
+.progress-knob { position: absolute; top: 50%; left: 0%; width: 16px; height: 16px; border-radius: 50%; background: #fff; box-shadow: 0 0 10px #22c55e; transform: translate(-50%, -50%); pointer-events: none; opacity: 0; }
 .progress:hover .progress-knob, .progress.dragging .progress-knob { opacity: 1; }
 .time { display: flex; justify-content: space-between; font-size: 11px; color: #8aa0bd; font-variant-numeric: tabular-nums; margin-top: 4px; padding: 0 2px; }
 
-/* ---------- BOUTONS EFFET VERRE/NÉON (GEMINI) ---------- */
-.row-actions {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    padding: 5px 0;
+/* BOUTONS RAPIDES DE VITESSE */
+.speed-controls { display: flex; justify-content: center; gap: 10px; margin-top: 10px; }
+.speed-btn { 
+    background: #1e2a3d; border: 1px solid #37465e; color: #cbd5e1; 
+    padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; cursor: pointer; 
 }
+.speed-btn.active { background: #7c3aed; color: white; border-color: #a78bfa; }
 
+/* BOUTONS EFFET VERRE/NÉON */
+.row-actions { display: flex; justify-content: space-around; align-items: center; padding: 5px 0; }
 .btn-neon {
-    --c: #a855f7;
-    width: 58px;
-    height: 58px;
-    border-radius: 50%;
+    --c: #a855f7; width: 58px; height: 58px; border-radius: 50%;
     border: 2px solid var(--c);
     background: radial-gradient(circle at 30% 25%, rgba(255, 255, 255, 0.15), rgba(23, 35, 55, 0.85) 65%);
     box-shadow: 0 0 12px var(--c), inset 0 0 8px var(--c);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
     transition: transform 0.15s ease;
 }
-
 .btn-neon:active { transform: scale(0.92); }
-
-.btn-neon svg {
-    width: 26px;
-    height: 26px;
-    fill: none;
-    stroke: var(--c);
-    stroke-width: 2;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-}
-
+.btn-neon svg { width: 26px; height: 26px; fill: none; stroke: var(--c); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .btn-neon.purple { --c: #a855f7; }
 .btn-neon.green { --c: #22c55e; }
 .btn-neon.blue { --c: #38bdf8; }
 .btn-neon.red { --c: #ef4444; }
-
-/* Animation uniquement quand le micro enregistre */
-.btn-neon.green.recording {
-    --c: #ef4444;
-    box-shadow: 0 0 15px rgba(239, 68, 68, 0.8), inset 0 0 10px rgba(239, 68, 68, 0.4);
-    animation: pulse-mic 1.5s infinite;
-}
-
-@keyframes pulse-mic {
-    0% { box-shadow: 0 0 12px rgba(239, 68, 68, 0.6), inset 0 0 8px rgba(239, 68, 68, 0.3); }
-    50% { box-shadow: 0 0 20px rgba(239, 68, 68, 0.9), inset 0 0 12px rgba(239, 68, 68, 0.5); }
-    100% { box-shadow: 0 0 12px rgba(239, 68, 68, 0.6), inset 0 0 8px rgba(239, 68, 68, 0.3); }
-}
-
-/* Gestion Play/Pause (couleur de l'icône) */
+.btn-neon.green.recording { --c: #ef4444; box-shadow: 0 0 15px rgba(239, 68, 68, 0.8); animation: pulse-mic 1.5s infinite; }
+@keyframes pulse-mic { 0% { box-shadow: 0 0 12px rgba(239, 68, 68, 0.6); } 50% { box-shadow: 0 0 20px rgba(239, 68, 68, 0.9); } 100% { box-shadow: 0 0 12px rgba(239, 68, 68, 0.6); } }
 .btn-neon.purple .icon-pause { display: none; }
 .btn-neon.purple.playing .icon-play { display: none; }
 .btn-neon.purple.playing .icon-pause { display: block; }
@@ -179,7 +179,8 @@ input[type="range"] { padding: 5px 0; accent-color: #22c55e; }
 .lib-item-text { flex-grow: 1; cursor: pointer; }
 .lib-item-title { font-weight: bold; color: #fff; margin-bottom: 4px; display: block; }
 .lib-item-date { font-size: 11px; color: #8aa0bd; }
-.lib-item-delete { background: transparent; border: none; color: #ef4444; cursor: pointer; font-size: 18px; padding: 5px; }
+.lib-actions { display: flex; gap: 10px; }
+.lib-btn { background: transparent; border: none; font-size: 18px; cursor: pointer; padding: 5px; }
 .modal-close { background: #293951; border: none; color: white; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer; width: 100%; }
 
 /* MODALE PAUSE */
@@ -195,31 +196,11 @@ input[type="range"] { padding: 5px 0; accent-color: #22c55e; }
 footer { text-align: center; color: #64748b; padding: 15px; font-size: 12px; }
 
 /* MODE PLEIN ÉCRAN POUR LE TEXTE */
-body.fullscreen-mode header,
-body.fullscreen-mode #installContainer,
-body.fullscreen-mode #settingsPanel,
-body.fullscreen-mode .player-container,
-body.fullscreen-mode footer,
-body.fullscreen-mode .toolbar-actions .tool-btn:not(#expandBtn),
-body.fullscreen-mode .text-toolbar-label {
-    display: none !important;
-}
-body.fullscreen-mode .text-toolbar {
-    position: fixed; top: 10px; right: 10px; z-index: 1002; margin: 0;
-}
-body.fullscreen-mode .textarea-wrap {
-    position: fixed; top: 10px; left: 10px; right: 10px; bottom: 10px;
-    z-index: 1001; min-height: auto;
-}
-body.fullscreen-mode .textarea-wrap textarea,
-body.fullscreen-mode .highlight-layer {
-    height: 100%; resize: none;
-}
-body.fullscreen-mode #expandBtn {
-    background: #dc2626; color: white; border: none;
-    width: 40px; height: 40px; font-size: 20px; padding: 0; border-radius: 50%;
-    display: grid; place-items: center; box-shadow: 0 4px 14px rgba(220, 38, 38, .35);
-}
+body.fullscreen-mode header, body.fullscreen-mode #installContainer, body.fullscreen-mode #settingsPanel, body.fullscreen-mode .player-container, body.fullscreen-mode footer, body.fullscreen-mode .toolbar-actions .tool-btn:not(#expandBtn), body.fullscreen-mode .text-toolbar-label { display: none !important; }
+body.fullscreen-mode .text-toolbar { position: fixed; top: 10px; right: 10px; z-index: 1002; margin: 0; }
+body.fullscreen-mode .textarea-wrap { position: fixed; top: 10px; left: 10px; right: 10px; bottom: 10px; z-index: 1001; min-height: auto; }
+body.fullscreen-mode .textarea-wrap textarea, body.fullscreen-mode .highlight-layer { height: 100%; resize: none; }
+body.fullscreen-mode #expandBtn { background: #dc2626; color: white; border: none; width: 40px; height: 40px; font-size: 20px; padding: 0; border-radius: 50%; display: grid; place-items: center; }
 
 @media (max-width: 380px) {
     h1 { font-size: 24px; }
@@ -234,6 +215,9 @@ body.fullscreen-mode #expandBtn {
 <div class="container">
 
 <header>
+    <button class="eco-btn" id="ecoBtn" aria-label="Mode Éco">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+    </button>
     <button class="focus-btn" id="focusBtn" aria-label="Mode Focus">
         <svg id="eyeOpen" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
         <svg id="eyeClosed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
@@ -243,8 +227,16 @@ body.fullscreen-mode #expandBtn {
     <p id="subtitle">Ton assistant de lecture vocale</p>
 </header>
 
+<div class="motivation-msg" id="motivationMsg">La réussite au BAC passe par 15 minutes par jour. C'est parti !</div>
+
 <div class="install-container" id="installContainer">
     <button class="install-btn" id="installBtn">📲 Installer l'application</button>
+</div>
+
+<!-- ACCUEIL BOSS -->
+<div class="boss-resume" id="bossResume">
+    <div class="boss-title">👋 Salut Boss ! On reprend où on s'est arrêté ?</div>
+    <div class="boss-list" id="bossList"></div>
 </div>
 
 <div class="panel" id="settingsPanel">
@@ -311,6 +303,13 @@ body.fullscreen-mode #expandBtn {
                 </div>
             </div>
         </div>
+        
+        <!-- BOUTONS RAPIDES DE VITESSE -->
+        <div class="speed-controls">
+            <button class="speed-btn" data-speed="1">x1</button>
+            <button class="speed-btn" data-speed="1.5">x1.5</button>
+            <button class="speed-btn" data-speed="2">x2</button>
+        </div>
 
         <div class="row-actions">
             <button class="btn-neon green" id="dictateBtn" type="button" aria-label="Dicter">
@@ -354,6 +353,79 @@ body.fullscreen-mode #expandBtn {
 
 <script>
 /* ============================================================
+   MODE ÉCO
+   ============================================================ */
+$("ecoBtn").addEventListener("click", () => {
+    document.body.classList.toggle("eco-mode");
+});
+
+/* ============================================================
+   MESSAGE DU JOUR & ACCUEIL BOSS
+   ============================================================ */
+const messages = [
+    "La réussite au BAC passe par 15 minutes par jour. C'est parti !",
+    "Petit à petit, l'oiseau fait son nid. Courage !",
+    "Ne compare pas ton chapitre 1 à leur chapitre 10. Avance à ton rythme.",
+    "La fatigue est temporaire, la fierté est éternelle.",
+    "Un cours écouté aujourd'hui, une note en plus demain !",
+    "L'excellence n'est pas un acte, c'est une habitude."
+];
+const dayIndex = new Date().getDate() % messages.length;
+$("motivationMsg").textContent = messages[dayIndex];
+
+let library = JSON.parse(localStorage.getItem('junior_savvy_library') || '[]');
+
+function renderBossResume() {
+    const bossContainer = $("bossResume");
+    const bossList = $("bossList");
+    
+    if (library.length > 0) {
+        bossContainer.classList.add("active");
+        bossList.innerHTML = "";
+        const recent = library.slice(0, 3);
+        recent.forEach((item, index) => {
+            const div = document.createElement("div");
+            div.className = "boss-item";
+            div.innerHTML = `<div><div class="boss-item-title">${item.title}</div><div class="boss-item-date">${item.date}</div></div><span style="color:#22c55e;">▶ Reprendre</span>`;
+            div.onclick = () => {
+                textarea.value = item.text;
+                hasClearedWelcome = true;
+                prepareText(); setProgress(0); updateUI();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            };
+            bossList.appendChild(div);
+        });
+    } else {
+        bossContainer.classList.remove("active");
+    }
+}
+renderBossResume();
+
+/* ============================================================
+   BOUTONS RAPIDES DE VITESSE
+   ============================================================ */
+document.querySelectorAll('.speed-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const newSpeed = parseFloat(btn.getAttribute('data-speed'));
+        $("speed").value = newSpeed;
+        $("speedValue").textContent = newSpeed.toFixed(1);
+        
+        // Met à jour l'état visuel des boutons
+        document.querySelectorAll('.speed-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        
+        // Si en lecture, prend effet au prochain mot
+        if (!isReading && preparedText) {
+            estDuration = estimateDuration(preparedText, newSpeed);
+            setProgress(progress);
+        }
+    });
+});
+// Activer le bouton x1 par défaut visuellement
+document.querySelector('.speed-btn[data-speed="1"]').classList.add('active');
+
+
+/* ============================================================
    INSTALLATION DE L'APPLICATION (PWA)
    ============================================================ */
 let deferredPrompt;
@@ -390,7 +462,7 @@ let isReading = false, isPaused = false, preparedText = "", estDuration = 0;
 let chunkStartTs = 0, rafId = 0, progress = 0, lastCurText = "", lastTotText = "";
 let wakeLock = null, highlightStart = -1, highlightEnd = -1;
 
-// Minuteur (Corrigé)
+// Minuteur
 let timerInterval = null;
 let timerStartTime = 0;
 let timerPausedTime = 0;
@@ -413,7 +485,7 @@ function releaseWakeLock() { if (wakeLock !== null) { wakeLock.release().then(()
 document.addEventListener('visibilitychange', async () => { if (wakeLock !== null && document.visibilityState === 'visible') await requestWakeLock(); });
 
 /* ============================================================
-   PARTAGE DE L'APPLICATION
+   PARTAGE
    ============================================================ */
 $("shareAppBtn").addEventListener("click", async () => {
     const shareData = {
@@ -428,7 +500,7 @@ $("shareAppBtn").addEventListener("click", async () => {
 });
 
 /* ============================================================
-   MODE PLEIN ÉCRAN POUR LE TEXTE
+   MODE PLEIN ÉCRAN
    ============================================================ */
 $("expandBtn").addEventListener("click", () => {
     const isFullscreen = document.body.classList.toggle("fullscreen-mode");
@@ -436,30 +508,19 @@ $("expandBtn").addEventListener("click", () => {
 });
 
 /* ============================================================
-   MINUTEUR DE PAUSE (CORRIGÉ)
+   MINUTEUR DE PAUSE
    ============================================================ */
 function startPauseTimer(reset = false) {
     clearInterval(timerInterval);
     const pauseMin = parseInt($("pauseTimer").value);
-    
     if (pauseMin > 0) {
-        timerTargetDuration = pauseMin * 60 * 1000; // en millisecondes
-        
-        if (reset) {
-            timerPausedTime = 0;
-            timerStartTime = Date.now();
-        } else {
-            timerStartTime = Date.now();
-        }
-
+        timerTargetDuration = pauseMin * 60 * 1000;
+        if (reset) { timerPausedTime = 0; timerStartTime = Date.now(); }
+        else { timerStartTime = Date.now(); }
         timerInterval = setInterval(() => {
             if (!isReading || isPaused || isPauseModalActive) return;
-            
             const elapsed = timerPausedTime + (Date.now() - timerStartTime);
-            
-            if (elapsed >= timerTargetDuration) {
-                triggerPauseModal();
-            }
+            if (elapsed >= timerTargetDuration) triggerPauseModal();
         }, 1000);
     }
 }
@@ -479,29 +540,23 @@ function triggerPauseModal() {
 $("btnContinue").addEventListener("click", () => {
     isPauseModalActive = false;
     $("pauseModal").classList.remove("active");
-    // Remise à zéro du chrono et relance
-    timerPausedTime = 0;
-    timerStartTime = Date.now();
-    startPauseTimer(false);
-    resumeReading();
+    timerPausedTime = 0; timerStartTime = Date.now();
+    startPauseTimer(false); resumeReading();
 });
 
 $("btnRest").addEventListener("click", () => {
     isPauseModalActive = false;
     $("pauseModal").classList.remove("active");
-    // On gèle le temps actuel
     if (timerInterval) {
         timerPausedTime += (Date.now() - timerStartTime);
-        clearInterval(timerInterval);
-        timerInterval = null;
+        clearInterval(timerInterval); timerInterval = null;
     }
     $("status").textContent = "● En pause...";
 });
 
 /* ============================================================
-   SAUVEGARDE AUTO & BIBLIOTHÈQUE
+   SAUVEGARDE AUTO & REPRISE
    ============================================================ */
-let library = JSON.parse(localStorage.getItem('junior_savvy_library') || '[]');
 function autoSave() {
     if (textarea.value !== "Bienvenue sur JUNIOR SAVY ! 🎙️ Je suis ton assistant. Écris ou colle ton cours ci-dessous, puis clique sur ▶️ pour que je te le lise à voix haute (même sans internet). Tu peux aussi me parler en cliquant sur le micro 🎤. Bon courage pour tes révisions !") {
         localStorage.setItem('junior_savvy_autosave', textarea.value);
@@ -511,6 +566,38 @@ function loadAutoSave() {
     const saved = localStorage.getItem('junior_savvy_autosave');
     if (saved && saved.trim().length > 0) { textarea.value = saved; hasClearedWelcome = true; }
 }
+
+// Sauvegarde de la position de lecture
+function saveReadingPosition() {
+    if (preparedText) {
+        localStorage.setItem('junior_savvy_lastpos', JSON.stringify({
+            text: preparedText,
+            chunkIndex: chunkIndex,
+            chunkOffset: chunkOffset,
+            progress: progress
+        }));
+    }
+}
+
+function restoreReadingPosition() {
+    const saved = localStorage.getItem('junior_savvy_lastpos');
+    if (saved) {
+        const pos = JSON.parse(saved);
+        if (pos.text === textarea.value.trim()) {
+            // Le texte est le même, on restaure
+            chunkIndex = pos.chunkIndex;
+            chunkOffset = pos.chunkOffset;
+            if (prepareText()) {
+                setProgress(pos.progress);
+                $("status").textContent = "● Prêt (Reprise auto)";
+            }
+        }
+    }
+}
+
+// Sauvegarde toutes les 3 secondes pendant la lecture
+setInterval(() => { if (isReading && !isPaused) saveReadingPosition(); }, 3000);
+
 $("saveBtn").addEventListener("click", () => {
     const text = textarea.value.trim();
     if (!text) { alert("Le texte est vide !"); return; }
@@ -518,19 +605,24 @@ $("saveBtn").addEventListener("click", () => {
     if (title) {
         library.unshift({ title, text, date: new Date().toLocaleDateString() });
         localStorage.setItem('junior_savvy_library', JSON.stringify(library));
-        alert("Cours sauvegardé dans ta bibliothèque ! ✅");
+        alert("Cours sauvegardé ! ✅");
+        renderBossResume();
     }
 });
 $("libraryBtn").addEventListener("click", () => {
     const list = $("libraryList");
     list.innerHTML = "";
     if (library.length === 0) {
-        list.innerHTML = "<p style='text-align:center; color:#8aa0bd;'>Aucun cours sauvegardé pour le moment.</p>";
+        list.innerHTML = "<p style='text-align:center; color:#8aa0bd;'>Aucun cours sauvegardé.</p>";
     } else {
         library.forEach((item, index) => {
             const div = document.createElement("div");
             div.className = "lib-item";
-            div.innerHTML = `<div class="lib-item-text" onclick="loadCourse(${index})"><span class="lib-item-title">${item.title}</span><span class="lib-item-date">${item.date}</span></div><button class="lib-item-delete" onclick="deleteCourse(${index})">🗑️</button>`;
+            div.innerHTML = `<div class="lib-item-text" onclick="loadCourse(${index})"><span class="lib-item-title">${item.title}</span><span class="lib-item-date">${item.date}</span></div>
+                <div class="lib-actions">
+                    <button class="lib-btn" onclick="shareCourse(${index})" title="Partager">📤</button>
+                    <button class="lib-btn" onclick="deleteCourse(${index})" title="Supprimer">🗑️</button>
+                </div>`;
             list.appendChild(div);
         });
     }
@@ -546,8 +638,19 @@ window.deleteCourse = (index) => {
     if (confirm("Supprimer ce cours ?")) {
         library.splice(index, 1);
         localStorage.setItem('junior_savvy_library', JSON.stringify(library));
-        $("libraryBtn").click();
+        $("libraryBtn").click(); renderBossResume();
     }
+};
+window.shareCourse = async (index) => {
+    const item = library[index];
+    try {
+        if (navigator.share) {
+            await navigator.share({ title: item.title, text: item.text });
+        } else {
+            await navigator.clipboard.writeText(item.text);
+            alert("Texte du cours copié !");
+        }
+    } catch (err) { console.log("Partage annulé"); }
 };
 
 /* ============================================================
@@ -567,7 +670,7 @@ $("fileInput").addEventListener("change", (e) => {
 });
 
 /* ============================================================
-   MODE FOCUS (Réglages)
+   MODE FOCUS
    ============================================================ */
 $("focusBtn").addEventListener("click", () => {
     const panel = $("settingsPanel");
@@ -577,7 +680,7 @@ $("focusBtn").addEventListener("click", () => {
 });
 
 /* ============================================================
-   DICTÉE (Renforcée)
+   DICTÉE
    ============================================================ */
 if (SpeechRecognition) {
     recognition = new SpeechRecognition();
@@ -590,7 +693,6 @@ if (SpeechRecognition) {
         dictationBase = textarea.value; dictationFinal = "";
         resetSilenceTimer();
     };
-
     recognition.onresult = (event) => {
         resetSilenceTimer();
         let interim = '';
@@ -604,13 +706,11 @@ if (SpeechRecognition) {
         if (!isReading) { preparedText = ""; setProgress(0); }
         autoSave();
     };
-
     recognition.onerror = (event) => {
         if (event.error === 'no-speech') return;
-        if (event.error === 'not-allowed') alert("Veuillez autoriser le microphone dans les paramètres de votre navigateur.");
+        if (event.error === 'not-allowed') alert("Veuillez autoriser le microphone.");
         stopDictation();
     };
-
     recognition.onend = () => {
         if (isDictating) {
             try { recognition.start(); } catch (e) { setTimeout(() => { if (isDictating) recognition.start(); }, 100); }
@@ -632,8 +732,8 @@ function resetSilenceTimer() {
 }
 
 function toggleDictation() {
-    if (!navigator.onLine) { alert("La dictée vocale nécessite une connexion internet."); return; }
-    if (!recognition) { alert("Utilisez Chrome pour la dictée."); return; }
+    if (!navigator.onLine) { alert("La dictée nécessite internet."); return; }
+    if (!recognition) { alert("Utilisez Chrome."); return; }
     if (isDictating) { isDictating = false; recognition.stop(); }
     else {
         if (isReading) pauseReading();
@@ -669,19 +769,16 @@ $("translateBtn").addEventListener("click", async () => {
         if (hasSelection) textarea.value = textarea.value.substring(0, start) + translatedText + textarea.value.substring(end);
         else { textarea.value = translatedText; hasClearedWelcome = true; }
         prepareText(); setProgress(0); updateUI(); autoSave();
-    } catch (err) {
-        alert("Erreur de connexion."); updateUI();
-    } finally {
-        $("translateBtn").style.opacity = "1"; $("translateBtn").disabled = false;
-    }
+    } catch (err) { alert("Erreur de connexion."); updateUI(); }
+    finally { $("translateBtn").style.opacity = "1"; $("translateBtn").disabled = false; }
 });
 
 /* ============================================================
-   LECTURE
+   LECTURE (Code principal)
    ============================================================ */
 const translations = {
-    fr: { subtitle: "Ton assistant de lecture vocale", languageLabel: "Langue", voiceLabel: "Voix disponible", timerLabel: "Minuteur de pause", speedLabel: "Vitesse : ", pitchLabel: "Tonalité : ", textLabel: "Écris ou colle ton texte :", play: "Lire", pause: "Pause", resume: "Reprendre", ready: "● Prêt", reading: "● Lecture...", paused: "● En pause", empty: "Entrez du texte.", noVoice: "Aucune voix", speechNotSupported: "Non supporté." },
-    en: { subtitle: "Your voice reading assistant", languageLabel: "Language", voiceLabel: "Available voice", timerLabel: "Pause timer", speedLabel: "Speed : ", pitchLabel: "Pitch : ", textLabel: "Type or paste text:", play: "Read", pause: "Pause", resume: "Resume", ready: "● Ready", reading: "● Reading...", paused: "● Paused", empty: "Enter text.", noVoice: "No voice", speechNotSupported: "Not supported." }
+    fr: { subtitle: "Ton assistant de lecture vocale", languageLabel: "Langue", voiceLabel: "Voix disponible", timerLabel: "Minuteur de pause", speedLabel: "Vitesse : ", pitchLabel: "Tonalité : ", textLabel: "Écris ou colle ton texte :", play: "Lire", pause: "Pause", resume: "Reprendre", ready: "● Prêt", reading: "● Lecture...", paused: "● En pause", empty: "Entrez du texte.", noVoice: "Aucune voix" },
+    en: { subtitle: "Your voice reading assistant", languageLabel: "Language", voiceLabel: "Available voice", timerLabel: "Pause timer", speedLabel: "Speed : ", pitchLabel: "Pitch : ", textLabel: "Type text:", play: "Read", pause: "Pause", resume: "Resume", ready: "● Ready", reading: "● Reading...", paused: "● Paused", empty: "Enter text.", noVoice: "No voice" }
 };
 const language = () => $("language").value;
 const t = key => translations[language()][key];
@@ -860,22 +957,17 @@ function speakChunk(i, token) {
 }
 
 function startReading() {
-    if (!("speechSynthesis" in window)) { alert(t("speechNotSupported")); return; }
-    if (!prepareText()) { alert(t("empty")); return; }
+    if (!("speechSynthesis" in window)) { alert("Non supporté."); return; }
+    if (!prepareText()) { alert("Entrez du texte."); return; }
     if (chunkIndex >= chunks.length) { chunkIndex = 0; chunkOffset = 0; }
     if (isDictating) toggleDictation();
-    
     session++;
     stopProgressLoop();
     isReading = true; isPaused = false; chunkOffset = 0; lastBoundary = 0;
     estDuration = estimateDuration(preparedText, Number($("speed").value));
-    
     const abs = chunkStarts[chunkIndex];
     setProgress(abs / totalChars); renderHighlight(abs); updateUI(); requestWakeLock();
-    
-    // Reset complet du minuteur au démarrage
-    startPauseTimer(true); 
-
+    startPauseTimer(true);
     const token = session; const index = chunkIndex;
     if (speechSynthesis.speaking || speechSynthesis.pending) {
         speechSynthesis.cancel(); setTimeout(() => speakChunk(index, token), 80);
@@ -886,27 +978,17 @@ function pauseReading() {
     session++;
     if ("speechSynthesis" in window) speechSynthesis.cancel();
     isPaused = true; stopProgressLoop();
-    
-    // On gèle le temps
-    if (timerInterval) {
-        timerPausedTime += (Date.now() - timerStartTime);
-        clearInterval(timerInterval);
-        timerInterval = null;
-    }
-
+    if (timerInterval) { timerPausedTime += (Date.now() - timerStartTime); clearInterval(timerInterval); timerInterval = null; }
     chunkOffset = Math.min(lastBoundary, chunks[chunkIndex] ? chunks[chunkIndex].length : 0);
     lastBoundary = chunkOffset; renderHighlight(chunkStarts[chunkIndex] + chunkOffset);
     updateUI(); releaseWakeLock();
+    saveReadingPosition();
 }
 
 function resumeReading() {
     isPaused = false; const token = ++session;
     updateUI(); speakChunk(chunkIndex, token); requestWakeLock();
-    
-    // Relance le minuteur là où on s'était arrêté
-    if (parseInt($("pauseTimer").value) > 0) {
-        startPauseTimer(false);
-    }
+    if (parseInt($("pauseTimer").value) > 0) startPauseTimer(false);
 }
 
 function finishReading() {
@@ -914,6 +996,7 @@ function finishReading() {
     isReading = false; isPaused = false; chunkIndex = 0; chunkOffset = 0; lastBoundary = 0;
     clearInterval(timerInterval); timerInterval = null; timerPausedTime = 0;
     clearHighlight(); setProgress(0); updateUI(); releaseWakeLock();
+    localStorage.removeItem('junior_savvy_lastpos');
 }
 
 function togglePlay() {
@@ -944,10 +1027,7 @@ function seekToChunk(i, resume) {
         isReading = true; isPaused = false; updateUI();
         const token = session; const index = i;
         setTimeout(() => speakChunk(index, token), 60); requestWakeLock();
-        // Ne reset pas le timer si on a déjà lu un peu
-        if (parseInt($("pauseTimer").value) > 0 && !timerInterval) {
-            startPauseTimer(false);
-        }
+        if (parseInt($("pauseTimer").value) > 0 && !timerInterval) startPauseTimer(false);
     } else { updateUI(); }
 }
 
@@ -985,7 +1065,7 @@ function clearText() {
     isReading = false; isPaused = false;
     chunks = []; chunkStarts = []; totalChars = 0; chunkIndex = 0; chunkOffset = 0; lastBoundary = 0;
     preparedText = ""; estDuration = 0;
-    textarea.value = ""; localStorage.removeItem('junior_savvy_autosave');
+    textarea.value = ""; localStorage.removeItem('junior_savvy_autosave'); localStorage.removeItem('junior_savvy_lastpos');
     clearHighlight(); setProgress(0); updateUI(); releaseWakeLock();
 }
 
@@ -1015,9 +1095,15 @@ textarea.addEventListener("focus", () => {
 });
 
 $("speed").addEventListener("input", () => {
-    $("speedValue").textContent = Number($("speed").value).toFixed(1);
+    const val = Number($("speed").value);
+    $("speedValue").textContent = val.toFixed(1);
+    // Met à jour l'état visuel des boutons rapides
+    document.querySelectorAll('.speed-btn').forEach(b => {
+        if (parseFloat(b.getAttribute('data-speed')) === val) b.classList.add('active');
+        else b.classList.remove('active');
+    });
     if (!isReading && preparedText) {
-        estDuration = estimateDuration(preparedText, Number($("speed").value));
+        estDuration = estimateDuration(preparedText, val);
         setProgress(progress);
     }
 });
@@ -1033,6 +1119,7 @@ textarea.addEventListener("input", () => {
 if ("speechSynthesis" in window) { speechSynthesis.onvoiceschanged = loadVoices; loadVoices(); }
 
 updateLanguage(); setProgress(0); loadAutoSave();
+restoreReadingPosition();
 
 if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => {
@@ -1057,4 +1144,4 @@ if ("serviceWorker" in navigator) {
 </script>
 
 </body>
-    </html>
+            </html>
