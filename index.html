@@ -52,11 +52,12 @@ header { text-align: center; padding: 10px 0 20px; position: relative; }
 .assistant-avatar::after { content: ''; position: absolute; inset: 0; border-radius: 50%; border: 2px solid #22c55e; opacity: 0; animation: none; }
 .assistant-avatar.speaking::after { animation: pulse 2s infinite; }
 @keyframes pulse { 0% { transform: scale(1); opacity: .8; } 100% { transform: scale(1.35); opacity: 0; } }
-h1 { color: #22c55e; margin: 8px 0; font-size: 28px; }
+h1 { color: #22c55e; margin: 8px 0; font-size: 28px; display: inline-flex; align-items: center; gap: 8px; justify-content: center; }
+.streak-badge { background: #f59e0b; color: #000; padding: 2px 8px; border-radius: 12px; font-size: 14px; font-weight: bold; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 0 10px rgba(245, 158, 11, 0.5); }
 header p { color: #9ca3af; margin: 0; font-size: 14px; }
 
-/* MESSAGE DU JOUR */
-.motivation-msg { text-align: center; font-size: 12px; color: #22c55e; font-style: italic; margin-bottom: 10px; padding: 5px; background: rgba(34, 197, 94, 0.1); border-radius: 8px; border: 1px dashed #22c55e; }
+/* MESSAGE DU JOUR DYNAMIQUE */
+.motivation-msg { text-align: center; font-size: 13px; font-weight: bold; font-style: italic; margin-bottom: 15px; padding: 10px; border-radius: 10px; transition: all 0.8s ease; border: 1px dashed; }
 
 /* ACCUEIL BOSS */
 .boss-resume { display: none; margin-bottom: 15px; }
@@ -101,8 +102,11 @@ input[type="range"] { padding: 5px 0; accent-color: #22c55e; }
 .progress:hover .progress-knob, .progress.dragging .progress-knob { opacity: 1; }
 .time { display: flex; justify-content: space-between; font-size: 11px; color: #8aa0bd; font-variant-numeric: tabular-nums; margin-top: 4px; padding: 0 2px; }
 
+/* ESTIMATION DURÉE */
+.estimated-time { text-align: center; font-size: 12px; color: #22c55e; font-weight: bold; margin-top: -5px; margin-bottom: 5px; display: none; }
+
 /* BOUTONS RAPIDES DE VITESSE */
-.speed-controls { display: flex; justify-content: center; gap: 10px; margin-top: 10px; }
+.speed-controls { display: flex; justify-content: center; gap: 10px; margin-top: 5px; }
 .speed-btn { background: #1e2a3d; border: 1px solid #37465e; color: #cbd5e1; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; cursor: pointer; }
 .speed-btn.active { background: #7c3aed; color: white; border-color: #a78bfa; }
 
@@ -175,11 +179,11 @@ body.fullscreen-mode #expandBtn { background: #dc2626; color: white; border: non
         <svg id="eyeClosed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
     </button>
     <div class="assistant-avatar" id="avatar" title="JUNIOR SAVY">🎙️</div>
-    <h1>JUNIOR SAVY</h1>
+    <h1>JUNIOR SAVY <span id="streakBadge" class="streak-badge" style="display:none;">🔥 1</span></h1>
     <p id="subtitle">Ton assistant de lecture vocale</p>
 </header>
 
-<div class="motivation-msg" id="motivationMsg">La réussite au BAC passe par 15 minutes par jour. C'est parti !</div>
+<div class="motivation-msg" id="motivationMsg">Chargement...</div>
 
 <div class="install-container" id="installContainer">
     <button class="install-btn" id="installBtn">📲 Installer l'application</button>
@@ -219,6 +223,8 @@ body.fullscreen-mode #expandBtn { background: #dc2626; color: white; border: non
         <div class="highlight-layer" id="highlightLayer" aria-hidden="true"></div>
         <textarea id="textInput" maxlength="20000" placeholder="Tape ton texte...">Bienvenue sur JUNIOR SAVY ! 🎙️ Je suis ton assistant. Écris ou colle ton cours ci-dessous, puis clique sur ▶️ pour que je te le lise à voix haute (même sans internet). Tu peux aussi me parler en cliquant sur le micro 🎤. Bon courage pour tes révisions !</textarea>
     </div>
+
+    <div class="estimated-time" id="estimatedTime"></div>
 
     <div class="player-container">
         <div class="row-play">
@@ -279,26 +285,115 @@ body.fullscreen-mode #expandBtn { background: #dc2626; color: white; border: non
 </div>
 
 <script>
-/* ===== CORRECTIF : $ EN PREMIER ===== */
+/* ===== CORRECTIF CRUCIAL : $ EN PREMIER ===== */
 const $ = id => document.getElementById(id);
+
+/* ============================================================
+   1. MESSAGE DE MOTIVATION DYNAMIQUE (10 PHRASES)
+   ============================================================ */
+const motivationalMessages = [
+    { text: "Ne compare pas ton chapitre 1 à leur chapitre 10. Avance à ton rythme.", color: "#22c55e" },
+    { text: "La fatigue est temporaire, la fierté est éternelle.", color: "#a855f7" },
+    { text: "Chaque page lue aujourd'hui est une note en plus demain.", color: "#38bdf8" },
+    { text: "Le succès est la somme de petits efforts répétés chaque jour.", color: "#f59e0b" },
+    { text: "Le succès n'est pas une destination, c'est un voyage. Continue.", color: "#ef4444" },
+    { text: "Ton cerveau est une éponge. Plus tu lis, plus il absorbe.", color: "#06b6d4" },
+    { text: "15 minutes par jour aujourd'hui valent mieux que 5 heures la veille de l'examen.", color: "#84cc16" },
+    { text: "Sois plus fort que ta meilleure excuse.", color: "#6366f1" },
+    { text: "La discipline est le pont entre tes objectifs et tes résultats.", color: "#eab308" },
+    { text: "Chaque effort compte. Tu construis ton futur, un mot à la fois.", color: "#d946ef" }
+];
+let currentMsgIndex = 0;
+
+function updateMotivationMessage() {
+    const msgEl = $("motivationMsg");
+    const msg = motivationalMessages[currentMsgIndex];
+    
+    msgEl.style.opacity = 0;
+    setTimeout(() => {
+        msgEl.textContent = msg.text;
+        msgEl.style.color = msg.color;
+        msgEl.style.borderColor = msg.color;
+        msgEl.style.background = msg.color + "1A"; // 10% d'opacité
+        msgEl.style.opacity = 1;
+    }, 500);
+
+    currentMsgIndex = (currentMsgIndex + 1) % motivationalMessages.length;
+}
+updateMotivationMessage();
+setInterval(updateMotivationMessage, 6000);
+
+/* ============================================================
+   2. COMPTEUR DE SÉRIE (STREAK)
+   ============================================================ */
+function updateStreak() {
+    const today = new Date().toLocaleDateString('fr-FR');
+    let lastVisit = localStorage.getItem('junior_savvy_last_visit');
+    let streak = parseInt(localStorage.getItem('junior_savvy_streak') || "0");
+
+    if (lastVisit) {
+        const todayDate = new Date();
+        const lastDate = new Date(lastVisit.split('/').reverse().join('-'));
+        const diffTime = Math.abs(todayDate - lastDate);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+        if (diffDays === 1) streak++;
+        else if (diffDays > 1) streak = 1;
+    } else {
+        streak = 1;
+    }
+
+    localStorage.setItem('junior_savvy_last_visit', today);
+    localStorage.setItem('junior_savvy_streak', streak);
+
+    const badge = $("streakBadge");
+    if (streak > 1) {
+        badge.textContent = `🔥 ${streak}`;
+        badge.style.display = "inline-flex";
+    } else {
+        badge.style.display = "none";
+    }
+}
+updateStreak();
+
+/* ============================================================
+   3. VIBRATIONS (HAPTIQUE)
+   ============================================================ */
+function vibrate() {
+    if (navigator.vibrate) navigator.vibrate(40);
+}
+
+/* ============================================================
+   4. ESTIMATION DU TEMPS DE LECTURE
+   ============================================================ */
+function updateEstimatedTime() {
+    const text = $("textInput").value.trim();
+    const estEl = $("estimatedTime");
+    
+    if (!text || text.includes("Bienvenue sur JUNIOR SAVY")) {
+        estEl.style.display = "none";
+        return;
+    }
+
+    const words = text.split(/\s+/).filter(Boolean).length;
+    const wpm = 170;
+    const estMinutes = Math.ceil(words / wpm);
+    
+    if (estMinutes > 0) {
+        estEl.textContent = `⏱️ Environ ${estMinutes} minute${estMinutes > 1 ? 's' : ''} de lecture`;
+        estEl.style.display = "block";
+    } else {
+        estEl.style.display = "none";
+    }
+}
 
 /* MODE ÉCO */
 $("ecoBtn").addEventListener("click", () => {
+    vibrate();
     document.body.classList.toggle("eco-mode");
 });
 
-/* MESSAGE DU JOUR & ACCUEIL BOSS */
-const messages = [
-    "La réussite au BAC passe par 15 minutes par jour. C'est parti !",
-    "Petit à petit, l'oiseau fait son nid. Courage !",
-    "Ne compare pas ton chapitre 1 à leur chapitre 10. Avance à ton rythme.",
-    "La fatigue est temporaire, la fierté est éternelle.",
-    "Un cours écouté aujourd'hui, une note en plus demain !",
-    "L'excellence n'est pas un acte, c'est une habitude."
-];
-const dayIndex = new Date().getDate() % messages.length;
-$("motivationMsg").textContent = messages[dayIndex];
-
+/* ACCUEIL BOSS */
 let library = JSON.parse(localStorage.getItem('junior_savvy_library') || '[]');
 
 function renderBossResume() {
@@ -313,9 +408,10 @@ function renderBossResume() {
             div.className = "boss-item";
             div.innerHTML = `<div><div class="boss-item-title">${item.title}</div><div class="boss-item-date">${item.date}</div></div><span style="color:#22c55e;">▶ Reprendre</span>`;
             div.onclick = () => {
+                vibrate();
                 textarea.value = item.text;
                 hasClearedWelcome = true;
-                prepareText(); setProgress(0); updateUI();
+                prepareText(); setProgress(0); updateUI(); updateEstimatedTime();
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             };
             bossList.appendChild(div);
@@ -329,6 +425,7 @@ renderBossResume();
 /* BOUTONS DE VITESSE */
 document.querySelectorAll('.speed-btn').forEach(btn => {
     btn.addEventListener('click', () => {
+        vibrate();
         const newSpeed = parseFloat(btn.getAttribute('data-speed'));
         $("speed").value = newSpeed;
         $("speedValue").textContent = newSpeed.toFixed(1);
@@ -383,12 +480,14 @@ document.addEventListener('visibilitychange', async () => { if (wakeLock !== nul
 
 /* PARTAGE */
 $("shareAppBtn").addEventListener("click", async () => {
+    vibrate();
     const shareData = { title: 'ASSISTANT JUNIOR', text: 'Découvre ASSISTANT JUNIOR !', url: 'https://juniorjsk.github.io/Junior-jsk.github.io/' };
     try { if (navigator.share) await navigator.share(shareData); else { await navigator.clipboard.writeText(shareData.url); alert("Lien copié !"); } } catch (err) { console.log("Partage annulé"); }
 });
 
 /* PLEIN ÉCRAN */
 $("expandBtn").addEventListener("click", () => {
+    vibrate();
     const isFullscreen = document.body.classList.toggle("fullscreen-mode");
     $("expandBtn").textContent = isFullscreen ? "✖" : "⛶";
 });
@@ -419,12 +518,14 @@ function triggerPauseModal() {
     speechSynthesis.speak(utt);
 }
 $("btnContinue").addEventListener("click", () => {
+    vibrate();
     isPauseModalActive = false;
     $("pauseModal").classList.remove("active");
     timerPausedTime = 0; timerStartTime = Date.now();
     startPauseTimer(false); resumeReading();
 });
 $("btnRest").addEventListener("click", () => {
+    vibrate();
     isPauseModalActive = false;
     $("pauseModal").classList.remove("active");
     if (timerInterval) { timerPausedTime += (Date.now() - timerStartTime); clearInterval(timerInterval); timerInterval = null; }
@@ -436,10 +537,12 @@ function autoSave() {
     if (textarea.value !== "Bienvenue sur JUNIOR SAVY ! 🎙️ Je suis ton assistant. Écris ou colle ton cours ci-dessous, puis clique sur ▶️ pour que je te le lise à voix haute (même sans internet). Tu peux aussi me parler en cliquant sur le micro 🎤. Bon courage pour tes révisions !") {
         localStorage.setItem('junior_savvy_autosave', textarea.value);
     }
+    updateEstimatedTime();
 }
 function loadAutoSave() {
     const saved = localStorage.getItem('junior_savvy_autosave');
     if (saved && saved.trim().length > 0) { textarea.value = saved; hasClearedWelcome = true; }
+    updateEstimatedTime();
 }
 function saveReadingPosition() {
     if (preparedText) localStorage.setItem('junior_savvy_lastpos', JSON.stringify({ text: preparedText, chunkIndex, chunkOffset, progress }));
@@ -458,6 +561,7 @@ function restoreReadingPosition() {
 setInterval(() => { if (isReading && !isPaused) saveReadingPosition(); }, 3000);
 
 $("saveBtn").addEventListener("click", () => {
+    vibrate();
     const text = textarea.value.trim();
     if (!text) { alert("Le texte est vide !"); return; }
     const title = prompt("Donne un nom à ce cours :");
@@ -469,6 +573,7 @@ $("saveBtn").addEventListener("click", () => {
     }
 });
 $("libraryBtn").addEventListener("click", () => {
+    vibrate();
     const list = $("libraryList");
     list.innerHTML = "";
     if (library.length === 0) list.innerHTML = "<p style='text-align:center; color:#8aa0bd;'>Aucun cours sauvegardé.</p>";
@@ -480,13 +585,15 @@ $("libraryBtn").addEventListener("click", () => {
     });
     $("libraryModal").classList.add("active");
 });
-$("closeLibraryBtn").addEventListener("click", () => $("libraryModal").classList.remove("active"));
+$("closeLibraryBtn").addEventListener("click", () => { vibrate(); $("libraryModal").classList.remove("active"); });
 window.loadCourse = (index) => {
+    vibrate();
     textarea.value = library[index].text; hasClearedWelcome = true;
     $("libraryModal").classList.remove("active");
     prepareText(); setProgress(0); updateUI(); autoSave();
 };
 window.deleteCourse = (index) => {
+    vibrate();
     if (confirm("Supprimer ce cours ?")) {
         library.splice(index, 1);
         localStorage.setItem('junior_savvy_library', JSON.stringify(library));
@@ -494,12 +601,13 @@ window.deleteCourse = (index) => {
     }
 };
 window.shareCourse = async (index) => {
+    vibrate();
     const item = library[index];
     try { if (navigator.share) await navigator.share({ title: item.title, text: item.text }); else { await navigator.clipboard.writeText(item.text); alert("Texte copié !"); } } catch (err) {}
 };
 
 /* IMPORT */
-$("importBtn").addEventListener("click", () => $("fileInput").click());
+$("importBtn").addEventListener("click", () => { vibrate(); $("fileInput").click(); });
 $("fileInput").addEventListener("change", (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -514,6 +622,7 @@ $("fileInput").addEventListener("change", (e) => {
 
 /* FOCUS */
 $("focusBtn").addEventListener("click", () => {
+    vibrate();
     const panel = $("settingsPanel");
     const isHidden = panel.classList.toggle("hidden");
     $("eyeOpen").style.display = isHidden ? "none" : "block";
@@ -556,6 +665,7 @@ function stopDictation() { isDictating = false; dictateBtn.classList.remove("rec
 
 /* TRADUCTION */
 $("translateBtn").addEventListener("click", async () => {
+    vibrate();
     if (!navigator.onLine) { alert("La traduction nécessite internet."); return; }
     if (isDictating) toggleDictation();
     const start = textarea.selectionStart, end = textarea.selectionEnd;
@@ -744,6 +854,7 @@ function finishReading() {
     localStorage.removeItem('junior_savvy_lastpos');
 }
 function togglePlay() {
+    vibrate();
     if (isReading && !isPaused) pauseReading();
     else if (isReading && isPaused) resumeReading();
     else startReading();
@@ -792,6 +903,7 @@ bar.addEventListener("pointerup", (e) => {
 bar.addEventListener("pointercancel", () => { dragging = false; bar.classList.remove("dragging"); });
 
 function clearText() {
+    vibrate();
     session++;
     if ("speechSynthesis" in window) speechSynthesis.cancel();
     stopProgressLoop();
@@ -801,7 +913,7 @@ function clearText() {
     chunks = []; chunkStarts = []; totalChars = 0; chunkIndex = 0; chunkOffset = 0; lastBoundary = 0;
     preparedText = ""; estDuration = 0;
     textarea.value = ""; localStorage.removeItem('junior_savvy_autosave'); localStorage.removeItem('junior_savvy_lastpos');
-    clearHighlight(); setProgress(0); updateUI(); releaseWakeLock();
+    clearHighlight(); setProgress(0); updateUI(); releaseWakeLock(); updateEstimatedTime();
 }
 
 function updateLanguage() {
@@ -818,7 +930,7 @@ function updateLanguage() {
 }
 
 playBtn.addEventListener("click", togglePlay);
-dictateBtn.addEventListener("click", toggleDictation);
+dictateBtn.addEventListener("click", () => { vibrate(); toggleDictation(); });
 $("clearBtn").addEventListener("click", clearText);
 $("language").addEventListener("change", updateLanguage);
 
@@ -848,7 +960,7 @@ textarea.addEventListener("input", () => {
 });
 
 if ("speechSynthesis" in window) { speechSynthesis.onvoiceschanged = loadVoices; loadVoices(); }
-updateLanguage(); setProgress(0); loadAutoSave(); restoreReadingPosition();
+updateLanguage(); setProgress(0); loadAutoSave(); restoreReadingPosition(); updateEstimatedTime();
 
 if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => {
